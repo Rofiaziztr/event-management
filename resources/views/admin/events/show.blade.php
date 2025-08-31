@@ -53,11 +53,19 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 border-t pt-4 flex justify-end gap-3">
+                    {{-- PASTIKAN BLOK INI ADA --}}
+                    <div class="mt-8 border-t pt-4 flex justify-end items-center gap-3">
                         <a href="{{ route('admin.events.index') }}"
                             class="text-gray-600 hover:text-gray-900 font-bold py-2 px-4 rounded">
                             Kembali
                         </a>
+
+                        {{-- INI ADALAH TOMBOL YANG HILANG --}}
+                        <a href="{{ route('admin.events.qrcode', $event) }}"
+                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Tampilkan QR Code
+                        </a>
+
                         <a href="{{ route('admin.events.edit', $event) }}"
                             class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
                             Edit Event

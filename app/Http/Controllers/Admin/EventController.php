@@ -1,19 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\Event;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
 
-class AdminEventController extends Controller
+class EventController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $events = Event::latest()->paginate(10); // Ambil semua event, urutkan dari yang terbaru, 10 per halaman
+        $events = Event::latest()->paginate(10);
         return view('admin.events.index', compact('events'));
     }
 
@@ -30,7 +34,6 @@ class AdminEventController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -39,13 +42,10 @@ class AdminEventController extends Controller
             'location' => 'required|string|max:255',
         ]);
 
-        // 2. Tambahkan creator_id (ID admin yang sedang login)
         $validatedData['creator_id'] = auth()->id();
 
-        // 3. Simpan ke database
         Event::create($validatedData);
 
-        // 4. Redirect kembali ke halaman index dengan pesan sukses
         return redirect()->route('admin.events.index')->with('success', 'Event baru berhasil dibuat!');
     }
 
@@ -54,7 +54,6 @@ class AdminEventController extends Controller
      */
     public function show(Event $event)
     {
-        // Berkat Route Model Binding, $event sudah otomatis berisi data event yang dicari
         return view('admin.events.show', compact('event'));
     }
 
@@ -71,7 +70,6 @@ class AdminEventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        // 1. Validasi Input
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -80,10 +78,8 @@ class AdminEventController extends Controller
             'location' => 'required|string|max:255',
         ]);
 
-        // 2. Update data di database
         $event->update($validatedData);
 
-        // 3. Redirect kembali ke halaman index dengan pesan sukses
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil diperbarui!');
     }
 
@@ -95,5 +91,30 @@ class AdminEventController extends Controller
         $event->delete();
 
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus!');
+    }
+
+    /**
+     * Menampilkan halaman QR Code untuk sebuah event.
+     */
+    public function showQrCode(Event $event)
+    {
+        if (!$event->code) {
+            abort(404, 'Kode QR untuk event ini tidak ditemukan.');
+        }
+
+        // Ganti metode create() dengan inisialisasi langsung
+        $qrCode = new QrCode(
+            data: $event->code,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::Low,
+            size: 300,
+            margin: 10
+        );
+
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
+        $qrCodeDataUri = $result->getDataUri();
+
+        return view('admin.events.qrcode', compact('event', 'qrCodeDataUri'));
     }
 }

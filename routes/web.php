@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AdminEventController;
+use App\Http\Controllers\Admin\EventController as AdminEventController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('events', AdminEventController::class);
     // Tambahkan rute admin lainnya di sini
+    Route::get('/events/{event}/qrcode', [AdminEventController::class, 'showQrCode'])->name('events.qrcode');
 });
 
 // Rute untuk user biasa (peserta)
