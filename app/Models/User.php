@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable; // <-- Perbaikan di sini
+use Illuminate\Notifications\Notifiable;
 
-class User extends Model
+class User extends Authenticatable // <-- dan di sini
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +32,7 @@ class User extends Model
      */
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     /**
@@ -41,43 +43,28 @@ class User extends Model
     protected function casts(): array
     {
         return [
-            'created_at' => 'timestamp',
-            'updated_at' => 'timestamp',
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
         ];
     }
 
-    /**
-     * Mendapatkan semua event yang dibuat oleh user ini.
-     * Relasi One-to-Many: Satu User bisa membuat banyak Event.
-     */
+    // --- Fungsi relasi yang sudah kita buat tadi ---
+
     public function createdEvents()
     {
         return $this->hasMany(Event::class, 'creator_id');
     }
 
-    /**
-     * Mendapatkan semua event yang diikuti oleh user ini.
-     * Relasi Many-to-Many: Satu User bisa mengikuti banyak Event,
-     * dan satu Event bisa diikuti banyak User.
-     */
     public function attendedEvents()
     {
         return $this->belongsToMany(Event::class, 'event_participants', 'user_id', 'event_id');
     }
 
-    /**
-     * Mendapatkan semua catatan kehadiran (absensi) milik user ini.
-     * Relasi One-to-Many: Satu User bisa memiliki banyak catatan kehadiran.
-     */
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
 
-    /**
-     * Mendapatkan semua dokumen yang diunggah oleh user ini.
-     * Relasi One-to-Many: Satu User bisa mengunggah banyak Dokumen.
-     */
     public function documents()
     {
         return $this->hasMany(Document::class, 'uploader_id');
