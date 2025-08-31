@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class User extends Model
+class Event extends Model
 {
     use HasFactory;
 
@@ -15,22 +16,13 @@ class User extends Model
      * @var array
      */
     protected $fillable = [
-        'nip',
-        'full_name',
-        'position',
-        'work_unit',
-        'email',
-        'password',
-        'role',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password',
+        'creator_id',
+        'title',
+        'description',
+        'start_time',
+        'end_time',
+        'location',
+        'status',
     ];
 
     /**
@@ -41,8 +33,15 @@ class User extends Model
     protected function casts(): array
     {
         return [
+            'start_time' => 'datetime',
+            'end_time' => 'datetime',
             'created_at' => 'timestamp',
             'updated_at' => 'timestamp',
         ];
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }
