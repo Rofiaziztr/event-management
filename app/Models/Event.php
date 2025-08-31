@@ -40,8 +40,39 @@ class Event extends Model
         ];
     }
 
-    public function creator(): BelongsTo
+    /**
+     * Mendapatkan user (admin) yang membuat event ini.
+     * Relasi One-to-Many (Inverse): Satu Event hanya dimiliki oleh satu User.
+     */
+    public function creator()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'creator_id');
+    }
+
+    /**
+     * Mendapatkan semua user (peserta) yang mengikuti event ini.
+     * Relasi Many-to-Many: Satu Event bisa memiliki banyak User (peserta).
+     */
+    public function participants()
+    {
+        return $this->belongsToMany(User::class, 'event_participants', 'event_id', 'user_id');
+    }
+
+    /**
+     * Mendapatkan semua catatan kehadiran untuk event ini.
+     * Relasi One-to-Many: Satu Event bisa memiliki banyak catatan kehadiran.
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Mendapatkan semua dokumen yang terkait dengan event ini.
+     * Relasi One-to-Many: Satu Event bisa memiliki banyak Dokumen.
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
     }
 }

@@ -36,13 +36,19 @@ class Document extends Model
         ];
     }
 
-    public function event(): BelongsTo
+    /**
+     * Mendapatkan event tempat dokumen ini diunggah.
+     */
+    public function event()
     {
         return $this->belongsTo(Event::class);
     }
 
-    public function uploader(): BelongsTo
+    /**
+     * Mendapatkan user yang mengunggah dokumen ini.
+     */
+    public function uploader()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'uploader_id');
     }
 }

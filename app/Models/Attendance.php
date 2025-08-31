@@ -33,12 +33,18 @@ class Attendance extends Model
         ];
     }
 
-    public function event(): BelongsTo
+    /**
+     * Mendapatkan event terkait absensi ini.
+     */
+    public function event()
     {
         return $this->belongsTo(Event::class);
     }
 
-    public function user(): BelongsTo
+    /**
+     * Mendapatkan user (peserta) yang melakukan absensi ini.
+     */
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
