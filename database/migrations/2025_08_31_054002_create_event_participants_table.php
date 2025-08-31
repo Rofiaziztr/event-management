@@ -11,17 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('event_participants', function (Blueprint $table) {
-            $table->integer('event_id')->primary();
-            $table->foreign('event_id')->references('id')->on('events');
-            $table->integer('user_id')->primary();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedBigInteger('event_id');
+            $table->unsignedBigInteger('user_id');
+
+            // Create composite primary key
+            $table->primary(['event_id', 'user_id']);
+
+            // Define foreign keys
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            // Timestamps are optional for a junction table
             $table->timestamps();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**

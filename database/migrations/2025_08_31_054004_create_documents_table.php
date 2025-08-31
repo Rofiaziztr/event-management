@@ -11,23 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('documents', function (Blueprint $table) {
-            $table->integer('id')->primary()->autoIncrement();
-            $table->integer('event_id');
-            $table->foreign('event_id')->references('id')->on('events');
-            $table->integer('uploader_id');
-            $table->foreign('uploader_id')->references('id')->on('users');
+            $table->id(); // Use Laravel's built-in method for primary key
+            $table->unsignedBigInteger('event_id'); // Match the data type of events.id
+            $table->unsignedBigInteger('uploader_id'); // Match the data type of users.id
             $table->string('title', 255);
-            $table->enum('type', ["Notulensi","Materi","Foto","Video"]);
+            $table->enum('type', ["Notulensi", "Materi", "Foto", "Video"]);
             $table->text('content')->nullable()->comment('Digunakan untuk menyimpan isi notulensi');
             $table->string('file_path', 255)->nullable()->comment('Digunakan untuk menyimpan path/URL file');
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamps();
-        });
+            $table->timestamps(); // This creates both created_at and updated_at columns
 
-        Schema::enableForeignKeyConstraints();
+            // Define foreign keys
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+            $table->foreign('uploader_id')->references('id')->on('users')->onDelete('cascade');
+        });
     }
 
     /**

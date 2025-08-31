@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('attendances', function (Blueprint $table) {
-            $table->integer('id')->primary()->autoIncrement();
-            $table->integer('event_id');
-            $table->foreign('event_id')->references('id')->on('events');
-            $table->integer('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->id(); // Use Laravel's built-in method for primary key
+            $table->unsignedBigInteger('event_id'); // Match the data type of events.id
+            $table->unsignedBigInteger('user_id'); // Match the data type of users.id
             $table->timestamp('check_in_time')->nullable()->useCurrent();
-            $table->unique(['event_id', 'user_id']);
             $table->timestamps();
-        });
 
-        Schema::enableForeignKeyConstraints();
+            // Define foreign keys
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            // Add unique constraint to prevent duplicate check-ins
+            $table->unique(['event_id', 'user_id']);
+        });
     }
 
     /**
