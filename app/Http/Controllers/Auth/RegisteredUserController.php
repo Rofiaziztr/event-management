@@ -29,16 +29,25 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Tambahkan validasi untuk field baru
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'full_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'nip' => ['required', 'string', 'max:255', 'unique:' . User::class],
+            'position' => ['required', 'string', 'max:255'],
+            'work_unit' => ['required', 'string', 'max:255'],
         ]);
 
+        // Tambahkan field baru saat membuat user
         $user = User::create([
-            'name' => $request->name,
+            'full_name' => $request->full_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'nip' => $request->nip,
+            'position' => $request->position,
+            'work_unit' => $request->work_unit,
+            // Role 'Peserta' akan otomatis terisi dari default di UserFactory atau migration
         ]);
 
         event(new Registered($user));

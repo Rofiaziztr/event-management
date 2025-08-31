@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,9 +30,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 // Rute untuk user biasa (peserta)
-Route::middleware(['auth', 'role:peserta'])->group(function () {
-    Route::resource('events', EventController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
+Route::middleware(['auth', 'role:peserta'])->prefix('participant')->name('participant.')->group(function () {
+    // Route::resource('events', EventController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
     // Tambahkan rute peserta lainnya di sini
+    Route::get('/events', [ParticipantEventController::class, 'index'])->name('events.index');
+    Route::get('/events/{event}', [ParticipantEventController::class, 'show'])->name('events.show');
 });
+
+// rute untuk qr dan scan qr
+Route::get('/scan', [ScanController::class, 'index'])->name('scan.index');
+Route::post('/scan/verify', [ScanController::class, 'verify'])->name('scan.verify');
 
 require __DIR__ . '/auth.php';

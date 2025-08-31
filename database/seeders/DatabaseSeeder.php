@@ -19,6 +19,12 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
+        User::factory()->create([
+            'full_name' => 'Peserta A',
+            'email' => 'peserta@example.com',
+            'role' => 'peserta',
+        ]);
+
         // Buat 49 user sebagai Peserta
         User::factory(49)->create([
             'role' => 'peserta',
