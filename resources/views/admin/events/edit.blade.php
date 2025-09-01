@@ -48,6 +48,22 @@
                             <x-input-error :messages="$errors->get('location')" class="mt-2" />
                         </div>
 
+                        <div class="mt-4">
+                            <x-input-label for="status" :value="__('Status')" />
+                            <select name="status" id="status"
+                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <option value="Scheduled" @if (old('status', $event->status) == 'Scheduled') selected @endif>Direncanakan
+                                </option>
+                                <option value="Ongoing" @if (old('status', $event->status) == 'Ongoing') selected @endif>Berlangsung
+                                </option>
+                                <option value="Completed" @if (old('status', $event->status) == 'Completed') selected @endif>Selesai
+                                </option>
+                                <option value="Cancelled" @if (old('status', $event->status) == 'Cancelled') selected @endif>Dibatalkan
+                                </option>
+                            </select>
+                            <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                        </div>
+
                         <div class="flex items-center justify-end mt-4">
                             <a href="{{ route('admin.events.index') }}"
                                 class="text-sm text-gray-600 hover:text-gray-900">Batal</a>

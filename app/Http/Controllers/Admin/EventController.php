@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Event;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Endroid\QrCode\QrCode;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
@@ -32,6 +33,7 @@ class EventController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -40,10 +42,11 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
             'location' => 'required|string|max:255',
+            // Tambahkan validasi untuk status
+            'status' => ['required', Rule::in(['Scheduled', 'Ongoing', 'Completed', 'Cancelled'])],
         ]);
 
         $validatedData['creator_id'] = auth()->id();
-
         Event::create($validatedData);
 
         return redirect()->route('admin.events.index')->with('success', 'Event baru berhasil dibuat!');
@@ -76,6 +79,7 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
             'location' => 'required|string|max:255',
+            'status' => ['required', Rule::in(['Scheduled', 'Ongoing', 'Completed', 'Cancelled'])],
         ]);
 
         $event->update($validatedData);

@@ -18,9 +18,18 @@
                     <x-nav-link :href="route('scan.index')" :active="request()->routeIs('scan.index')">
                         {{ __('Scan Presensi') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('participant.events.index')" :active="request()->routeIs('participant.events.index')">
-                        {{ __('Event Saya') }}
-                    </x-nav-link>
+
+                    @if (Auth::user()->role == 'admin')
+                        <x-nav-link :href="route('admin.events.index')" :active="request()->routeIs('admin.events.*')">
+                            {{ __('Manajemen Event') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if (Auth::user()->role == 'peserta')
+                        <x-nav-link :href="route('participant.events.index')" :active="request()->routeIs('participant.events.*')">
+                            {{ __('Event Saya') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 

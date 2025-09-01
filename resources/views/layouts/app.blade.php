@@ -34,6 +34,8 @@
             {{ $slot }}
         </main>
     </div>
+    <script src="./assets/vendor/lodash/lodash.min.js"></script>
+    <script src="./assets/vendor/vanilla-calendar-pro/index.js"></script>
     @stack('scripts')
 </body>
 
