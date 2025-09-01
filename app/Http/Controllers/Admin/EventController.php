@@ -43,7 +43,7 @@ class EventController extends Controller
             'end_time' => 'required|date|after:start_time',
             'location' => 'required|string|max:255',
             // Tambahkan validasi untuk status
-            'status' => ['required', Rule::in(['Scheduled', 'Ongoing', 'Completed', 'Cancelled'])],
+            'status' => ['required', Rule::in(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])],
         ]);
 
         $validatedData['creator_id'] = auth()->id();
@@ -79,7 +79,7 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
             'location' => 'required|string|max:255',
-            'status' => ['required', Rule::in(['Scheduled', 'Ongoing', 'Completed', 'Cancelled'])],
+            'status' => ['required', Rule::in(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])],
         ]);
 
         $event->update($validatedData);

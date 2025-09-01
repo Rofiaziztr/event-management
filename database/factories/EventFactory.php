@@ -31,7 +31,7 @@ class EventFactory extends Factory
             'description' => $this->faker->paragraph(3),
             'start_time' => $startDate,
             'end_time' => $endDate,
-            'status' => $this->faker->randomElement(['Direncanakan', 'Berlangsung', 'Selesai', 'Dibatalkan']),
+            'status' => $this->faker->randomElement(['Terjadwal', 'Selesai', 'Dibatalkan']),
             'location' => 'Ruang ' . $this->faker->randomElement(['A', 'B', 'C']) . ' ' . $this->faker->numberBetween(1, 3) . ', ' . $this->faker->address(),
         ];
     }

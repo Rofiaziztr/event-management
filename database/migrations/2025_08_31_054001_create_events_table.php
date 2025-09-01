@@ -22,7 +22,7 @@ return new class extends Migration
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('location', 255);
-            $table->enum('status', ["Direncanakan", "Berlangsung", "Selesai", "Dibatalkan"])->default('Direncanakan');
+            $table->enum('status', ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])->default('Terjadwal');
             $table->timestamps();
         });
 

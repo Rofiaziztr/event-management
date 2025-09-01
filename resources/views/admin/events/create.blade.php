@@ -47,12 +47,11 @@
 
                         <div class="mt-4">
                             <x-input-label for="status" :value="__('Status')" />
-                            <select name="status" id="status"
-                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                <option value="Scheduled">Direncanakan</option>
-                                <option value="Ongoing">Berlangsung</option>
-                                <option value="Completed">Selesai</option>
-                                <option value="Cancelled">Dibatalkan</option>
+                            <select name="status" id="status" class="block mt-1 w-full ...">
+                                <option value="Terjadwal">Terjadwal</option>
+                                <option value="Berlangsung">Berlangsung</option>
+                                <option value="Selesai">Selesai</option>
+                                <option value="Dibatalkan">Dibatalkan</option>
                             </select>
                             <x-input-error :messages="$errors->get('status')" class="mt-2" />
                         </div>

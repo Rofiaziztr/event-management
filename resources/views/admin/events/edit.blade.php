@@ -48,15 +48,14 @@
 
                         <div class="mt-4">
                             <x-input-label for="status" :value="__('Status')" />
-                            <select name="status" id="status"
-                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                <option value="Scheduled" @if (old('status', $event->status) == 'Scheduled') selected @endif>Direncanakan
+                            <select name="status" id="status" class="block mt-1 w-full ...">
+                                <option value="Terjadwal" @if (old('status', $event->status) == 'Terjadwal') selected @endif>Terjadwal
                                 </option>
-                                <option value="Ongoing" @if (old('status', $event->status) == 'Ongoing') selected @endif>Berlangsung
+                                <option value="Berlangsung" @if (old('status', $event->status) == 'Berlangsung') selected @endif>
+                                    Berlangsung</option>
+                                <option value="Selesai" @if (old('status', $event->status) == 'Selesai') selected @endif>Selesai
                                 </option>
-                                <option value="Completed" @if (old('status', $event->status) == 'Completed') selected @endif>Selesai
-                                </option>
-                                <option value="Cancelled" @if (old('status', $event->status) == 'Cancelled') selected @endif>Dibatalkan
+                                <option value="Dibatalkan" @if (old('status', $event->status) == 'Dibatalkan') selected @endif>Dibatalkan
                                 </option>
                             </select>
                             <x-input-error :messages="$errors->get('status')" class="mt-2" />
