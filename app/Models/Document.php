@@ -47,7 +47,7 @@ class Document extends Model
     /**
      * Mendapatkan user yang mengunggah dokumen ini.
      */
-    public function uploader()
+    public function user()
     {
         return $this->belongsTo(User::class, 'uploader_id');
     }

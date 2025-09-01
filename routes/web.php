@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\DocumentController;
+use App\Http\Controllers\Admin\NotulensiController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 
@@ -26,8 +28,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('events', AdminEventController::class)
         ->parameters(['events' => 'event']);
-    // Tambahkan rute admin lainnya di sini
+
     Route::get('/events/{event}/qrcode', [AdminEventController::class, 'showQrCode'])->name('events.qrcode');
+
+    Route::post('/events/{event}/documents', [DocumentController::class, 'store'])->name('events.documents.store');
+    Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+
+    Route::post('/events/{event}/notulensi', [NotulensiController::class, 'storeOrUpdate'])->name('events.notulensi.store');
 });
 
 // Rute untuk user biasa (peserta)

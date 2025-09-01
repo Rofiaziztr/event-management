@@ -22,8 +22,12 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
-        // Di sini kita bisa menambahkan pengecekan apakah user terdaftar di event ini
-        // Namun untuk sekarang, kita tampilkan saja langsung
-        return view('participant.events.show', compact('event'));
+        $user = Auth::user();
+        $event->load('documents.user');
+
+        // Cek apakah user sudah memiliki data kehadiran untuk event ini
+        $attendance = $user->attendances()->where('event_id', $event->id)->first();
+
+        return view('participant.events.show', compact('event', 'attendance'));
     }
 }
