@@ -19,12 +19,9 @@
                                 <p>{{ session('success') }}</p>
                             </div>
                         @endif
-                        <div class="flex justify-end mb-4">
-                            <a href="{{ route('admin.events.create') }}"
-                                class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                + Buat Event Baru
-                            </a>
-                        </div>
+                        <x-bladewind::button tag="a" href="{{ route('admin.events.create') }}">
+                            + Buat Event Baru
+                        </x-bladewind::button>
 
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -57,32 +54,36 @@
                                                 </a>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                @if ($event->status == 'Scheduled') bg-blue-100 text-blue-800 
-                                                @elseif($event->status == 'Ongoing') bg-green-100 text-green-800 
-                                                @elseif($event->status == 'Completed') bg-gray-100 text-gray-800 
-                                                @else bg-red-100 text-red-800 @endif">
-                                                    {{ $event->status }}
-                                                </span>
+                                                @if ($event->status == 'Terjadwal')
+                                                    <x-bladewind::tag label="{{ $event->status }}" color="blue" />
+                                                @elseif($event->status == 'Berlangsung')
+                                                    <x-bladewind::tag label="{{ $event->status }}" color="green" />
+                                                @elseif($event->status == 'Selesai')
+                                                    <x-bladewind::tag label="{{ $event->status }}" color="gray" />
+                                                @else
+                                                    <x-bladewind::tag label="{{ $event->status }}" color="red" />
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 {{ $event->start_time->format('d M Y, H:i') }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 {{ Str::limit($event->location, 30) }}
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <a href="{{ route('admin.events.edit', $event) }}"
-                                                    class="text-indigo-600 hover:text-indigo-900">Edit</a>
-
+                                            <td
+                                                class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex items-center gap-4">
+                                                <x-bladewind::button tag="a"
+                                                    href="{{ route('admin.events.edit', $event) }}" size="tiny"
+                                                    color="indigo">
+                                                    Edit
+                                                </x-bladewind::button>
                                                 <form action="{{ route('admin.events.destroy', $event) }}"
-                                                    method="POST" class="inline-block ml-4">
+                                                    method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900"
+                                                    <x-bladewind::button type="submit" size="tiny" color="red"
                                                         onclick="return confirm('Apakah Anda yakin ingin menghapus event ini?')">
                                                         Hapus
-                                                    </button>
+                                                    </x-bladewind::button>
                                                 </form>
                                             </td>
                                         </tr>

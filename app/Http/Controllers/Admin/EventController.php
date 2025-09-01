@@ -57,8 +57,13 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
+        // Load semua dokumen (biarkan filtering di blade ketika perlu)
+        $event->load(['documents', 'creator']);
+
         return view('admin.events.show', compact('event'));
     }
+
+
 
     /**
      * Show the form for editing the specified resource.

@@ -43,13 +43,17 @@ class DocumentController extends Controller
      */
     public function destroy(Document $document)
     {
-        // 1. Hapus file fisik dari storage
+        // Pastikan user yang menghapus adalah pemilik atau admin
+        if (auth()->id() !== $document->uploader_id && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Hapus file fisik dari storage
         Storage::disk('public')->delete($document->file_path);
 
-        // 2. Hapus record dari database
+        // Hapus record dari database
         $document->delete();
 
-        // 3. Redirect kembali dengan pesan sukses
         return back()->with('success', 'Dokumen berhasil dihapus.');
     }
 }

@@ -62,11 +62,13 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('admin.events.index') }}"
-                                class="text-sm text-gray-600 hover:text-gray-900">Batal</a>
-                            <x-primary-button class="ms-4">
-                                {{ __('Update Event') }}
-                            </x-primary-button>
+                            <x-bladewind::button tag="a" href="{{ route('admin.events.index') }}"
+                                color="secondary" outline="true">
+                                Batal
+                            </x-bladewind::button>
+                            <x-bladewind::button can_submit="true" class="ms-4">
+                                Update Event
+                            </x-bladewind::button>
                         </div>
                     </form>
                 </div>

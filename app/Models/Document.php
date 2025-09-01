@@ -20,8 +20,8 @@ class Document extends Model
         'uploader_id',
         'title',
         'type',
-        'content',
         'file_path',
+        'content',
     ];
 
     /**

@@ -15,22 +15,31 @@ class NotulensiController extends Controller
             'content' => 'required|string',
         ]);
 
-        // Gunakan updateOrCreate untuk efisiensi
-        // Cari dokumen dengan event_id dan tipe 'Notulensi',
-        // jika ada, perbarui 'content'-nya.
-        // Jika tidak ada, buat record baru dengan data ini.
-        Document::updateOrCreate(
-            [
-                'event_id' => $event->id,
-                'type'     => 'Notulensi',
-            ],
-            [
-                'content'     => $request->input('content'),
-                'uploader_id' => auth()->id(),
-                'title'       => 'Notulensi Rapat - ' . $event->title, // Judul otomatis
-            ]
-        );
+        // Debug: lihat data yang dikirim
+        logger()->info('Notulensi content received:', ['content' => $request->input('content')]);
 
-        return back()->with('success', 'Notulensi berhasil disimpan.');
+        // Cari atau buat notulensi
+        $notulensi = Document::firstOrNew([
+            'event_id' => $event->id,
+            'type' => 'Notulensi'
+        ]);
+
+        // Isi data notulensi
+        $notulensi->fill([
+            'title' => 'Notulensi Rapat - ' . $event->title,
+            'content' => $request->input('content'),
+            'uploader_id' => auth()->id(),
+            'file_path' => null
+        ]);
+
+        // Simpan perubahan
+        if ($notulensi->save()) {
+            logger()->info('Notulensi saved successfully:', ['id' => $notulensi->id]);
+            return redirect()->route('admin.events.show', $event)
+                ->with('success', 'Notulensi berhasil disimpan.');
+        } else {
+            logger()->error('Failed to save notulensi');
+            return back()->with('error', 'Gagal menyimpan notulensi.');
+        }
     }
 }

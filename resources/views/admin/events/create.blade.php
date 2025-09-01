@@ -57,13 +57,13 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('admin.events.index') }}"
-                                class="text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <x-bladewind::button tag="a" href="{{ route('admin.events.index') }}"
+                                color="secondary" outline="true">
                                 Batal
-                            </a>
-                            <x-primary-button class="ms-4">
-                                {{ __('Simpan Event') }}
-                            </x-primary-button>
+                            </x-bladewind::button>
+                            <x-bladewind::button can_submit="true" class="ms-4">
+                                Simpan Event
+                            </x-bladewind::button>
                         </div>
                     </form>
                 </div>

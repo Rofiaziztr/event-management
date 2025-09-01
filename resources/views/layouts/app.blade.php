@@ -15,6 +15,10 @@
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+    {{-- bladewindUI --}}
+    <link href="{{ asset('vendor/bladewind/css/animate.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
+    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -76,6 +80,18 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <!-- Bladewind JS -->
+    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
+    <script>
+        // Inisialisasi komponen Bladewind setelah DOM dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pastikan textarea dengan toolbar diinisialisasi
+            if (typeof BWTextarea !== 'undefined') {
+                BWTextarea.init();
+            }
         });
     </script>
 </body>

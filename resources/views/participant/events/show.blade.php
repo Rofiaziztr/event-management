@@ -29,7 +29,7 @@
                                 @endphp
                                 <div class="p-4 border rounded-md bg-gray-50 h-full">
                                     @if ($notulensi && $notulensi->content)
-                                        <p class="text-gray-700 whitespace-pre-wrap">{{ $notulensi->content }}</p>
+                                        <div class="prose max-w-none">{!! $notulensi->content !!}</div>
                                     @else
                                         <p class="text-gray-500">Notulensi belum tersedia.</p>
                                     @endif
@@ -46,32 +46,27 @@
                                         <dt class="text-sm font-medium text-gray-500">Status Kehadiran Anda</dt>
                                         <dd class="mt-1">
                                             @if ($attendance)
-                                                <span
-                                                    class="px-2 inline-flex text-sm leading-6 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    ✔ ANDA SUDAH HADIR
-                                                </span>
+                                                <x-bladewind::tag label="✔ ANDA SUDAH HADIR" color="green" />
                                                 <p class="text-xs text-gray-500 mt-1">Check-in pada:
                                                     {{ \Carbon\Carbon::parse($attendance->check_in_time)->format('d M Y, H:i') }}
                                                 </p>
                                             @else
-                                                <span
-                                                    class="px-2 inline-flex text-sm leading-6 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    Belum Melakukan Presensi
-                                                </span>
+                                                <x-bladewind::tag label="Belum Melakukan Presensi" color="yellow" />
                                             @endif
                                         </dd>
                                     </div>
                                     <div class="mb-3">
                                         <dt class="text-sm font-medium text-gray-500">Status Event</dt>
                                         <dd class="mt-1">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                @if ($event->status == 'Terjadwal') bg-blue-100 text-blue-800 
-                                                @elseif($event->status == 'Berlangsung') bg-green-100 text-green-800 
-                                                @elseif($event->status == 'Selesai') bg-gray-100 text-gray-800 
-                                                @else bg-red-100 text-red-800 @endif">
-                                                {{ $event->status }}
-                                            </span>
+                                            @if ($event->status == 'Terjadwal')
+                                                <x-bladewind::tag label="{{ $event->status }}" color="blue" />
+                                            @elseif($event->status == 'Berlangsung')
+                                                <x-bladewind::tag label="{{ $event->status }}" color="green" />
+                                            @elseif($event->status == 'Selesai')
+                                                <x-bladewind::tag label="{{ $event->status }}" color="gray" />
+                                            @else
+                                                <x-bladewind::tag label="{{ $event->status }}" color="red" />
+                                            @endif
                                         </dd>
                                     </div>
                                     <div class="mb-3">
@@ -111,10 +106,10 @@
                     </div>
 
                     <div class="mt-8 border-t pt-4">
-                        <a href="{{ route('participant.events.index') }}"
-                            class="inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        <x-bladewind::button tag="a" href="{{ route('participant.events.index') }}"
+                            color="gray">
                             Kembali ke Daftar Event
-                        </a>
+                        </x-bladewind::button>
                     </div>
                 </div>
             </div>

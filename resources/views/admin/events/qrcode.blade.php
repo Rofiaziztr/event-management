@@ -22,9 +22,10 @@
                     </p>
 
                     <div class="mt-8">
-                        <a href="{{ route('admin.events.show', $event) }}"
-                            class="text-indigo-600 hover:text-indigo-900 font-bold py-2 px-4 rounded">
-                            <-- Kembali ke Detail Event </a>
+                        <x-bladewind::button tag="a" href="{{ route('admin.events.show', $event) }}"
+                            color="indigo" outline="true">
+                            &lt;-- Kembali ke Detail Event
+                        </x-bladewind::button>
                     </div>
                 </div>
             </div>

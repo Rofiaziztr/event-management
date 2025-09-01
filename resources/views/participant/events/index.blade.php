@@ -21,20 +21,22 @@
                                         {{ $event->location }}</p>
                                 </div>
 
-                                <div class="flex items-center gap-4"> {{-- Bungkus status dalam div baru --}}
+                                <div class="flex items-center gap-4">
+                                    {{-- Tag Status Kehadiran --}}
                                     @if (in_array($event->id, $attendedEventIds))
-                                        <span
-                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Sudah Hadir
-                                        </span>
+                                        <x-bladewind::tag label="Sudah Hadir" color="green" />
                                     @endif
 
-                                    <span
-                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-            @if ($event->status == 'Scheduled') bg-blue-100 text-blue-800 
-            @else bg-gray-100 text-gray-800 @endif">
-                                        {{ $event->status }}
-                                    </span>
+                                    {{-- Tag Status Event --}}
+                                    @if ($event->status == 'Terjadwal')
+                                        <x-bladewind::tag label="{{ $event->status }}" color="blue" />
+                                    @elseif($event->status == 'Berlangsung')
+                                        <x-bladewind::tag label="{{ $event->status }}" color="green" />
+                                    @elseif($event->status == 'Selesai')
+                                        <x-bladewind::tag label="{{ $event->status }}" color="gray" />
+                                    @else
+                                        <x-bladewind::tag label="{{ $event->status }}" color="red" />
+                                    @endif
                                 </div>
                             </div>
                         @empty
