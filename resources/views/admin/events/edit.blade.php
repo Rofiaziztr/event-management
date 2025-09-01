@@ -29,15 +29,13 @@
 
                         <div class="mt-4">
                             <x-input-label for="start_time" :value="__('Waktu Mulai')" />
-                            <x-text-input id="start_time" class="block mt-1 w-full" type="datetime-local"
-                                name="start_time" :value="old('start_time', $event->start_time->format('Y-m-d\TH:i'))" required />
+                            <x-date-picker name="start_time" id="start_time" :value="old('start_time', $event->start_time)" />
                             <x-input-error :messages="$errors->get('start_time')" class="mt-2" />
                         </div>
 
                         <div class="mt-4">
                             <x-input-label for="end_time" :value="__('Waktu Selesai')" />
-                            <x-text-input id="end_time" class="block mt-1 w-full" type="datetime-local" name="end_time"
-                                :value="old('end_time', $event->end_time->format('Y-m-d\TH:i'))" required />
+                            <x-date-picker name="end_time" id="end_time" :value="old('end_time', $event->end_time)" />
                             <x-input-error :messages="$errors->get('end_time')" class="mt-2" />
                         </div>
 

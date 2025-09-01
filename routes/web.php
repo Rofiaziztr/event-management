@@ -24,7 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Rute untuk admin dengan prefix dan nama yang jelas
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('events', AdminEventController::class);
+    Route::resource('events', AdminEventController::class)
+        ->parameters(['events' => 'event']);
     // Tambahkan rute admin lainnya di sini
     Route::get('/events/{event}/qrcode', [AdminEventController::class, 'showQrCode'])->name('events.qrcode');
 });

@@ -18,6 +18,6 @@ export default {
     },
 
     plugins: [
-        require('@tailwindcss/forms'),
-        forms,],
+        forms,
+        ],
 };
