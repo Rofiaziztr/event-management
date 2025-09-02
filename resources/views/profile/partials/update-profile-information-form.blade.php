@@ -68,9 +68,9 @@
 
         {{-- Unit Kerja --}}
         <div class="mt-4">
-            <x-input-label for="work_unit" :value="__('Unit Kerja')" />
-            <x-text-input id="work_unit" name="work_unit" type="text" class="mt-1 block w-full bg-gray-100"
-                :value="$user->work_unit" disabled />
+            <x-input-label for="division" :value="__('Divisi')" />
+            <x-text-input id="division" name="division" type="text" class="mt-1 block w-full bg-gray-100"
+                :value="$user->division" disabled />
         </div>
 
         <div class="flex items-center gap-4">

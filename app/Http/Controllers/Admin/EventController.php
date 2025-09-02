@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Models\Event;
 use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
@@ -13,12 +14,9 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 
 class EventController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $events = Event::latest()->paginate(10);
+        $events = Event::with('creator', 'participants')->latest()->paginate(10);
         return view('admin.events.index', compact('events'));
     }
 
@@ -33,23 +31,21 @@ class EventController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'end_time' => 'required|date|after_or_equal:start_time',
             'location' => 'required|string|max:255',
-            // Tambahkan validasi untuk status
-            'status' => ['required', Rule::in(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])],
         ]);
 
-        $validatedData['creator_id'] = auth()->id();
-        Event::create($validatedData);
+        $event = new Event($validated);
+        $event->creator_id = auth()->id();
+        $event->save();
 
-        return redirect()->route('admin.events.index')->with('success', 'Event baru berhasil dibuat!');
+        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
     }
 
     /**
@@ -57,20 +53,22 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        // Eager load relasi yang dibutuhkan
-        $event->load('participants', 'documents.user');
+        $event->load('participants', 'documents', 'creator');
 
-        // Ambil ID peserta yang sudah diundang
-        $invitedParticipantIds = $event->participants->pluck('id')->toArray();
+        // --- PERBAIKAN UTAMA QUERY PENGAMBILAN PESERTA ---
+        // 1. Ambil ID semua peserta yang SUDAH diundang ke event ini.
+        $existingParticipantIds = $event->participants->pluck('id');
 
-        // Ambil semua user dengan role 'Peserta' yang BELUM diundang
-        $potentialParticipants = \App\Models\User::where('role', 'Peserta')
-            ->whereNotIn('id', $invitedParticipantIds)
+        // 2. Ambil semua user dengan role 'participant' yang ID-nya TIDAK TERMASUK dalam daftar yang sudah diundang.
+        // Ini adalah metode yang lebih andal daripada query sebelumnya.
+        $potentialParticipants = User::where('role', 'participant')
+            ->whereNotIn('id', $existingParticipantIds)
+            ->orderBy('full_name')
             ->get();
+        // --- AKHIR PERBAIKAN ---
 
         return view('admin.events.show', compact('event', 'potentialParticipants'));
     }
-
 
 
     /**
@@ -86,18 +84,18 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'end_time' => 'required|date|after_or_equal:start_time',
             'location' => 'required|string|max:255',
-            'status' => ['required', Rule::in(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])],
+            'status' => 'required|string|in:Terjadwal,Berlangsung,Selesai,Dibatalkan',
         ]);
 
-        $event->update($validatedData);
+        $event->update($validated);
 
-        return redirect()->route('admin.events.index')->with('success', 'Event berhasil diperbarui!');
+        return redirect()->route('admin.events.show', $event)->with('success', 'Event berhasil diperbarui.');
     }
 
     /**
@@ -106,8 +104,7 @@ class EventController extends Controller
     public function destroy(Event $event)
     {
         $event->delete();
-
-        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus!');
+        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus.');
     }
 
     /**

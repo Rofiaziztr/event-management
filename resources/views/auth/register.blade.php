@@ -24,10 +24,10 @@
         </div>
 
         <div class="mt-4">
-            <x-input-label for="work_unit" :value="__('Unit Kerja')" />
-            <x-text-input id="work_unit" class="block mt-1 w-full" type="text" name="work_unit" :value="old('work_unit')"
+            <x-input-label for="division" :value="__('Divisi')" />
+            <x-text-input id="division" class="block mt-1 w-full" type="text" name="division" :value="old('division')"
                 required />
-            <x-input-error :messages="$errors->get('work_unit')" class="mt-2" />
+            <x-input-error :messages="$errors->get('division')" class="mt-2" />
         </div>
 
         <div class="mt-4">

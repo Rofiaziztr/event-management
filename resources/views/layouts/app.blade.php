@@ -8,24 +8,19 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-    {{-- bladewindUI --}}
     <link href="{{ asset('vendor/bladewind/css/animate.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @vite(['resources/css/app.css'])
 
     <style>
         .bladewind-select .placeholder {
             color: #374151 !important;
-            /* Warna gray-700 */
         }
     </style>
 </head>
@@ -34,7 +29,6 @@
     <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
         @isset($header)
             <header class="bg-white shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -43,64 +37,25 @@
             </header>
         @endisset
 
-        <!-- Page Content -->
         <main>
             {{ $slot }}
         </main>
     </div>
 
-    <!-- Flatpickr JS -->
+    {{-- ======================================================= --}}
+    {{--    KUMPULKAN SEMUA SCRIPT DI BAGIAN BAWAH BODY INI      --}}
+    {{-- ======================================================= --}}
+
+    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
+    <script src="{{ asset('vendor/bladewind/js/select.js') }}"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 
+    @vite(['resources/js/app.js'])
+
     @stack('scripts')
 
-    <script>
-        // Inisialisasi flatpickr setelah DOM dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi untuk semua input dengan class 'flatpickr'
-            const dateInputs = document.querySelectorAll('.flatpickr');
-
-            dateInputs.forEach(input => {
-                flatpickr(input, {
-                    enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    time_24hr: true,
-                    locale: "id",
-                    minDate: "today",
-                    clickOpens: true,
-                    allowInput: true,
-                    // Pastikan kalender muncul di atas elemen lain
-                    onReady: function(selectedDates, dateStr, instance) {
-                        instance.calendarContainer.style.zIndex = '9999';
-                    }
-                });
-            });
-
-            // Handler untuk klik ikon kalender
-            document.querySelectorAll('.datepicker-icon').forEach(icon => {
-                icon.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const input = this.closest('.relative').querySelector('.flatpickr');
-                    if (input && input._flatpickr) {
-                        input._flatpickr.open();
-                    }
-                });
-            });
-        });
-    </script>
-
-    <!-- Bladewind JS -->
-    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
-    <script>
-        // Inisialisasi komponen Bladewind setelah DOM dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pastikan textarea dengan toolbar diinisialisasi
-            if (typeof BWTextarea !== 'undefined') {
-                BWTextarea.init();
-            }
-        });
-    </script>
 </body>
 
 </html>

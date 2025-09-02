@@ -3,35 +3,47 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UserFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = User::class;
 
     protected static ?string $password;
-    /**
-     * Define the model's default state.
-     */
+
     public function definition(): array
     {
+        // Faker lokal Indonesia
+        $faker = \Faker\Factory::create('id_ID');
+
         return [
-            'nip' => fake()->regexify('[A-Za-z0-9]{50}'),
-            'full_name' => fake()->regexify('[A-Za-z0-9]{255}'),
-            'position' => fake()->regexify('[A-Za-z0-9]{100}'),
-            'work_unit' => fake()->regexify('[A-Za-z0-9]{100}'),
-            'email' => fake()->safeEmail(),
-            'password' => static::$password ??= Hash::make('password'),
-            'role' => fake()->randomElement(["admin", "peserta"]),
-            'created_at' => fake()->dateTime(),
-            'updated_at' => fake()->dateTime(),
+            'nip'        => $faker->numerify(str_repeat('#', 18)), // mirip NIP/NIK
+            'full_name'  => $faker->name(), // Nama orang Indonesia
+            'position'   => $faker->randomElement([
+                'Staff',
+                'Kepala Bagian',
+                'Manager',
+                'Supervisor',
+                'Direktur',
+                'Wakil Direktur',
+                'Koordinator',
+                'Sekretaris'
+            ]),
+            'division'   => $faker->randomElement([
+                'Keuangan',
+                'Sumber Daya Manusia',
+                'Teknologi Informasi',
+                'Pemasaran',
+                'Operasional',
+                'Akuntan',
+                'Penelitian dan Pengembangan'
+            ]),
+            'email'      => $faker->unique()->safeEmail(),
+            'password'   => static::$password ??= Hash::make('password'),
+            'role'       => $faker->randomElement(['admin', 'participant']),
+            'created_at' => $faker->dateTimeBetween('-1 year', 'now'),
+            'updated_at' => now(),
         ];
     }
 }

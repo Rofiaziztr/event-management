@@ -19,7 +19,7 @@ class User extends Authenticatable // <-- dan di sini
         'nip',
         'full_name',
         'position',
-        'work_unit',
+        'division',
         'email',
         'password',
         'role',
@@ -55,9 +55,15 @@ class User extends Authenticatable // <-- dan di sini
         return $this->hasMany(Event::class, 'creator_id');
     }
 
-    public function attendedEvents()
+    // public function attendedEvents()
+    // {
+    //     return $this->belongsToMany(Event::class, 'event_participants', 'user_id', 'event_id');
+    // }
+
+
+    public function participatedEvents()
     {
-        return $this->belongsToMany(Event::class, 'event_participants', 'user_id', 'event_id');
+        return $this->belongsToMany(Event::class, 'event_participants');
     }
 
     public function attendances()
@@ -68,5 +74,10 @@ class User extends Authenticatable // <-- dan di sini
     public function documents()
     {
         return $this->hasMany(Document::class, 'uploader_id');
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
     }
 }

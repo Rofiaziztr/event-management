@@ -16,10 +16,10 @@ return new class extends Migration
             $table->string('nip', 50)->unique();
             $table->string('full_name', 255);
             $table->string('position', 100)->nullable();
-            $table->string('work_unit', 100)->nullable();
+            $table->string('division', 100)->nullable();
             $table->string('email', 255)->unique();
             $table->string('password', 255)->comment('Simpan password yang sudah di-hash');
-            $table->enum('role', ["admin", "peserta"])->default('peserta');
+            $table->enum('role', ["admin", "participant"])->default('participant');
             $table->timestamps();
         });
     }

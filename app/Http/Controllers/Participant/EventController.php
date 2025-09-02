@@ -12,7 +12,7 @@ class EventController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $events = $user->attendedEvents()->with('attendances')->latest()->paginate(10);
+        $events = $user->participatedEvents()->with('attendances')->latest()->paginate(10);
 
         // Ambil ID semua event yang sudah dihadiri oleh user
         $attendedEventIds = $user->attendances->pluck('event_id')->toArray();

@@ -22,12 +22,12 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'full_name' => 'Peserta A',
             'email' => 'peserta@example.com',
-            'role' => 'peserta',
+            'role' => 'participant',
         ]);
 
         // Buat 49 user sebagai Peserta
         User::factory(49)->create([
-            'role' => 'peserta',
+            'role' => 'participant',
         ]);
 
         $this->call([

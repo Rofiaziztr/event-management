@@ -25,7 +25,7 @@
                         </x-nav-link>
                     @endif
 
-                    @if (Auth::user()->role == 'peserta')
+                    @if (Auth::user()->role == 'participant')
                         <x-nav-link :href="route('participant.events.index')" :active="request()->routeIs('participant.events.*')">
                             {{ __('Event Saya') }}
                         </x-nav-link>
