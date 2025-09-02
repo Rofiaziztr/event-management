@@ -6,6 +6,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\NotulensiController;
+use App\Http\Controllers\Admin\ParticipantController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 
@@ -35,6 +36,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
     Route::post('/events/{event}/notulensi', [NotulensiController::class, 'storeOrUpdate'])->name('events.notulensi.store');
+
+    Route::post('/events/{event}/participants', [ParticipantController::class, 'store'])->name('events.participants.store');
+    Route::delete('/events/{event}/participants/{user}', [ParticipantController::class, 'destroy'])->name('events.participants.destroy');
 });
 
 // Rute untuk user biasa (peserta)

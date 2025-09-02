@@ -57,10 +57,18 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        // Load semua dokumen (biarkan filtering di blade ketika perlu)
-        $event->load(['documents', 'creator']);
+        // Eager load relasi yang dibutuhkan
+        $event->load('participants', 'documents.user');
 
-        return view('admin.events.show', compact('event'));
+        // Ambil ID peserta yang sudah diundang
+        $invitedParticipantIds = $event->participants->pluck('id')->toArray();
+
+        // Ambil semua user dengan role 'Peserta' yang BELUM diundang
+        $potentialParticipants = \App\Models\User::where('role', 'Peserta')
+            ->whereNotIn('id', $invitedParticipantIds)
+            ->get();
+
+        return view('admin.events.show', compact('event', 'potentialParticipants'));
     }
 
 

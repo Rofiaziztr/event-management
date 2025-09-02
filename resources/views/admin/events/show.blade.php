@@ -14,6 +14,11 @@
                             {{ session('success') }}
                         </x-bladewind::alert>
                     @endif
+                    @if (session('error'))
+                        <x-bladewind::alert type="error" class="mb-6">
+                            {{ session('error') }}
+                        </x-bladewind::alert>
+                    @endif
 
                     {{-- BAGIAN 1: INFO UTAMA --}}
                     <div class="mb-6">
@@ -22,63 +27,154 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        {{-- KOLOM KIRI: DESKRIPSI & DOKUMEN --}}
+                        {{-- KOLOM KIRI: DESKRIPSI & MANAJEMEN PESERTA --}}
                         <div class="md:col-span-2 space-y-6">
                             <div>
                                 <h4 class="font-bold text-lg mb-2">Deskripsi</h4>
                                 <p class="text-gray-700 whitespace-pre-wrap">{{ $event->description }}</p>
                             </div>
-                            <div>
-                                <h4 class="font-bold text-lg mb-2">Dokumen Acara</h4>
+                            <div class="border-t pt-6">
+                                <h4 class="font-bold text-lg mb-2">Manajemen Peserta</h4>
                                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                     <div class="bg-gray-50 p-4 rounded-lg">
-                                        <h5 class="font-semibold mb-3">Unggah Dokumen Baru</h5>
-                                        <form action="{{ route('admin.events.documents.store', $event) }}"
-                                            method="POST" enctype="multipart/form-data" class="space-y-4">
+                                        <h5 class="font-semibold mb-3">Undang Peserta</h5>
+                                        <form action="{{ route('admin.events.participants.store', $event) }}"
+                                            method="POST" class="space-y-4">
                                             @csrf
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700">Judul</label>
-                                                <x-bladewind::input name="title" required="true" />
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700">Tipe</label>
-                                                <x-bladewind::select name="type" required="true" :data="[
-                                                    ['label' => 'Materi', 'value' => 'Materi'],
-                                                    ['label' => 'Foto', 'value' => 'Foto'],
-                                                    ['label' => 'Video', 'value' => 'Video'],
-                                                ]" />
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700">Pilih
-                                                    File</label>
-                                                <x-bladewind::filepicker name="document_file" required="true" />
+                                                <x-bladewind::select name="user_id" placeholder="Pilih nama peserta..."
+                                                    required="true" searchable="true" :data="$potentialParticipants->map(function ($user) {
+                                                        return [
+                                                            'label' => $user->full_name . ' (' . $user->nip . ')',
+                                                            'value' => $user->id,
+                                                        ];
+                                                    })" />
                                             </div>
                                             <div class="text-right">
                                                 <x-bladewind::button size="small"
-                                                    can_submit="true">Unggah</x-bladewind::button>
+                                                    can_submit="true">Undang</x-bladewind::button>
                                             </div>
                                         </form>
                                     </div>
                                     <div>
-                                        <h5 class="font-semibold mb-2">Dokumen Terunggah</h5>
-                                        <ul class="divide-y divide-gray-200 border rounded-md">
+                                        <h5 class="font-semibold mb-2">Daftar Peserta
+                                            ({{ $event->participants->count() }})</h5>
+                                        <div class="border rounded-md max-h-60 overflow-y-auto">
+                                            <ul class="divide-y divide-gray-200">
+                                                @forelse ($event->participants as $participant)
+                                                    <li class="p-3 flex items-center justify-between">
+                                                        <div>
+                                                            <p class="text-sm font-medium text-gray-900">
+                                                                {{ $participant->full_name }}</p>
+                                                            <p class="text-sm text-gray-500">NIP:
+                                                                {{ $participant->nip }}</p>
+                                                        </div>
+                                                        <form
+                                                            action="{{ route('admin.events.participants.destroy', [$event, $participant]) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <x-bladewind::button type="submit" size="tiny"
+                                                                color="red" icon="trash" can_submit="true"
+                                                                onclick="return confirm('Yakin ingin menghapus peserta ini dari event?')" />
+                                                        </form>
+                                                    </li>
+                                                @empty
+                                                    <li class="p-3 text-sm text-gray-500">Belum ada peserta.</li>
+                                                @endforelse
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- KOLOM KANAN: INFORMASI & DOKUMEN --}}
+                        <div class="space-y-6 self-start">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-lg mb-3">Informasi Acara</h4>
+                                <dl>
+                                    <div class="mb-3">
+                                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                        <dd class="mt-1">
+                                            @if ($event->status == 'Terjadwal')
+                                                <x-bladewind::tag label="{{ $event->status }}" color="blue" />
+                                            @elseif($event->status == 'Berlangsung')
+                                                <x-bladewind::tag label="{{ $event->status }}" color="green" />
+                                            @elseif($event->status == 'Selesai')
+                                                <x-bladewind::tag label="{{ $event->status }}" color="gray" />
+                                            @else<x-bladewind::tag label="{{ $event->status }}" color="red" />
+                                            @endif
+                                        </dd>
+                                    </div>
+                                    <div class="mb-3">
+                                        <dt class="text-sm font-medium text-gray-500">Waktu Mulai</dt>
+                                        <dd class="mt-1 font-semibold text-gray-900">
+                                            {{ $event->start_time->format('l, d F Y - H:i') }} WIB</dd>
+                                    </div>
+                                    <div class="mb-3">
+                                        <dt class="text-sm font-medium text-gray-500">Waktu Selesai</dt>
+                                        <dd class="mt-1 font-semibold text-gray-900">
+                                            {{ $event->end_time->format('l, d F Y - H:i') }} WIB</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Lokasi</dt>
+                                        <dd class="mt-1 font-semibold text-gray-900">{{ $event->location }}</dd>
+                                    </div>
+                                </dl>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-2">Dokumen Acara</h4>
+                                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <h5 class="font-semibold mb-3">Unggah Dokumen Baru</h5>
+                                    <form action="{{ route('admin.events.documents.store', $event) }}" method="POST"
+                                        enctype="multipart/form-data" class="space-y-4">
+                                        @csrf
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Judul</label>
+                                            <x-bladewind::input name="title" required="true" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Tipe</label>
+                                            <x-bladewind::select name="type" required="true" :data="[
+                                                ['label' => 'Materi', 'value' => 'Materi'],
+                                                ['label' => 'Foto', 'value' => 'Foto'],
+                                                ['label' => 'Video', 'value' => 'Video'],
+                                            ]" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Pilih File</label>
+                                            <x-bladewind::filepicker name="document_file" required="true" />
+                                        </div>
+                                        <div class="text-right">
+                                            <x-bladewind::button size="small"
+                                                can_submit="true">Unggah</x-bladewind::button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div>
+                                    <h5 class="font-semibold mb-2">Dokumen Terunggah</h5>
+                                    <div class="border rounded-md max-h-60 overflow-y-auto">
+                                        <ul class="divide-y divide-gray-200">
                                             @forelse ($event->documents->where('type', '!=', 'Notulensi') as $document)
                                                 <li class="p-3 flex items-center justify-between">
                                                     <div>
                                                         <p class="text-sm font-medium text-gray-900">
                                                             {{ $document->title }}</p>
-                                                        <p class="text-sm text-gray-500">Tipe: {{ $document->type }}</p>
+                                                        <p class="text-sm text-gray-500">Tipe: {{ $document->type }}
+                                                        </p>
                                                     </div>
                                                     <div class="flex items-center gap-2">
                                                         <x-bladewind::button tag="a"
                                                             href="{{ Storage::url($document->file_path) }}"
                                                             target="_blank" size="tiny" icon="eye" />
-                                                        <form action="{{ route('admin.documents.destroy', $document) }}"
+                                                        <form
+                                                            action="{{ route('admin.documents.destroy', $document) }}"
                                                             method="POST">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <x-bladewind::button can_submit="true" type="submit" size="tiny"
-                                                                color="red" icon="trash"
+                                                            <x-bladewind::button type="submit" size="tiny"
+                                                                color="red" icon="trash" can_submit="true"
                                                                 onclick="return confirm('Yakin ingin menghapus dokumen ini?')" />
                                                         </form>
                                                     </div>
@@ -90,40 +186,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {{-- KOLOM KANAN: INFORMASI ACARA --}}
-                        <div class="bg-gray-50 p-4 rounded-lg self-start">
-                            <h4 class="font-bold text-lg mb-3">Informasi Acara</h4>
-                            <dl>
-                                <div class="mb-3">
-                                    <dt class="text-sm font-medium text-gray-500">Status</dt>
-                                    <dd class="mt-1">
-                                        @if ($event->status == 'Terjadwal')
-                                            <x-bladewind::tag label="{{ $event->status }}" color="blue" />
-                                        @elseif($event->status == 'Berlangsung')
-                                            <x-bladewind::tag label="{{ $event->status }}" color="green" />
-                                        @elseif($event->status == 'Selesai')
-                                            <x-bladewind::tag label="{{ $event->status }}" color="gray" />
-                                        @else<x-bladewind::tag label="{{ $event->status }}" color="red" />
-                                        @endif
-                                    </dd>
-                                </div>
-                                <div class="mb-3">
-                                    <dt class="text-sm font-medium text-gray-500">Waktu Mulai</dt>
-                                    <dd class="mt-1 font-semibold text-gray-900">
-                                        {{ $event->start_time->format('l, d F Y - H:i') }} WIB</dd>
-                                </div>
-                                <div class="mb-3">
-                                    <dt class="text-sm font-medium text-gray-500">Waktu Selesai</dt>
-                                    <dd class="mt-1 font-semibold text-gray-900">
-                                        {{ $event->end_time->format('l, d F Y - H:i') }} WIB</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Lokasi</dt>
-                                    <dd class="mt-1 font-semibold text-gray-900">{{ $event->location }}</dd>
-                                </div>
-                            </dl>
                         </div>
                     </div>
 

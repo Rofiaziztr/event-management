@@ -21,6 +21,13 @@
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        .bladewind-select .placeholder {
+            color: #374151 !important;
+            /* Warna gray-700 */
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased">
