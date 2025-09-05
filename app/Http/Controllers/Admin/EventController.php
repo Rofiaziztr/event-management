@@ -51,23 +51,21 @@ class EventController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Event $event)
+    public function show(Request $request, Event $event) // Tambahkan Request $request
     {
         $event->load('participants', 'documents', 'creator');
 
-        // --- PERBAIKAN UTAMA QUERY PENGAMBILAN PESERTA ---
-        // 1. Ambil ID semua peserta yang SUDAH diundang ke event ini.
         $existingParticipantIds = $event->participants->pluck('id');
 
-        // 2. Ambil semua user dengan role 'participant' yang ID-nya TIDAK TERMASUK dalam daftar yang sudah diundang.
-        // Ini adalah metode yang lebih andal daripada query sebelumnya.
         $potentialParticipants = User::where('role', 'participant')
             ->whereNotIn('id', $existingParticipantIds)
             ->orderBy('full_name')
             ->get();
-        // --- AKHIR PERBAIKAN ---
 
-        return view('admin.events.show', compact('event', 'potentialParticipants'));
+        // INI TAMBAHANNYA: Ambil tab aktif dari URL, default-nya adalah 'detail'
+        $activeTab = $request->query('tab', 'detail');
+
+        return view('admin.events.show', compact('event', 'potentialParticipants', 'activeTab')); // Kirim $activeTab ke view
     }
 
 

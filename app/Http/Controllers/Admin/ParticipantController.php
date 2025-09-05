@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use App\Models\Event;
 use Illuminate\Http\Request;
-use App\Models\EventParticipant;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\ValidationException;
 
 class ParticipantController extends Controller
 {
@@ -90,6 +90,48 @@ class ParticipantController extends Controller
         } catch (\Exception $e) {
             Log::error('Error saat undang massal', ['message' => $e->getMessage()]);
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function storeExternal(Request $request, Event $event)
+    {
+        try {
+            $validated = $request->validate([
+                'full_name'    => 'required|string|max:255',
+                'email'        => 'required|email|max:255',
+                'institution'  => 'required|string|max:255',
+                'position'     => 'required|string|max:255',
+                'phone_number' => 'nullable|string|max:20',
+            ]);
+
+            // Cek apakah email sudah terdaftar sebagai peserta di event ini
+            if ($event->participants()->where('email', $validated['email'])->exists()) {
+                return back()->with('error', 'Peserta dengan email ini sudah diundang ke event ini.');
+            }
+
+            // Cari atau buat user baru dengan role 'participant'
+            // Ini akan membuat "akun tamu" jika email belum ada di database
+            $participant = User::firstOrCreate(
+                ['email' => $validated['email']], // Kunci untuk mencari
+                [ // Data untuk dibuat jika tidak ditemukan
+                    'full_name'    => $validated['full_name'],
+                    'institution'  => $validated['institution'],
+                    'position'     => $validated['position'],
+                    'phone_number' => $validated['phone_number'],
+                    'role'         => 'participant',
+                    // Password sengaja dikosongkan agar tidak bisa login
+                ]
+            );
+
+            // Lampirkan peserta ke event
+            $event->participants()->syncWithoutDetaching($participant->id);
+
+            return back()->with('success', 'Peserta eksternal berhasil diundang.');
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->validator, 'external')->withInput();
+        } catch (\Exception $e) {
+            Log::error('Gagal undang peserta eksternal', ['message' => $e->getMessage()]);
+            return back()->with('error', 'Terjadi kesalahan saat mengundang peserta eksternal.');
         }
     }
 

@@ -16,7 +16,10 @@
     <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
 
+    <script src="./node_modules/preline/dist/preline.js"></script>
+
     @vite(['resources/css/app.css'])
+    @vite('resources/js/app.js')
 
     <style>
         .bladewind-select .placeholder {
@@ -55,6 +58,35 @@
     @vite(['resources/js/app.js'])
 
     @stack('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInputs = document.querySelectorAll('.flatpickr');
+            dateInputs.forEach(input => {
+                flatpickr(input, {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    time_24hr: true,
+                    locale: "id",
+                    minDate: "today",
+                    clickOpens: true,
+                    allowInput: true,
+                    onReady: function(selectedDates, dateStr, instance) {
+                        instance.calendarContainer.style.zIndex = '9999';
+                    }
+                });
+            });
+            document.querySelectorAll('.datepicker-icon').forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const input = this.closest('.relative').querySelector('.flatpickr');
+                    if (input && input._flatpickr) {
+                        input._flatpickr.open();
+                    }
+                });
+            });
+        });
+    </script>
 
 </body>
 

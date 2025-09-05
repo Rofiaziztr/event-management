@@ -49,6 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
         Route::post('events/{event}/notulensi', [DocumentController::class, 'storeOrUpdateNotulensi'])->name('events.notulensi.store');
+
+        Route::post('/events/{event}/participants/external', [App\Http\Controllers\Admin\ParticipantController::class, 'storeExternal'])
+            ->name('events.participants.store.external');
     });
 
     // Rute untuk Peserta

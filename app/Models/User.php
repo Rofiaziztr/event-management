@@ -23,6 +23,8 @@ class User extends Authenticatable // <-- dan di sini
         'email',
         'password',
         'role',
+        'institution',
+        'phone_number',
     ];
 
     /**
