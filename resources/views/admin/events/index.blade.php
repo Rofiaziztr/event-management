@@ -33,6 +33,9 @@
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Waktu Tersisa</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Tanggal Mulai</th>
@@ -63,6 +66,11 @@
                                             @else<x-bladewind::tag label="{{ $event->status }}" color="red" />
                                             @endif
                                         </td>
+                                        <td>
+                                            <span class="font-medium text-gray-700">
+                                                {{ $event->countdown_status }}
+                                            </span>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             {{ $event->start_time->format('d M Y, H:i') }} WIB</td>
                                         <td class="px-6 py-4 whitespace-nowrap">{{ Str::limit($event->location, 30) }}
@@ -76,8 +84,8 @@
                                                     method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <x-bladewind::button can_submit="true" type="submit" size="tiny" color="red"
-                                                        icon="trash"
+                                                    <x-bladewind::button can_submit="true" type="submit" size="tiny"
+                                                        color="red" icon="trash"
                                                         onclick="return confirm('Apakah Anda yakin ingin menghapus event ini?')" />
                                                 </form>
                                             </div>

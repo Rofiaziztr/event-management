@@ -75,4 +75,41 @@ class Event extends Model
     {
         return $this->hasMany(Document::class);
     }
+
+    public function getCountdownStatusAttribute(): string
+    {
+        $now = now();
+        $startTime = $this->start_time;
+
+        if ($this->status == 'Selesai' || $this->status == 'Dibatalkan') {
+            return $this->status;
+        }
+
+        if ($now->isAfter($startTime) && $now->isBefore($this->end_time)) {
+            return 'Berlangsung';
+        }
+
+        if ($now->isAfter($this->end_time)) {
+            return 'Selesai';
+        }
+
+        $daysUntil = $now->diffInDays($startTime, false);
+
+        if ($daysUntil < 0) {
+            return 'Selesai';
+        }
+
+        if ($daysUntil == 0) {
+            return 'Hari Ini';
+        }
+
+        if ($daysUntil == 1) {
+            return 'Besok';
+        }
+
+        $daysUntil = ceil($now->diffInHours($startTime) / 24);
+
+        // Format jadi H-n tanpa koma
+        return 'H-' . $daysUntil;
+    }
 }
