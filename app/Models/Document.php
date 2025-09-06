@@ -32,8 +32,8 @@ class Document extends Model
     protected function casts(): array
     {
         return [
-            'created_at' => 'timestamp',
-        ];
+            'created_at' => 'datetime',
+        'updated_at' => 'datetime',];
     }
 
     /**

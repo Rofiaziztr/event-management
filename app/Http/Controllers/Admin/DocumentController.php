@@ -23,7 +23,7 @@ class DocumentController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|string|in:Materi,Foto,Video',
-            'document_file' => 'required|file|mimes:pdf,ppt,pptx,jpg,jpeg,png,mp4,docx|max:20480', // max 20MB
+            'document_file' => 'required|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,mp4,avi,mov|max:10240',
         ]);
 
         // 2. Simpan file ke storage

@@ -35,8 +35,8 @@ class Event extends Model
         return [
             'start_time' => 'datetime',
             'end_time' => 'datetime',
-            'created_at' => 'timestamp',
-            'updated_at' => 'timestamp',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 
