@@ -1,0 +1,25 @@
+body {
+    font-family: "Helvetica", Arial, sans-serif;
+    background-color: #f4f4f7;
+    color: #1f2937;
+}
+
+h1,
+h2,
+h3 {
+    color: #065f46;
+    margin-bottom: 15px;
+}
+
+a {
+    color: #22c55e;
+    text-decoration: none;
+}
+
+x-mail\\:button {
+    background-color: #16a34a !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    padding: 12px 24px !important;
+}

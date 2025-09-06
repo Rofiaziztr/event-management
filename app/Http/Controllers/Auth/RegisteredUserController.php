@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'nip' => ['required', 'string', 'max:255', 'unique:' . User::class],
             'position' => ['required', 'string', 'max:255'],
-            'work_unit' => ['required', 'string', 'max:255'],
+            'division' => ['required', 'string', 'max:255'],
         ]);
 
         // Tambahkan field baru saat membuat user
@@ -46,7 +46,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'nip' => $request->nip,
             'position' => $request->position,
-            'work_unit' => $request->work_unit,
+            'division' => $request->work_unit,
             // Role 'Peserta' akan otomatis terisi dari default di UserFactory atau migration
         ]);
 

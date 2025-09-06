@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Event;
+use App\Mail\EventInvitationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 
@@ -17,22 +19,23 @@ class ParticipantController extends Controller
     public function store(Request $request, Event $event)
     {
         try {
-            // PERBAIKAN: Saring nilai-nilai null dari array sebelum validasi
             $userIds = collect($request->input('user_ids'))->filter()->all();
-
-            // Validasi input yang sudah bersih
             $validated = validator(['user_ids' => $userIds], [
-                'user_ids'   => 'required|array|min:1', // Pastikan array tidak kosong
+                'user_ids'   => 'required|array|min:1',
                 'user_ids.*' => 'exists:users,id',
             ])->validate();
 
             $event->participants()->syncWithoutDetaching($validated['user_ids']);
 
-            return back()->with(
-                'success',
-                count($validated['user_ids']) . ' peserta berhasil diundang.'
-            );
-        } catch (\Illuminate\Validation\ValidationException $e) {
+            // --- LOGIKA PENGIRIMAN EMAIL ---
+            $newlyInvitedUsers = User::find($validated['user_ids']);
+            foreach ($newlyInvitedUsers as $user) {
+                Mail::to($user->email)->queue(new EventInvitationMail($event, $user)); // DIUBAH: dari send() menjadi queue()
+            }
+            // --- SELESAI ---
+
+            return back()->with('success', count($validated['user_ids']) . ' peserta berhasil diundang. Notifikasi email sedang dalam proses pengiriman.'); // Pesan diubah
+        } catch (ValidationException $e) {
             Log::warning('Validasi undang peserta gagal', [
                 'errors' => $e->errors(),
                 'request' => $request->all(),
@@ -76,12 +79,19 @@ class ParticipantController extends Controller
                 $q->where('event_id', $event->id);
             })->get();
 
+            if ($potentialParticipants->isEmpty()) {
+                return back()->with('error', 'Tidak ada peserta baru untuk diundang.');
+            }
+
             $userIds = $potentialParticipants->pluck('id')->toArray();
             $event->participants()->syncWithoutDetaching($userIds);
 
-            return back()->with('success', count($userIds) . ' peserta massal berhasil diundang.');
+            foreach ($potentialParticipants as $participant) {
+                Mail::to($participant->email)->queue(new EventInvitationMail($event, $participant)); // DIUBAH: dari send() menjadi queue()
+            }
+
+            return back()->with('success', count($userIds) . ' peserta massal berhasil diundang. Notifikasi email sedang dalam proses pengiriman.'); // Pesan diubah
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Logika ini ditambahkan agar pesan error lebih jelas
             Log::warning('Validasi undangan massal gagal', [
                 'errors' => $e->errors(),
                 'request' => $request->all(),
@@ -126,7 +136,8 @@ class ParticipantController extends Controller
             // Lampirkan peserta ke event
             $event->participants()->syncWithoutDetaching($participant->id);
 
-            return back()->with('success', 'Peserta eksternal berhasil diundang.');
+            Mail::to($participant->email)->queue(new EventInvitationMail($event, $participant)); // DIUBAH: dari send() menjadi queue()
+            return back()->with('success', 'Peserta eksternal berhasil diundang. Notifikasi email sedang dalam proses pengiriman.'); // Pesan diubah
         } catch (ValidationException $e) {
             return back()->withErrors($e->validator, 'external')->withInput();
         } catch (\Exception $e) {
