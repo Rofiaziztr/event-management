@@ -1,19 +1,25 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center space-x-3">
-            <div class="bg-blue-100 p-2 rounded-lg">
-                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12l4-4m0 0v4m0-4h-4m-4 4v4m0 0h4m0-4h-4m4-4h-4m0 0v4"></path>
-                </svg>
-            </div>
-            <div>
-                <h2 class="font-bold text-2xl text-gray-800">
-                    Scan QR Code Presensi
-                </h2>
-                <p class="text-sm text-gray-600">Arahkan kamera ke QR Code untuk melakukan presensi</p>
-            </div>
+    <div class="flex items-center space-x-3">
+        <div class="bg-blue-100 p-2 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12l4-4m0 0v4m0-4h-4m-4 4v4m0 0h4m0-4h-4m4-4h-4m0 0v4"></path>
+            </svg>
         </div>
-    </x-slot>
+        <div>
+            <h2 class="font-bold text-2xl text-gray-800">
+                Scan QR Code Presensi
+            </h2>
+            <p class="text-sm text-gray-600">
+                Selamat datang, {{ Auth::user()->full_name ?? 'Peserta' }}! Arahkan kamera ke QR Code untuk melakukan presensi.
+                {{-- PERBAIKAN: Konfirmasi role (opsional) --}}
+                @if(Auth::user()->role !== 'participant')
+                    <span class="text-red-600 font-medium">Akses ditolak: Hanya peserta yang diizinkan.</span>
+                @endif
+            </p>
+        </div>
+    </div>
+</x-slot>
 
     <div class="py-8">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">

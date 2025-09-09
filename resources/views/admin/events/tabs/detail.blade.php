@@ -91,34 +91,37 @@
 
         {{-- Sidebar - Event Info --}}
         <div class="space-y-6">
-            {{-- Quick Info Card --}}
+            <!-- Quick Info Card -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                     <h3 class="text-lg font-semibold text-white">Informasi Acara</h3>
                 </div>
                 <div class="p-6 space-y-4">
-                    {{-- Status --}}
+                    <!-- Status -->
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-500">Status</span>
-                        @if ($event->status == 'Terjadwal')
+                        @php
+                            $dynamicStatus = $event->status; // Gunakan accessor dinamis
+                        @endphp
+                        @if ($dynamicStatus === 'Terjadwal')
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                                {{ $event->status }}
+                                {{ $dynamicStatus }}
                             </span>
-                        @elseif($event->status == 'Berlangsung')
+                        @elseif($dynamicStatus === 'Berlangsung')
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                                {{ $event->status }}
+                                {{ $dynamicStatus }}
                             </span>
-                        @elseif($event->status == 'Selesai')
+                        @elseif($dynamicStatus === 'Selesai')
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                 <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-                                {{ $event->status }}
+                                {{ $dynamicStatus }}
                             </span>
                         @else
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 <div class="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
-                                {{ $event->status }}
+                                {{ $dynamicStatus }}
                             </span>
                         @endif
                     </div>

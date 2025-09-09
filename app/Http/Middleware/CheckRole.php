@@ -5,21 +5,31 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string  $role
+     * @return \Illuminate\Http\Response
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string $role)
     {
-        // Cek apakah user sudah login DAN rolenya sesuai dengan yang diizinkan
-        if (!Auth::check() || Auth::user()->role !== $role) {
-            // Jika tidak, tendang ke halaman home
-            abort(403, 'UNAUTHORIZED ACTION.');
+        // Cek apakah user sudah login
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
+        }
+
+        // Cek apakah role user sesuai
+        if (Auth::user()->role !== $role) {
+            // Redirect berdasarkan role user
+            if (Auth::user()->role === 'admin') {
+                return redirect()->route('admin.events.index')->with('error', 'Akses ditolak. Hanya peserta yang diizinkan.');
+            }
+            return redirect()->route('participant.events.index')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk fitur ini.');
         }
 
         return $next($request);

@@ -6,25 +6,28 @@
                 <p class="text-sm text-gray-600 mt-1">{{ $event->title }}</p>
             </div>
             <div class="flex items-center space-x-3">
-                @if ($event->status == 'Terjadwal')
+                @php
+                    $dynamicStatus = $event->status; // Gunakan accessor dinamis
+                @endphp
+                @if ($dynamicStatus === 'Terjadwal')
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                        {{ $event->status }}
+                        {{ $dynamicStatus }}
                     </span>
-                @elseif($event->status == 'Berlangsung')
+                @elseif($dynamicStatus === 'Berlangsung')
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                        {{ $event->status }}
+                        {{ $dynamicStatus }}
                     </span>
-                @elseif($event->status == 'Selesai')
+                @elseif($dynamicStatus === 'Selesai')
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-                        {{ $event->status }}
+                        {{ $dynamicStatus }}
                     </span>
                 @else
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <div class="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
-                        {{ $event->status }}
+                        {{ $dynamicStatus }}
                     </span>
                 @endif
             </div>
@@ -108,11 +111,19 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 text-center">
                             <h3 class="text-xl font-bold text-white">Kode QR Presensi</h3>
-                            <p class="text-green-100 text-sm mt-1">Pindai kode ini untuk melakukan presensi</p>
+                            <p class="text-green-100 text-sm mt-1">
+                                @if ($event->isActiveForAttendance())
+                                    Pindai kode ini untuk melakukan presensi
+                                @elseif ($event->status === 'Terjadwal')
+                                    QR Code akan aktif saat event dimulai
+                                @else
+                                    QR Code tidak aktif untuk presensi baru
+                                @endif
+                            </p>
                         </div>
 
                         <div class="p-8 text-center">
-                            {{-- Event Code Display --}}
+                            <!-- Event Code Display -->
                             <div class="mb-6">
                                 <p class="text-sm font-medium text-gray-500 mb-2">Kode Event</p>
                                 <div class="bg-gray-100 rounded-lg p-3 inline-block">
@@ -122,44 +133,69 @@
                                 </div>
                             </div>
 
-                            {{-- QR Code Container --}}
+                            <!-- QR Code Container -->
                             <div class="flex justify-center mb-6">
                                 <div class="bg-white p-6 rounded-2xl shadow-lg border-4 border-gray-100">
                                     <div class="bg-gradient-to-br from-green-50 to-blue-50 p-4 rounded-xl">
-                                        <img src="{{ $qrCodeDataUri }}" alt="QR Code for {{ $event->title }}" 
-                                             class="mx-auto" style="max-width: 300px; height: auto;">
+                                        @if ($event->isActiveForAttendance())
+                                            <img src="{{ $qrCodeDataUri }}" alt="QR Code for {{ $event->title }}" 
+                                                 class="mx-auto" style="max-width: 300px; height: auto;">
+                                        @else
+                                            <div class="text-center text-gray-500">
+                                                <svg class="w-24 h-24 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <p class="mt-2">
+                                                    @if ($event->status === 'Terjadwal')
+                                                        QR Code akan tersedia saat event dimulai
+                                                    @else
+                                                        QR Code tidak tersedia
+                                                    @endif
+                                                </p>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- Action Buttons --}}
+                            <!-- Action Buttons -->
                             <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
-                                <button onclick="printQRCode()" 
-                                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                    </svg>
-                                    Print QR Code
-                                </button>
+                                @if ($event->isActiveForAttendance())
+                                    <button onclick="printQRCode()" 
+                                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                        </svg>
+                                        Print QR Code
+                                    </button>
 
-                                <button onclick="downloadQRCode()" 
-                                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Download QR Code
-                                </button>
+                                    <button onclick="downloadQRCode()" 
+                                        class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-900 focus:outline-none focus:border-green-900 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Download QR Code
+                                    </button>
 
-                                <button onclick="toggleFullscreen()" 
-                                    class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700 active:bg-purple-900 focus:outline-none focus:border-purple-900 focus:ring ring-purple-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                                    </svg>
-                                    Fullscreen
-                                </button>
+                                    <button onclick="toggleFullscreen()" 
+                                        class="inline-flex items-center px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700 active:bg-purple-900 focus:outline-none focus:border-purple-900 focus:ring ring-purple-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                        </svg>
+                                        Fullscreen
+                                    </button>
+                                @else
+                                    <span class="text-sm text-gray-500 italic">
+                                        @if ($event->status === 'Terjadwal')
+                                            Fitur QR Code akan aktif saat event dimulai
+                                        @else
+                                            Fitur QR Code dinonaktifkan untuk event selesai
+                                        @endif
+                                    </span>
+                                @endif
                             </div>
 
-                            {{-- Usage Statistics --}}
+                            <!-- Usage Statistics -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                                 <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
                                     <div class="text-center">
@@ -181,31 +217,45 @@
                                 </div>
                             </div>
 
-                            {{-- Live Status --}}
+                            <!-- Live Status -->
                             <div class="bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg p-4 mb-6">
                                 <div class="flex items-center justify-center">
                                     <div class="flex items-center space-x-2">
-                                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                                        <span class="text-sm font-medium text-gray-700">QR Code aktif dan siap digunakan</span>
+                                        <div class="w-3 h-3 @if($event->isActiveForAttendance()) bg-green-500 @else bg-gray-400 @endif rounded-full animate-pulse"></div>
+                                        <span class="text-sm font-medium text-gray-700">
+                                            @if($event->isActiveForAttendance())
+                                                QR Code aktif dan siap digunakan
+                                            @elseif($event->status === 'Terjadwal')
+                                                QR Code akan aktif saat event dimulai pada {{ $event->start_time->format('d M Y, H:i') }} WIB
+                                            @else
+                                                QR Code tidak aktif
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
                                 <p class="text-xs text-gray-600 mt-1">Terakhir diperbarui: <span id="last-updated">{{ now()->format('H:i:s') }}</span></p>
                             </div>
 
-                            {{-- Warning Message --}}
+                            <!-- Warning Message -->
                             @if($event->status === 'Selesai')
                                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                                     <div class="flex items-center">
                                         <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                         </svg>
-                                        <p class="text-sm text-red-800 font-medium">Peringatan: Event sudah selesai, QR Code mungkin tidak dapat digunakan untuk presensi baru.</p>
+                                        <p class="text-sm text-red-800 font-medium">Peringatan: Event sudah selesai, QR Code tidak dapat digunakan untuk presensi baru.</p>
                                     </div>
                                 </div>
                             @endif
 
                             <p class="text-lg text-gray-600 font-medium">
-                                Tampilkan kode ini kepada peserta acara untuk melakukan presensi
+                                @if ($event->isActiveForAttendance())
+                                    Tampilkan kode ini kepada peserta acara untuk melakukan presensi
+                                @elseif ($event->status === 'Terjadwal')
+                                    Kode ini akan aktif untuk presensi saat event dimulai
+                                @else
+                                    Kode ini hanya untuk referensi, presensi tidak lagi aktif
+                                @endif
                             </p>
                         </div>
                     </div>

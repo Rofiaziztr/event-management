@@ -29,7 +29,7 @@ class Attendance extends Model
     protected function casts(): array
     {
         return [
-            'check_in_time' => 'timestamp',
+            'check_in_time' => 'datetime',
         ];
     }
 

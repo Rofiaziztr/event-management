@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Event;
 use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
@@ -110,11 +109,11 @@ class EventController extends Controller
      */
     public function showQrCode(Event $event)
     {
+        $event->load('participants', 'attendances');
         if (!$event->code) {
             abort(404, 'Kode QR untuk event ini tidak ditemukan.');
         }
 
-        // Ganti metode create() dengan inisialisasi langsung
         $qrCode = new QrCode(
             data: $event->code,
             encoding: new Encoding('UTF-8'),

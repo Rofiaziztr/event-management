@@ -11,7 +11,6 @@ class ScanController extends Controller
 {
     /**
      * Menampilkan halaman scanner.
-     * Hanya user yang sudah login yang bisa mengakses.
      */
     public function index()
     {
@@ -23,46 +22,46 @@ class ScanController extends Controller
      */
     public function verify(Request $request)
     {
-        // Pastikan user sudah login
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Anda harus login untuk melakukan presensi.');
-        }
-
-        // 1. Validasi input dari form scanner
+        // Validasi input
         $request->validate(['event_code' => 'required|string']);
         $eventCode = $request->input('event_code');
         $user = Auth::user();
 
-        // 2. Cari event berdasarkan kode unik
+        // Cari event berdasarkan kode unik
         $event = Event::where('code', $eventCode)->first();
-
-        // 3. Lakukan serangkaian pemeriksaan
         if (!$event) {
-            return redirect()->route('dashboard')->with('error', 'Presensi Gagal: Event tidak ditemukan.');
+            return redirect()->route('participant.events.index')
+                ->with('error', 'Presensi Gagal: Event tidak ditemukan.');
         }
 
-        // Pemeriksaan tambahan (opsional tapi sangat direkomendasikan)
-        // if ($event->status !== 'Ongoing') {
-        //     return redirect()->route('dashboard')->with('error', 'Presensi Gagal: Event ini belum dimulai atau sudah selesai.');
-        // }
+        // Cek apakah user terdaftar sebagai peserta event
+        $isParticipant = $event->participants()
+            ->where('user_id', $user->id)
+            ->exists();
 
-        // 4. Cek apakah user sudah pernah melakukan presensi untuk event ini
+        if (!$isParticipant) {
+            return redirect()->route('participant.events.index')
+                ->with('error', 'Anda bukan peserta terdaftar untuk event ini.');
+        }
+
+        // Cek apakah user sudah presensi
         $alreadyAttended = Attendance::where('event_id', $event->id)
             ->where('user_id', $user->id)
             ->exists();
 
         if ($alreadyAttended) {
-            return redirect()->route('dashboard')->with('warning', 'Anda sudah tercatat hadir di event ini.');
+            return redirect()->route('participant.events.index')
+                ->with('warning', 'Anda sudah tercatat hadir di event ini.');
         }
 
-        // 5. Jika semua pemeriksaan lolos, catat kehadiran
+        // Catat kehadiran
         Attendance::create([
-            'event_id' => $event->id,
-            'user_id' => $user->id,
-            'check_in_time' => now(), // Catat waktu saat ini
+            'event_id'      => $event->id,
+            'user_id'       => $user->id,
+            'check_in_time' => now(),
         ]);
 
-        // 6. Redirect ke dashboard dengan pesan sukses
-        return redirect()->route('dashboard')->with('success', "Presensi untuk event '{$event->title}' berhasil!");
+        return redirect()->route('participant.events.index')
+            ->with('success', "Presensi untuk event '{$event->title}' berhasil!");
     }
 }

@@ -42,8 +42,13 @@
             </div>
 
             <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
-                {{-- MODIFICATION START: Added icons next to text --}}
-                <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                {{-- Dashboard link --}}
+                @php
+                    $role = Auth::user()->role;
+                    $dashboardRoute = $role . '.dashboard'; // contoh: "admin.dashboard" atau "participant.dashboard"
+                @endphp
+
+                <x-nav-link :href="route($dashboardRoute)" :active="request()->routeIs($dashboardRoute)">
                     <div class="flex items-center space-x-3">
                         {{-- Icon: Home/Dashboard --}}
                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -55,17 +60,21 @@
                     </div>
                 </x-nav-link>
 
-                <x-nav-link :href="route('scan.index')" :active="request()->routeIs('scan.index')">
-                    <div class="flex items-center space-x-3">
-                        {{-- Icon: QR Code Scan --}}
-                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M3.75 4.5a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V7.5a3 3 0 00-3-3H3.75zM9 13.5h6M9 10.5h6m-6-3h6m3 1.5v3m0 3v.001M12 18v3" />
-                        </svg>
-                        <span>{{ __('Scan Presensi') }}</span>
-                    </div>
-                </x-nav-link>
+
+                @if (Auth::user()->role === 'participant')
+                    <x-nav-link :href="route('scan.index')" :active="request()->routeIs('scan.index')">
+                        <div class="flex items-center space-x-3">
+                            {{-- Icon: QR Code Scan --}}
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 4.5a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V7.5a3 3 0 00-3-3H3.75zM9 13.5h6M9 10.5h6m-6-3h6m3 1.5v3m0 3v.001M12 18v3" />
+                            </svg>
+                            <span>{{ __('Scan Presensi') }}</span>
+                        </div>
+                    </x-nav-link>
+                @endif
+
 
                 @if (Auth::user()->role == 'admin')
                     <x-nav-link :href="route('admin.events.index')" :active="request()->routeIs('admin.events.*')">

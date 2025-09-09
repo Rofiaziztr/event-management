@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-    public function index()
+    public function index(Event $event)
     {
+        $event->load('participants', 'attendances');
         $user = Auth::user();
         $events = $user->participatedEvents()->with('attendances')->latest()->paginate(10);
 
