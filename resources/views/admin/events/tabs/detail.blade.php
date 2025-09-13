@@ -21,6 +21,40 @@
                 </div>
             </div>
 
+            {{-- Notulensi Preview --}}
+            @php
+                $notulensi = $event->documents->whereNull('file_path')->first();
+            @endphp
+            <div class="bg-violet-50 rounded-xl p-6 border border-violet-100">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-violet-100 rounded-lg">
+                            <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 ml-3">Notulensi Acara</h3>
+                    </div>
+                    @if($notulensi && $notulensi->content)
+                        <button type="button" onclick="previewNotulensi()" 
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            Preview Notulensi
+                        </button>
+                    @endif
+                </div>
+                <div class="prose max-w-none">
+                    @if($notulensi && $notulensi->content)
+                        <div id="notulensi-content" class="text-gray-700 leading-relaxed" data-full-content="{{ htmlspecialchars($notulensi->content, ENT_QUOTES, 'UTF-8') }}">{{ \Illuminate\Support\Str::limit(strip_tags($notulensi->content), 200) }}</div>
+                    @else
+                        <p class="text-gray-400 italic">Belum ada notulensi untuk acara ini.</p>
+                    @endif
+                </div>
+            </div>
+
             {{-- Event Timeline --}}
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
                 <div class="flex items-center mb-6">
@@ -231,6 +265,25 @@
             </div>
         </div>
     </div>
+
+    {{-- Preview Modal --}}
+    <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Preview Notulensi</h3>
+                    <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="preview-content" class="p-6 overflow-y-auto max-h-[60vh] prose max-w-none">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -238,6 +291,17 @@
 function exportParticipants() {
     // Implement export functionality here
     alert('Fitur export sedang dalam pengembangan');
+}
+
+function previewNotulensi() {
+    const contentElement = document.getElementById('notulensi-content');
+    const fullContent = contentElement ? contentElement.getAttribute('data-full-content') || '' : '';
+    document.getElementById('preview-content').innerHTML = fullContent ? new DOMParser().parseFromString(fullContent, 'text/html').body.textContent : 'Tidak ada notulensi yang tersedia.';
+    document.getElementById('preview-modal').classList.remove('hidden');
+}
+
+function closePreview() {
+    document.getElementById('preview-modal').classList.add('hidden');
 }
 </script>
 @endpush

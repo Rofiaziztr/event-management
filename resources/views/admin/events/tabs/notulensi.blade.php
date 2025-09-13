@@ -7,11 +7,11 @@
                     <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    <h3 class="text-lg font-semibold text-white">Notulensi Rapat</h3>
+                    <h3 class="text-lg font-semibold text-white">Notulensi</h3>
                 </div>
                 
                 @php
-                    $notulensi = $event->documents->firstWhere('type', 'Notulensi');
+                    $notulensi = $event->documents->whereNull('file_path')->first();
                     $lastUpdated = $notulensi ? $notulensi->updated_at : null;
                 @endphp
                 
@@ -22,7 +22,7 @@
                     </div>
                 @endif
             </div>
-            <p class="text-violet-100 text-sm mt-1">Dokumentasi hasil dan keputusan rapat</p>
+            <p class="text-violet-100 text-sm mt-1">Dokumentasi hasil dan keputusan acara</p>
         </div>
 
         {{-- Content --}}
@@ -128,6 +128,18 @@
                                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm2 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm-2 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm2 4a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"/>
                                 </svg>
                             </button>
+                            <button type="button" onclick="formatText('justifyRight')" title="Align Right"
+                                class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm4 4a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm-4 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm4 4a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button type="button" onclick="formatText('justifyFull')" title="Justify Full"
+                                class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
                         </div>
 
                         {{-- Heading Buttons --}}
@@ -155,7 +167,7 @@
                 </div>
 
                 {{-- Hidden textarea to store content --}}
-                <textarea name="content" id="content" class="hidden"></textarea>
+                <textarea name="content" id="content" class="hidden">{!! $notulensi && $notulensi->content ? $notulensi->content : '' !!}</textarea>
 
                 @error('content')
                     <p class="text-sm text-red-600">{{ $message }}</p>
@@ -171,44 +183,15 @@
                         </svg>
                         Otomatis disimpan setiap 30 detik
                     </span>
-                    <span id="save-status" class="ml-3 text-green-600 font-medium hidden">✓ Tersimpan</span>
                 </div>
                 
                 <div class="flex items-center space-x-3">
-                    <button type="button" onclick="previewNotulensi()" 
-                        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        Preview
-                    </button>
-                    
                     <x-bladewind::button can_submit="true" color="violet" icon="save">
                         Simpan Notulensi
                     </x-bladewind::button>
                 </div>
             </div>
         </form>
-    </div>
-
-    {{-- Preview Modal --}}
-    <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">Preview Notulensi</h3>
-                    <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div id="preview-content" class="p-6 overflow-y-auto max-h-[60vh] prose max-w-none">
-                    <!-- Preview content will be inserted here -->
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -225,19 +208,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Update hidden textarea when editor content changes
     editor.addEventListener('input', function() {
-        document.getElementById('content').value = editor.innerHTML;
-        showUnsavedStatus();
+        const content = editor.innerHTML;
+        document.getElementById('content').value = content;
     });
     
-    // Handle form submission
+    // Ensure content is set before form submission
     document.querySelector('form').addEventListener('submit', function(e) {
-        document.getElementById('content').value = editor.innerHTML;
+        const content = editor.innerHTML;
+        if (content === '<p class="text-gray-400 italic">Mulai menulis notulensi rapat di sini...</p>') {
+            document.getElementById('content').value = '';
+        } else {
+            document.getElementById('content').value = content;
+        }
     });
 });
 
 function formatText(command, value = null) {
     document.execCommand(command, false, value);
     editor.focus();
+    updateHiddenTextarea();
 }
 
 function formatHeading(tag) {
@@ -247,9 +236,11 @@ function formatHeading(tag) {
         document.execCommand('formatBlock', false, 'p');
     }
     editor.focus();
+    updateHiddenTextarea();
 }
 
 function insertTemplate(type) {
+    editor.focus();
     let template = '';
     const currentDate = new Date().toLocaleDateString('id-ID', {
         weekday: 'long',
@@ -284,6 +275,7 @@ function insertTemplate(type) {
 }
 
 function insertCurrentTime() {
+    editor.focus();
     const now = new Date();
     const timeString = now.toLocaleString('id-ID', {
         weekday: 'long',
@@ -311,7 +303,12 @@ function insertAtCursor(html) {
         editor.innerHTML += html;
     }
     editor.focus();
-    document.getElementById('content').value = editor.innerHTML;
+    updateHiddenTextarea();
+}
+
+function updateHiddenTextarea() {
+    const content = editor.innerHTML;
+    document.getElementById('content').value = content === '<p class="text-gray-400 italic">Mulai menulis notulensi rapat di sini...</p>' ? '' : content;
 }
 
 function startAutoSave() {
@@ -323,34 +320,40 @@ function startAutoSave() {
 function autoSave() {
     const content = editor.innerHTML;
     if (content.trim() && content !== '<p class="text-gray-400 italic">Mulai menulis notulensi rapat di sini...</p>') {
-        // Here you would typically send an AJAX request to save
-        // For now, just show the saved status
-        showSavedStatus();
+        // Send AJAX request to save content
+        fetch('{{ route('admin.events.notulensi.store', $event) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                content: content
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.text(); // Mengubah ke text karena respons mungkin HTML redirect
+        })
+        .then(data => {
+            // Cek jika respons adalah JSON
+            try {
+                const jsonData = JSON.parse(data);
+                if (jsonData.success) {
+                    // Success handling if needed
+                } else {
+                    console.error('Auto-save failed:', jsonData.message);
+                }
+            } catch (e) {
+                // Jika bukan JSON, kemungkinan redirect, anggap sukses jika no error
+            }
+        })
+        .catch(error => {
+            console.error('Auto-save error:', error);
+        });
     }
-}
-
-function showSavedStatus() {
-    const status = document.getElementById('save-status');
-    status.textContent = '✓ Tersimpan';
-    status.classList.remove('hidden', 'text-orange-600');
-    status.classList.add('text-green-600');
-}
-
-function showUnsavedStatus() {
-    const status = document.getElementById('save-status');
-    status.textContent = '● Belum tersimpan';
-    status.classList.remove('hidden', 'text-green-600');
-    status.classList.add('text-orange-600');
-}
-
-function previewNotulensi() {
-    const content = editor.innerHTML;
-    document.getElementById('preview-content').innerHTML = content;
-    document.getElementById('preview-modal').classList.remove('hidden');
-}
-
-function closePreview() {
-    document.getElementById('preview-modal').classList.add('hidden');
 }
 
 // Clean up on page unload

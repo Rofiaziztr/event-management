@@ -80,36 +80,36 @@ class Event extends Model
     }
 
     public function getCountdownStatusAttribute(): string
-{
-    $now = now();
+    {
+        $now = now();
 
-    // Jika sudah selesai atau dibatalkan → langsung return
-    if (in_array($this->status, ['Selesai', 'Dibatalkan'])) {
-        return $this->status;
+        // Jika sudah selesai atau dibatalkan → langsung return
+        if (in_array($this->status, ['Selesai', 'Dibatalkan'])) {
+            return $this->status;
+        }
+
+        // Jika event sedang berlangsung
+        if ($now->between($this->start_time, $this->end_time)) {
+            return 'Berlangsung';
+        }
+
+        // Jika event sudah lewat
+        if ($now->greaterThan($this->end_time)) {
+            return 'Selesai';
+        }
+
+        // Hitung selisih hari ke depan
+        $daysUntil = $now->diffInDays($this->start_time, false);
+
+        return match (true) {
+            $daysUntil < 0  => 'Selesai',
+            $daysUntil === 0 => 'Hari Ini',
+            $daysUntil === 1 => 'Besok',
+            default          => 'H-' . ceil($now->diffInHours($this->start_time) / 24),
+        };
     }
 
-    // Jika event sedang berlangsung
-    if ($now->between($this->start_time, $this->end_time)) {
-        return 'Berlangsung';
-    }
-
-    // Jika event sudah lewat
-    if ($now->greaterThan($this->end_time)) {
-        return 'Selesai';
-    }
-
-    // Hitung selisih hari ke depan
-    $daysUntil = $now->diffInDays($this->start_time, false);
-
-    return match (true) {
-        $daysUntil < 0  => 'Selesai',
-        $daysUntil === 0 => 'Hari Ini',
-        $daysUntil === 1 => 'Besok',
-        default          => 'H-' . ceil($now->diffInHours($this->start_time) / 24),
-    };
-}
-
-/**
+    /**
      * Mendapatkan status event berdasarkan waktu saat ini.
      */
     public function getStatusAttribute()
@@ -133,5 +133,4 @@ class Event extends Model
         $now = now();
         return $now >= $this->start_time && $now <= $this->end_time;
     }
-
 }

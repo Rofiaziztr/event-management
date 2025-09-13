@@ -7,11 +7,12 @@ use App\Models\Document;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
 {
     /**
-     * Menyimpan dokumen berupa file (Materi, Foto, Video).
+     * Menyimpan dokumen berupa file (Lampiran umum).
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Event  $event
@@ -22,7 +23,6 @@ class DocumentController extends Controller
         // 1. Validasi input dari form
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'type' => 'required|string|in:Materi,Foto,Video',
             'document_file' => 'required|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,mp4,avi,mov|max:10240',
         ]);
 
@@ -34,7 +34,6 @@ class DocumentController extends Controller
         $document->event_id = $event->id;
         $document->uploader_id = auth()->id();
         $document->title = $validated['title'];
-        $document->type = $validated['type'];
         $document->file_path = $filePath;
         $document->save();
 
@@ -48,7 +47,7 @@ class DocumentController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Event  $event
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function storeOrUpdateNotulensi(Request $request, Event $event)
     {
@@ -58,39 +57,64 @@ class DocumentController extends Controller
 
         $content = $request->input('content');
 
-        $notulensi = Document::firstOrNew([
-            'event_id' => $event->id,
-            'type' => 'Notulensi'
-        ]);
+        // Cari dokumen notulensi berdasarkan event_id dan file_path null
+        $notulensi = Document::where('event_id', $event->id)
+            ->whereNull('file_path')
+            ->first();
 
-        // Jika content kosong dan notulensi sudah ada di database, hapus recordnya
-        if (empty($content) && $notulensi->exists) {
+        // Jika content kosong dan notulensi sudah ada, hapus recordnya
+        if (empty($content) && $notulensi) {
             $notulensi->delete();
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Notulensi berhasil dihapus.']);
+            }
             return redirect()->route('admin.events.show', $event)
                 ->with('success', 'Notulensi berhasil dihapus.');
         }
 
         // Jika content diisi, simpan atau perbarui data
         if (!empty($content)) {
+            if (!$notulensi) {
+                $notulensi = new Document();
+                $notulensi->event_id = $event->id;
+                $notulensi->uploader_id = auth()->id();
+            }
+
             $notulensi->fill([
                 'title' => 'Notulensi Rapat - ' . $event->title,
                 'content' => $content,
-                'uploader_id' => auth()->id(),
-                'file_path' => null
+                'file_path' => null,
             ]);
 
-            if ($notulensi->save()) {
-                return redirect()->route('admin.events.show', $event)
-                    ->with('success', 'Notulensi berhasil disimpan.');
-            } else {
-                return back()->with('error', 'Gagal menyimpan notulensi.');
+            try {
+                if ($notulensi->save()) {
+                    if ($request->ajax()) {
+                        return response()->json(['success' => true, 'message' => 'Notulensi berhasil disimpan.']);
+                    }
+                    return redirect()->route('admin.events.show', $event)
+                        ->with('success', 'Notulensi berhasil disimpan.');
+                } else {
+                    Log::error('Gagal menyimpan notulensi untuk event_id: ' . $event->id);
+                    if ($request->ajax()) {
+                        return response()->json(['success' => false, 'message' => 'Gagal menyimpan notulensi. Silakan coba lagi.']);
+                    }
+                    return back()->with('error', 'Gagal menyimpan notulensi. Silakan coba lagi.');
+                }
+            } catch (\Exception $e) {
+                Log::error('Error menyimpan notulensi: ' . $e->getMessage());
+                if ($request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menyimpan notulensi: ' . $e->getMessage()]);
+                }
+                return back()->with('error', 'Terjadi kesalahan saat menyimpan notulensi: ' . $e->getMessage());
             }
         }
 
-        // Jika content kosong dan notulensi belum ada, tidak melakukan apa-apa, cukup kembali
+        // Jika content kosong dan notulensi belum ada, kembali tanpa pesan
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
+        }
         return redirect()->route('admin.events.show', $event);
     }
-
 
     /**
      * Menghapus sebuah dokumen.
@@ -101,12 +125,11 @@ class DocumentController extends Controller
     public function destroy(Document $document)
     {
         // Pastikan user yang menghapus adalah pemilik atau admin
-        // Pengecekan isAdmin() adalah contoh, sesuaikan dengan logic role Anda
         if (auth()->id() !== $document->uploader_id && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // FIX: Hapus file fisik dari storage hanya jika file_path ada (tidak null)
+        // Hapus file fisik dari storage hanya jika file_path ada
         if ($document->file_path) {
             Storage::disk('public')->delete($document->file_path);
         }

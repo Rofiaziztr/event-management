@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // <-- Perbaikan di sini
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable // <-- dan di sini
+class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
@@ -75,5 +75,10 @@ class User extends Authenticatable // <-- dan di sini
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->participatedEvents()->exists() || $this->attendances()->exists();
     }
 }

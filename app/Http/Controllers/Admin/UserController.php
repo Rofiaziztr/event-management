@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Models\User;
+use App\Exports\UsersExport;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the users.
+     */
+    public function index(Request $request)
+{
+    $query = User::query();
+
+    // --- Filtering ---
+    if ($request->filled('search')) {
+        $field = $request->input('search_field', 'full_name');
+        if (in_array($field, ['full_name', 'email'])) {
+            $query->where($field, 'like', '%' . $request->search . '%');
+        }
+    }
+
+    if ($request->filled('status')) {
+        if ($request->status === 'active') {
+            $query->where(function ($q) {
+                $q->whereHas('attendances')
+                  ->orWhereHas('participatedEvents');
+            });
+        } elseif ($request->status === 'inactive') {
+            $query->whereDoesntHave('attendances')
+                  ->whereDoesntHave('participatedEvents');
+        }
+    }
+
+    // --- Sorting dengan fallback ---
+    $sort = $request->input('sort', 'full_name');
+    $direction = $request->input('direction', 'asc');
+
+    if (! in_array($sort, ['full_name', 'email'])) {
+        $sort = 'full_name';
+    }
+    if (! in_array($direction, ['asc', 'desc'])) {
+        $direction = 'asc';
+    }
+
+    $query->orderBy($sort, $direction);
+
+    $users = $query->paginate(10)->withQueryString();
+
+    return view('admin.users.index', compact('users'));
+}
+
+
+    /**
+     * Show the form for creating a new user.
+     */
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
+    /**
+     * Store a newly created user in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nip' => 'nullable|string|max:255',
+            'full_name' => 'required|string|max:255',
+            'position' => 'nullable|string|max:255',
+            'division' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'institution' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'role' => ['required', Rule::in(['participant'])], // Hanya participant
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+        User::create($validated);
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil dibuat.');
+    }
+
+    public function show(User $user)
+    {
+        if ($user->role !== 'participant') {
+            abort(403, 'Hanya participant yang bisa dilihat.');
+        }
+        $user->load('participatedEvents', 'attendances');
+        return view('admin.users.show', compact('user'));
+    }
+
+    /**
+     * Show the form for editing the specified user.
+     */
+    public function edit(User $user)
+    {
+        if ($user->role !== 'participant') {
+            abort(403, 'Hanya participant yang bisa diedit.');
+        }
+
+        return view('admin.users.edit', compact('user'));
+    }
+
+    /**
+     * Update the specified user in storage.
+     */
+    public function update(Request $request, User $user)
+    {
+        \Log::info('Update method called with data: ', $request->all());
+        if ($user->role !== 'participant') {
+            abort(403, 'Hanya participant yang bisa diedit.');
+        }
+
+        $validated = $request->validate([
+            'nip' => 'nullable|string|max:255',
+            'full_name' => 'required|string|max:255',
+            'position' => 'nullable|string|max:255',
+            'division' => 'nullable|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|string|min:8|confirmed',
+            'institution' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'role' => ['required', Rule::in(['participant'])],
+        ]);
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified user from storage.
+     */
+    public function destroy(User $user)
+    {
+        Log::info('Destroy method called for user: ' . $user->id);
+        if ($user->role !== 'participant') {
+            abort(403, 'Hanya participant yang bisa dihapus.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+    }
+
+    public function export()
+    {
+        Log::info('Export route hit for admin.users.export');
+        return Excel::download(new UsersExport, 'users_' . now()->format('Ymd_His') . '.xlsx');
+    }
+}

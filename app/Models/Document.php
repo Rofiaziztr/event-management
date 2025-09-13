@@ -19,7 +19,6 @@ class Document extends Model
         'event_id',
         'uploader_id',
         'title',
-        'type',
         'file_path',
         'content',
     ];
@@ -33,7 +32,8 @@ class Document extends Model
     {
         return [
             'created_at' => 'datetime',
-        'updated_at' => 'datetime',];
+            'updated_at' => 'datetime',
+        ];
     }
 
     /**

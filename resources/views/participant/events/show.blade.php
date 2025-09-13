@@ -10,13 +10,13 @@
                     $dynamicStatus = $event->status;
                 @endphp
                 @if ($dynamicStatus == 'Terjadwal')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                        <div class="w-2 h-2 bg-teal-400 rounded-full mr-2"></div>
                         {{ $dynamicStatus }}
                     </span>
                 @elseif($dynamicStatus == 'Berlangsung')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></div>
                         {{ $dynamicStatus }}
                     </span>
                 @elseif($dynamicStatus == 'Selesai')
@@ -32,7 +32,7 @@
                 @endif
 
                 @if ($dynamicStatus === 'Berlangsung' && !$attendance)
-                    <x-bladewind::button tag="a" href="{{ route('scan.index') }}" color="green"
+                    <x-bladewind::button tag="a" href="{{ route('scan.index') }}" color="emerald"
                         size="small" icon="qr-code">
                         <span class="hidden lg:inline">Lakukan Presensi</span>
                         <span class="lg:hidden">Presensi</span>
@@ -44,7 +44,6 @@
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Alert Messages --}}
             @if (session('success'))
                 <div class="mb-6">
                     <x-bladewind::alert type="success" class="shadow-sm">
@@ -53,10 +52,9 @@
                 </div>
             @endif
 
-            {{-- Attendance Status Card --}}
             <div class="mb-8">
                 @if ($attendance)
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+                    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg">
                         <div class="flex items-center">
                             <div class="p-3 bg-white bg-opacity-20 rounded-lg">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -64,15 +62,15 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <p class="text-green-100 text-sm">Status Kehadiran</p>
+                                <p class="text-emerald-100 text-sm">Status Kehadiran</p>
                                 <p class="text-2xl font-bold">Anda Sudah Hadir</p>
-                                <p class="text-green-100 text-sm">Check-in pada: {{ \Carbon\Carbon::parse($attendance->check_in_time)->format('d M Y, H:i') }}</p>
+                                <p class="text-emerald-100 text-sm">Check-in pada: {{ \Carbon\Carbon::parse($attendance->check_in_time)->format('d M Y, H:i') }} WIB</p>
                             </div>
                         </div>
                     </div>
                 @else
                     @if ($dynamicStatus === 'Berlangsung')
-                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-6 text-white shadow-lg">
+                        <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-lg">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
                                     <div class="p-3 bg-white bg-opacity-20 rounded-lg">
@@ -81,9 +79,9 @@
                                         </svg>
                                     </div>
                                     <div class="ml-4">
-                                        <p class="text-yellow-100 text-sm">Status Kehadiran</p>
+                                        <p class="text-amber-100 text-sm">Status Kehadiran</p>
                                         <p class="text-2xl font-bold">Belum Melakukan Presensi</p>
-                                        <p class="text-yellow-100 text-sm">Event sedang berlangsung - segera lakukan presensi</p>
+                                        <p class="text-amber-100 text-sm">Event sedang berlangsung - segera lakukan presensi</p>
                                     </div>
                                 </div>
                                 <x-bladewind::button tag="a" href="{{ route('scan.index') }}" 
@@ -117,9 +115,8 @@
                 @endif
             </div>
 
-            {{-- Event Info Cards --}}
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 text-white shadow-lg">
                     <div class="flex items-center">
                         <div class="p-3 bg-white bg-opacity-20 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,13 +124,13 @@
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-blue-100 text-sm">Total Peserta</p>
+                            <p class="text-teal-100 text-sm">Total Peserta</p>
                             <p class="text-2xl font-bold">{{ $event->participants->count() }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg">
                     <div class="flex items-center">
                         <div class="p-3 bg-white bg-opacity-20 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,7 +138,7 @@
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-green-100 text-sm">Sudah Hadir</p>
+                            <p class="text-emerald-100 text-sm">Sudah Hadir</p>
                             <p class="text-2xl font-bold">{{ $event->attendances->count() ?? 0 }}</p>
                         </div>
                     </div>
@@ -156,12 +153,12 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-purple-100 text-sm">Dokumen</p>
-                            <p class="text-2xl font-bold">{{ $event->documents->where('type', '!=', 'Notulensi')->count() }}</p>
+                            <p class="text-2xl font-bold">{{ $event->documents->whereNotNull('file_path')->count() }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-6 text-white shadow-lg">
                     <div class="flex items-center">
                         <div class="p-3 bg-white bg-opacity-20 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,20 +166,17 @@
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-orange-100 text-sm">Waktu Tersisa</p>
+                            <p class="text-amber-100 text-sm">Waktu Tersisa</p>
                             <p class="text-lg font-bold">{{ $event->countdown_status }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Main Content --}}
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {{-- Left Section - Event Details --}}
                 <div class="lg:col-span-2 space-y-6">
-                    {{-- Event Description --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                        <div class="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-4">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -201,9 +195,8 @@
                         </div>
                     </div>
 
-                    {{-- Notulensi Section --}}
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                        <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -213,10 +206,21 @@
                         </div>
                         <div class="p-6">
                             @php
-                                $notulensi = $event->documents->where('type', 'Notulensi')->first();
+                                $notulensi = $event->documents->whereNotNull('content')->first();
+                                $previewLimit = 200; // Limit to 200 characters
                             @endphp
                             @if ($notulensi && $notulensi->content)
-                                <div class="prose max-w-none">{!! $notulensi->content !!}</div>
+                                <div class="prose max-w-none">
+                                    <div id="notulensi-preview" class="text-gray-700 leading-relaxed">
+                                        {{ \Illuminate\Support\Str::limit(strip_tags($notulensi->content), $previewLimit) }}
+                                    </div>
+                                    @if (strlen(strip_tags($notulensi->content)) > $previewLimit)
+                                        <button onclick="toggleNotulensi()" class="mt-2 text-indigo-600 hover:text-indigo-800 text-sm">Lihat Lebih Lanjut</button>
+                                        <div id="notulensi-full" class="hidden mt-2 text-gray-700 leading-relaxed">
+                                            {!! $notulensi->content !!}
+                                        </div>
+                                    @endif
+                                </div>
                             @else
                                 <div class="text-center py-8">
                                     <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,15 +233,12 @@
                     </div>
                 </div>
 
-                {{-- Right Section - Event Info & Documents --}}
                 <div class="space-y-6">
-                    {{-- Event Information --}}
                     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
                             <h3 class="text-lg font-semibold text-white">Informasi Event</h3>
                         </div>
                         <div class="p-6 space-y-4">
-                            {{-- Location --}}
                             <div>
                                 <div class="flex items-center mb-2">
                                     <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,7 +252,6 @@
 
                             <hr class="border-gray-200">
 
-                            {{-- Start Time --}}
                             <div>
                                 <div class="flex items-center mb-2">
                                     <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,7 +262,6 @@
                                 <p class="text-sm font-semibold text-gray-900 pl-6">{{ $event->start_time->format('l, d F Y - H:i') }} WIB</p>
                             </div>
 
-                            {{-- Creator --}}
                             <div>
                                 <div class="flex items-center mb-2">
                                     <svg class="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,13 +277,12 @@
                         </div>
                     </div>
 
-                    {{-- Documents --}}
                     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                         <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-lg font-semibold text-white">Dokumen Terkait</h3>
                                 @php
-                                    $documents = $event->documents->where('type', '!=', 'Notulensi');
+                                    $documents = $event->documents->whereNotNull('file_path');
                                 @endphp
                                 <span class="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full text-sm font-medium">
                                     {{ $documents->count() }}
@@ -297,7 +295,6 @@
                                     <div class="flex items-center justify-between">
                                         <div class="flex-1 min-w-0">
                                             <p class="text-sm font-medium text-gray-900 truncate">{{ $document->title }}</p>
-                                            <p class="text-xs text-gray-500">{{ $document->type }}</p>
                                         </div>
                                         <a href="{{ Storage::url($document->file_path) }}" target="_blank"
                                             class="ml-3 inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
@@ -322,7 +319,6 @@
                 </div>
             </div>
 
-            {{-- Back Button --}}
             <div class="mt-8 flex justify-center">
                 <x-bladewind::button tag="a" href="{{ route('participant.events.index') }}" 
                     color="gray" icon="arrow-left">
@@ -331,4 +327,23 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            function toggleNotulensi() {
+                const preview = document.getElementById('notulensi-preview');
+                const full = document.getElementById('notulensi-full');
+                const button = event.target;
+                if (full.classList.contains('hidden')) {
+                    full.classList.remove('hidden');
+                    preview.style.display = 'none';
+                    button.textContent = 'Tutup';
+                } else {
+                    full.classList.add('hidden');
+                    preview.style.display = 'block';
+                    button.textContent = 'Lihat Lebih Lanjut';
+                }
+            }
+        </script>
+    @endpush
 </x-app-layout>

@@ -7,154 +7,170 @@ use App\Models\Event;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\Document;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Base query untuk filtering
+        $eventQuery = Event::query();
+        
+        // Apply date filter jika ada
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = Carbon::parse($request->start_date)->startOfDay();
+            $endDate = Carbon::parse($request->end_date)->endOfDay();
+            $eventQuery->whereBetween('start_time', [$startDate, $endDate]);
+        }
+
         // Basic statistics
-        $totalEvents = Event::count();
+        $totalEvents = $eventQuery->count();
         $totalParticipants = User::where('role', 'participant')->count();
-        $activeEvents = Event::where('status', 'Berlangsung')->count();
         $totalAttendances = Attendance::count();
+
+        // Calculate average attendance rate
+        $attendanceData = Event::withCount(['participants', 'attendances'])
+            ->having('participants_count', '>', 0)
+            ->get();
+
+        $averageAttendance = 0;
+        if ($attendanceData->count() > 0) {
+            $totalRate = $attendanceData->sum(function ($event) {
+                return ($event->attendances_count / $event->participants_count) * 100;
+            });
+            $averageAttendance = $totalRate / $attendanceData->count();
+        }
 
         // Monthly statistics
         $currentMonth = Carbon::now()->startOfMonth();
         $monthlyEvents = Event::where('created_at', '>=', $currentMonth)->count();
         $monthlyAttendances = Attendance::where('created_at', '>=', $currentMonth)->count();
+        $activeEvents = Event::where('status', 'Berlangsung')->count();
+        $totalDocuments = Document::count();
 
-        // Average attendance rate - exclude canceled events
-        $eventsWithParticipants = Event::withCount(['participants', 'attendances'])
-            ->where('status', '!=', 'Dibatalkan')
-            ->get();
-        
-        $totalRate = 0;
-        $eventCount = 0;
-        
-        foreach ($eventsWithParticipants as $event) {
-            if ($event->participants_count > 0) {
-                $totalRate += ($event->attendances_count / $event->participants_count) * 100;
-                $eventCount++;
-            }
-        }
-        
-        $averageAttendanceRate = $eventCount > 0 ? round($totalRate / $eventCount) : 0;
+        // Chart data berdasarkan group_by parameter
+        $groupBy = $request->get('group_by', 'events');
+        $eventAttendance = $this->getChartData($eventQuery, $groupBy, $request);
 
-        // Recent events (last 10)
-        $recentEvents = Event::with(['participants', 'attendances'])
+        // Recent events untuk activity feed
+        $recentEvents = Event::with('participants')
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
 
-        // Events needing attention (starting soon or ongoing)
-        $eventsNeedingAttention = Event::where(function ($query) {
-            $query->where('status', 'Berlangsung')
-                  ->orWhere(function ($subQuery) {
-                      $subQuery->where('status', 'Terjadwal')
-                               ->where('start_time', '<=', Carbon::now()->addHours(2));
-                  });
-        })->get();
-
-        // Total documents
-        $totalDocuments = Document::count();
-
-        // NEW: Upcoming events in the next 7 days
-        $upcomingEvents = Event::where('status', 'Terjadwal')
-            ->whereBetween('start_time', [Carbon::now(), Carbon::now()->addDays(7)])
-            ->orderBy('start_time')
-            ->get();
-
-        // NEW: Events with low attendance rate (less than 50%)
-        $eventsWithAttendance = Event::withCount(['participants', 'attendances'])
-            ->where('status', '!=', 'Dibatalkan')
-            ->get()
-            ->filter(function ($event) {
-                return $event->participants_count > 0;
-            })
-            ->map(function ($event) {
-                $event->attendance_rate = $event->participants_count > 0 
-                    ? round(($event->attendances_count / $event->participants_count) * 100)
-                    : 0;
-                return $event;
-            });
-        
-        $lowAttendanceEvents = $eventsWithAttendance->where('attendance_rate', '<', 50)->take(5);
-
-        // NEW: Recent attendees (last 10)
-        $recentAttendances = Attendance::with(['user', 'event'])
-            ->orderBy('check_in_time', 'desc')
-            ->take(10)
-            ->get();
-
-        // NEW: Event status distribution
-        $eventStatusStats = Event::select('status', DB::raw('count(*) as count'))
-            ->groupBy('status')
-            ->get();
-
-        // NEW: Daily attendance trend (last 7 days)
-        $attendanceTrend = Attendance::select(DB::raw('DATE(check_in_time) as date'), DB::raw('count(*) as count'))
-            ->where('check_in_time', '>=', Carbon::now()->subDays(7))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-
-        // System health (more realistic calculation)
-        $systemHealth = 100; // Base value
-        // Deduct points for events needing attention
-        if ($eventsNeedingAttention->count() > 3) {
-            $systemHealth -= 10;
-        }
-        // Deduct points for low attendance events
-        if ($lowAttendanceEvents->count() > 2) {
-            $systemHealth -= 5;
-        }
-
-        // Recent activities (more dynamic based on actual data)
-        $recentActivities = collect();
-        
-        // Add recent event creations
-        $recentEventCreations = Event::orderBy('created_at', 'desc')
-            ->take(3)
-            ->get()
-            ->map(function ($event) {
-                return [
-                    'type' => 'event_created',
-                    'message' => 'Event baru "' . $event->title . '" telah dibuat',
-                    'time' => $event->created_at->diffForHumans()
-                ];
-            });
-        
-        $recentActivities = $recentActivities->merge($recentEventCreations);
-        
-        // Add recent attendances if available
-        if ($recentAttendances->count() > 0) {
-            $recentActivities->push([
-                'type' => 'attendance',
-                'message' => $recentAttendances->count() . ' presensi tercatat baru-baru ini',
-                'time' => $recentAttendances->first()->check_in_time->diffForHumans()
-            ]);
-        }
-
-        return view('admin.dashboard', compact(
+        return view('admin.dashboard.index', compact(
             'totalEvents',
-            'totalParticipants', 
-            'activeEvents',
+            'totalParticipants',
             'totalAttendances',
+            'averageAttendance',
+            'eventAttendance',
+            'recentEvents',
             'monthlyEvents',
             'monthlyAttendances',
-            'averageAttendanceRate',
-            'recentEvents',
-            'eventsNeedingAttention',
-            'totalDocuments',
-            'systemHealth',
-            'recentActivities',
-            'upcomingEvents',
-            'lowAttendanceEvents',
-            'recentAttendances',
-            'eventStatusStats',
-            'attendanceTrend'
+            'activeEvents',
+            'totalDocuments'
         ));
+    }
+
+    private function getChartData($eventQuery, $groupBy, $request)
+    {
+        switch ($groupBy) {
+            case 'daily':
+                return $this->getDailyAttendanceData($request);
+            
+            case 'weekly':
+                return $this->getWeeklyAttendanceData($request);
+            
+            case 'monthly':
+                return $this->getMonthlyAttendanceData($request);
+            
+            default: // 'events'
+                return $eventQuery->withCount('attendances')
+                    ->orderBy('attendances_count', 'desc')
+                    ->take(5)
+                    ->get()
+                    ->map(function ($event) {
+                        return [
+                            'title' => $event->title,
+                            'attendance_count' => $event->attendances_count,
+                        ];
+                    });
+        }
+    }
+
+    private function getDailyAttendanceData($request)
+    {
+        $startDate = $request->filled('start_date') 
+            ? Carbon::parse($request->start_date)
+            : Carbon::now()->subDays(6);
+        
+        $endDate = $request->filled('end_date')
+            ? Carbon::parse($request->end_date)
+            : Carbon::now();
+
+        $dailyData = collect();
+        $current = $startDate->copy();
+
+        while ($current <= $endDate) {
+            $count = Attendance::whereDate('created_at', $current)
+                ->count();
+            
+            $dailyData->push([
+                'title' => $current->format('d M'),
+                'attendance_count' => $count
+            ]);
+            
+            $current->addDay();
+        }
+
+        return $dailyData;
+    }
+
+    private function getWeeklyAttendanceData($request)
+    {
+        $startDate = $request->filled('start_date')
+            ? Carbon::parse($request->start_date)->startOfWeek()
+            : Carbon::now()->subWeeks(3)->startOfWeek();
+        
+        $endDate = $request->filled('end_date')
+            ? Carbon::parse($request->end_date)->endOfWeek()
+            : Carbon::now()->endOfWeek();
+
+        $weeklyData = collect();
+        $current = $startDate->copy();
+
+        while ($current <= $endDate) {
+            $weekEnd = $current->copy()->endOfWeek();
+            
+            $count = Attendance::whereBetween('created_at', [
+                $current->startOfWeek(),
+                $weekEnd
+            ])->count();
+            
+            $weeklyData->push([
+                'title' => 'Minggu ' . $current->format('d M'),
+                'attendance_count' => $count
+            ]);
+            
+            $current->addWeek();
+        }
+
+        return $weeklyData;
+    }
+
+    private function getMonthlyAttendanceData($request)
+    {
+        $startDate = $request->filled('start_date')
+            ? Carbon::parse($request->start_date)->startOfMonth()
+            : Carbon::now()->subMonths(5)->startOfMonth();
+        
+        $endDate = $request->filled('end_date')
+            ? Carbon::parse($request->end_date)->endOfMonth()
+            : Carbon::now()->endOfMonth();
+
+        $monthlyData = collect();
+        $current = $startDate->copy();
     }
 }

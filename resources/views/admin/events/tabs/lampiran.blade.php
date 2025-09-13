@@ -31,29 +31,6 @@
                         @enderror
                     </div>
 
-                    {{-- Document Type --}}
-                    <div>
-                        <label for="document_type" class="block text-sm font-medium text-gray-700 mb-2">
-                            Tipe Lampiran <span class="text-red-500">*</span>
-                        </label>
-                        <select name="type" id="document_type" required
-                            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500">
-                            <option value="">-- Pilih Tipe Lampiran --</option>
-                            <option value="Materi" {{ old('type') == 'Materi' ? 'selected' : '' }}>
-                                📄 Materi Presentasi
-                            </option>
-                            <option value="Foto" {{ old('type') == 'Foto' ? 'selected' : '' }}>
-                                📷 Dokumentasi Foto
-                            </option>
-                            <option value="Video" {{ old('type') == 'Video' ? 'selected' : '' }}>
-                                🎥 Video Recording
-                            </option>
-                        </select>
-                        @error('type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     {{-- File Upload --}}
                     <div>
                         <x-bladewind::filepicker name="document_file" id="document_file" label="Pilih File"
@@ -85,9 +62,8 @@
                     <h3 class="text-sm font-medium text-blue-800">Panduan Upload</h3>
                     <div class="mt-2 text-sm text-blue-700">
                         <ul class="list-disc list-inside space-y-1">
-                            <li><strong>Materi:</strong> PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX</li>
-                            <li><strong>Foto:</strong> JPG, JPEG, PNG, GIF (max 10MB)</li>
-                            <li><strong>Video:</strong> MP4, AVI, MOV (max 10MB)</li>
+                            <li><strong>Format:</strong> PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, JPG, JPEG, PNG, GIF, MP4, AVI, MOV</li>
+                            <li>Ukuran maksimal 10MB</li>
                             <li>Gunakan nama file yang deskriptif</li>
                             <li>Pastikan file tidak mengandung informasi sensitif</li>
                         </ul>
@@ -110,7 +86,7 @@
                         <h3 class="text-lg font-semibold text-white">Lampiran Terunggah</h3>
                     </div>
                     @php
-                        $documents = $event->documents->where('type', '!=', 'Notulensi');
+                        $documents = $event->documents->whereNotNull('file_path');
                     @endphp
                     <span class="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full text-sm font-medium">
                         {{ $documents->count() }}
@@ -182,23 +158,6 @@
                                     </h4>
 
                                     <div class="flex items-center mt-1 space-x-4">
-                                        <span
-                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
-                                            {{ $document->type === 'Materi'
-                                                ? 'bg-blue-100 text-blue-800'
-                                                : ($document->type === 'Foto'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-purple-100 text-purple-800') }}">
-                                            @if ($document->type === 'Materi')
-                                                📄
-                                            @elseif($document->type === 'Foto')
-                                                📷
-                                            @else
-                                                🎥
-                                            @endif
-                                            {{ $document->type }}
-                                        </span>
-
                                         <span class="text-xs text-gray-500">
                                             {{ strtoupper($extension) }}
                                         </span>
@@ -289,8 +248,6 @@
 
 @push('scripts')
     <script>
-
-
         function downloadAll() {
             alert('Fitur download all sedang dalam pengembangan');
             // Implement bulk download functionality here
