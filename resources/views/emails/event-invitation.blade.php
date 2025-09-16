@@ -17,6 +17,13 @@
     
     <p>Silakan login ke aplikasi untuk detail lebih lanjut.</p>
     
+    @if ($password)
+    <p><strong>Akun Anda telah dibuat dengan detail berikut:</strong></p>
+    <p>Email: {{ $participant->email }}</p>
+    <p>Password sementara: <strong>{{ $password }}</strong></p>
+    <p>Silakan ubah password Anda setelah login pertama kali untuk keamanan.</p>
+    @endif
+    
     <hr>
     <p><small>Email ini dikirim otomatis oleh Sistem Event Management.</small></p>
 </body>

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ScanController extends Controller
 {
@@ -14,7 +15,7 @@ class ScanController extends Controller
      */
     public function index()
     {
-        return view('scan');
+        return view('participant.scan');
     }
 
     /**
@@ -29,8 +30,10 @@ class ScanController extends Controller
 
         // Cari event berdasarkan kode unik
         $event = Event::where('code', $eventCode)->first();
+        
         if (!$event) {
-            return redirect()->route('participant.events.index')
+            Log::warning('Event tidak ditemukan dengan kode: ' . $eventCode . ' oleh user: ' . $user->id);
+            return redirect()->route('scan.index')
                 ->with('error', 'Presensi Gagal: Event tidak ditemukan.');
         }
 
@@ -40,8 +43,16 @@ class ScanController extends Controller
             ->exists();
 
         if (!$isParticipant) {
-            return redirect()->route('participant.events.index')
-                ->with('error', 'Anda bukan peserta terdaftar untuk event ini.');
+            Log::warning('User ' . $user->id . ' mencoba presensi untuk event ' . $event->id . ' yang tidak diikutinya.');
+            return redirect()->route('scan.index')
+                ->with('error', 'Anda bukan peserta terdaftar untuk event "' . $event->title . '".');
+        }
+
+        // Cek apakah event aktif untuk presensi
+        if (!$event->isActiveForAttendance()) {
+            Log::warning('User ' . $user->id . ' mencoba presensi untuk event ' . $event->id . ' di luar waktu yang ditentukan.');
+            return redirect()->route('scan.index')
+                ->with('error', 'Event "' . $event->title . '" tidak aktif untuk presensi saat ini.');
         }
 
         // Cek apakah user sudah presensi
@@ -50,8 +61,9 @@ class ScanController extends Controller
             ->exists();
 
         if ($alreadyAttended) {
-            return redirect()->route('participant.events.index')
-                ->with('warning', 'Anda sudah tercatat hadir di event ini.');
+            Log::info('User ' . $user->id . ' sudah presensi untuk event ' . $event->id);
+            return redirect()->route('scan.index')
+                ->with('warning', 'Anda sudah tercatat hadir di event "' . $event->title . '".');
         }
 
         // Catat kehadiran
@@ -61,7 +73,9 @@ class ScanController extends Controller
             'check_in_time' => now(),
         ]);
 
-        return redirect()->route('participant.events.index')
+        Log::info('Presensi berhasil: User ' . $user->id . ' untuk event ' . $event->id);
+        
+        return redirect()->route('scan.index')
             ->with('success', "Presensi untuk event '{$event->title}' berhasil!");
     }
 }

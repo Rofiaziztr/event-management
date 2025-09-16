@@ -10,22 +10,26 @@
                     $dynamicStatus = $event->status;
                 @endphp
                 @if ($dynamicStatus == 'Terjadwal')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
                         <div class="w-2 h-2 bg-teal-400 rounded-full mr-2"></div>
                         {{ $dynamicStatus }}
                     </span>
                 @elseif($dynamicStatus == 'Berlangsung')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                         <div class="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></div>
                         {{ $dynamicStatus }}
                     </span>
                 @elseif($dynamicStatus == 'Selesai')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
                         {{ $dynamicStatus }}
                     </span>
                 @else
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         <div class="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
                         {{ $dynamicStatus }}
                     </span>
@@ -212,12 +216,12 @@
                     icon="arrow-left">
                     Kembali
                 </x-bladewind::button>
-                <x-bladewind::button tag="a" href="{{ route('admin.events.qrcode', $event) }}"
-                    color="green" icon="qr-code">
+                <x-bladewind::button tag="a" href="{{ route('admin.events.qrcode', $event) }}" color="green"
+                    icon="qr-code">
                     QR Code
                 </x-bladewind::button>
-                <x-bladewind::button tag="a" href="{{ route('admin.events.edit', $event) }}"
-                    color="indigo" icon="pencil">
+                <x-bladewind::button tag="a" href="{{ route('admin.events.edit', $event) }}" color="indigo"
+                    icon="pencil">
                     Edit
                 </x-bladewind::button>
             </div>

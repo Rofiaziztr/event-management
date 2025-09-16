@@ -1,18 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScanController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\ParticipantController;
-use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
+use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
 
 // Rute dasar
-Route::get('/', fn () => view('welcome'));
+Route::get('/', [WelcomeController::class, 'index']);
 
 // Middleware untuk otentikasi dan verifikasi
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -40,11 +41,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Manajemen peserta
         Route::controller(ParticipantController::class)->prefix('events/{event}/participants')->name('events.participants.')->group(function () {
-            Route::post('/', 'store')->name('store');
-            Route::post('/bulk', 'storeBulk')->name('store.bulk');
-            Route::delete('/{user}', 'destroy')->name('destroy');
-            Route::post('/external', 'storeExternal')->name('store.external');
-        });
+    Route::get('/', 'list')->name('list'); // Tambahkan ini
+    Route::post('/', 'store')->name('store');
+    Route::post('/bulk', 'storeBulk')->name('store.bulk');
+    Route::delete('/{user}', 'destroy')->name('destroy');
+    Route::post('/external', 'storeExternal')->name('store.external');
+    Route::post('/{user}/manual', 'manualAttendance')->name('manual');
+    Route::post('/bulk-attendance', 'bulkAttendance')->name('bulk-attendance');
+});
 
         // Manajemen dokumen
         Route::controller(DocumentController::class)->group(function () {
@@ -56,6 +60,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Manajemen pengguna
         Route::resource('users', UserController::class);
         Route::get('admin/users/export', [UserController::class, 'export'])->name('users.export');
+
+        // Presensi manual
+        Route::post('/events/{event}/participants/{user}/manual', [ParticipantController::class, 'manualAttendance'])->name('events.participants.manual');
     });
 
     // Rute peserta
@@ -73,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/scan', 'verify')->name('scan.verify');
     });
 });
+
 
 // Route::get('/test-brevo-fixed', function () {
 //     try {

@@ -29,6 +29,18 @@ class Event extends Model
     ];
 
     /**
+     * Boot the model.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($event) {
+            if (empty($event->status)) {
+                $event->status = 'Terjadwal';
+            }
+        });
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -113,17 +125,24 @@ class Event extends Model
      * Mendapatkan status event berdasarkan waktu saat ini.
      */
     public function getStatusAttribute()
-    {
-        if ($this->attributes['status'] === 'Dibatalkan') return 'Dibatalkan';
-        $now = now();
-        if ($now < $this->start_time) {
-            return 'Terjadwal';
-        } elseif ($now >= $this->start_time && $now <= $this->end_time) {
-            return 'Berlangsung';
-        } else {
-            return 'Selesai';
-        }
+{
+    $status = $this->attributes['status'] ?? null; // hindari undefined
+
+    if ($status === 'Dibatalkan') {
+        return 'Dibatalkan';
     }
+
+    $now = now();
+
+    if ($now < $this->start_time) {
+        return 'Terjadwal';
+    } elseif ($now >= $this->start_time && $now <= $this->end_time) {
+        return 'Berlangsung';
+    } else {
+        return 'Selesai';
+    }
+}
+
 
     /**
      * Cek apakah event masih aktif untuk presensi (QR code).

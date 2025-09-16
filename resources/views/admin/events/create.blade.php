@@ -45,17 +45,6 @@
                             <x-input-error :messages="$errors->get('location')" class="mt-2" />
                         </div>
 
-                        <div class="mt-4">
-                            <x-input-label for="status" :value="__('Status')" />
-                            <select name="status" id="status" class="block mt-1 w-full ...">
-                                <option value="Terjadwal">Terjadwal</option>
-                                <option value="Berlangsung">Berlangsung</option>
-                                <option value="Selesai">Selesai</option>
-                                <option value="Dibatalkan">Dibatalkan</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('status')" class="mt-2" />
-                        </div>
-
                         <div class="flex items-center justify-end mt-4">
                             <x-bladewind::button tag="a" href="{{ route('admin.events.index') }}"
                                 color="secondary" outline="true">

@@ -31,40 +31,44 @@ class EventController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after_or_equal:start_time',
-            'location' => 'required|string|max:255',
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'start_time' => 'required|date',
+        'end_time' => 'required|date|after_or_equal:start_time',
+        'location' => 'required|string|max:255',
+    ]);
 
-        $event = new Event($validated);
-        $event->creator_id = auth()->id();
-        $event->save();
+    $event = new Event($validated);
+    $event->creator_id = auth()->id();
+    $event->save();
 
-        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
-    }
+    return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
+}
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Event $event) // Tambahkan Request $request
+    public function show(Request $request, Event $event)
     {
-        $event->load('participants', 'documents', 'creator');
+        // Memuat relasi participants dengan pagination
+        $participants = $event->participants()->with(['attendances' => function ($query) use ($event) {
+            $query->where('event_id', $event->id);
+        }])->paginate(10);
 
-        $existingParticipantIds = $event->participants->pluck('id');
+        // Memuat data lain yang mungkin sudah ada (misalnya potentialParticipants)
+            $existingParticipantIds = $event->participants()->pluck('users.id');
+    $potentialParticipants = User::where('role', 'participant')
+        ->whereNotIn('id', $existingParticipantIds)
+        ->orderBy('full_name')
+        ->get();
 
-        $potentialParticipants = User::where('role', 'participant')
-            ->whereNotIn('id', $existingParticipantIds)
-            ->orderBy('full_name')
-            ->get();
-
-        // INI TAMBAHANNYA: Ambil tab aktif dari URL, default-nya adalah 'detail'
+        // Ambil tab aktif dari URL, default-nya adalah 'detail'
         $activeTab = $request->query('tab', 'detail');
 
-        return view('admin.events.show', compact('event', 'potentialParticipants', 'activeTab')); // Kirim $activeTab ke view
+        // Mengirim data ke view
+        return view('admin.events.show', compact('event', 'activeTab', 'potentialParticipants'));
     }
 
 

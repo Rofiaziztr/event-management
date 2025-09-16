@@ -2,26 +2,25 @@
 
 namespace App\Mail;
 
-use App\Models\Event;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class EventInvitationMail extends Mailable implements ShouldQueue
+class EventInvitationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $event;
     public $participant;
+    public $password;
 
-    public function __construct(Event $event, User $participant)
+    public function __construct($event, $participant, $password = null)
     {
         $this->event = $event;
         $this->participant = $participant;
+        $this->password = $password;
     }
 
     public function envelope()

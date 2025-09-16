@@ -341,7 +341,6 @@
                     </div>
                     <div class="instructions">
                         <p>Scan QR Code ini untuk melakukan presensi</p>
-                        <p>Atau gunakan kode event di atas pada aplikasi presensi</p>
                     </div>
                 </body>
                 </html>

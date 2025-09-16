@@ -47,17 +47,14 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-input-label for="status" :value="__('Status')" />
-                            <select name="status" id="status" class="block mt-1 w-full ...">
-                                <option value="Terjadwal" @if (old('status', $event->status) == 'Terjadwal') selected @endif>Terjadwal
-                                </option>
-                                <option value="Berlangsung" @if (old('status', $event->status) == 'Berlangsung') selected @endif>
-                                    Berlangsung</option>
-                                <option value="Selesai" @if (old('status', $event->status) == 'Selesai') selected @endif>Selesai
-                                </option>
-                                <option value="Dibatalkan" @if (old('status', $event->status) == 'Dibatalkan') selected @endif>Dibatalkan
-                                </option>
+                            <x-input-label for="status" :value="__('Status (Override Manual)')" />
+                            <select name="status" id="status" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <option value="Terjadwal" @selected(old('status', $event->status) == 'Terjadwal')>Terjadwal (Default)</option>
+                                <option value="Berlangsung" @selected(old('status', $event->status) == 'Berlangsung')>Berlangsung</option>
+                                <option value="Selesai" @selected(old('status', $event->status) == 'Selesai')>Selesai</option>
+                                <option value="Dibatalkan" @selected(old('status', $event->status) == 'Dibatalkan')>Dibatalkan</option>
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">Status akan otomatis update berdasarkan waktu, gunakan ini hanya untuk override (e.g., batalkan event).</p>
                             <x-input-error :messages="$errors->get('status')" class="mt-2" />
                         </div>
 

@@ -16,6 +16,12 @@
     <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
 
+        <style>
+        .bladewind-select .placeholder {
+            color: #374151 !important;
+        }
+    </style>
+
     <script src="./node_modules/preline/dist/preline.js"></script>
 
     @vite(['resources/css/app.css'])
@@ -177,12 +183,26 @@
     </div>
 
     @vite(['resources/js/app.js'])
-    @stack('scripts')
+    
+    <!-- Load AlpineJS terlebih dahulu -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Load helpers.js setelah AlpineJS -->
+    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
+    
+    <!-- Load script preline -->
+    <script src="./node_modules/preline/dist/preline.js"></script>
+    
+    <!-- Load script select.js -->
     <script src="{{ asset('vendor/bladewind/js/select.js') }}"></script>
+    
+    <!-- Load flatpickr dan lokaliasi -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Inisialisasi flatpickr
             const dateInputs = document.querySelectorAll('.flatpickr');
             dateInputs.forEach(input => {
                 flatpickr(input, {
@@ -198,6 +218,8 @@
                     }
                 });
             });
+            
+            // Handler untuk ikon datepicker
             document.querySelectorAll('.datepicker-icon').forEach(icon => {
                 icon.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -207,8 +229,17 @@
                     }
                 });
             });
+            
+            // Inisialisasi komponen Bladewind setelah AlpineJS siap
+            document.addEventListener('alpine:initialized', () => {
+                if (typeof BladewindUI !== 'undefined' && typeof BladewindUI.init === 'function') {
+                    BladewindUI.init();
+                }
+            });
         });
     </script>
+    
+    @stack('scripts')
 </body>
 
 </html>

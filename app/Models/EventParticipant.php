@@ -29,4 +29,10 @@ class EventParticipant extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Relasi attendance
+    public function attendance()
+    {
+        return $this->hasOne(Attendance::class, 'user_id', 'user_id')->where('event_id', $this->event_id);
+    }
 }
