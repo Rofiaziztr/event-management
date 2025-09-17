@@ -16,167 +16,168 @@
     <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
 
-        <style>
-        .bladewind-select .placeholder {
-            color: #374151 !important;
-        }
-    </style>
-
-    <script src="./node_modules/preline/dist/preline.js"></script>
-
     @vite(['resources/css/app.css'])
 
     <style>
         .bladewind-select .placeholder {
             color: #374151 !important;
         }
+        
+        /* Custom yellow theme colors */
+        .bg-yellow-gradient {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+        }
+        
+        .text-yellow-gradient {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced hover effects */
+        .nav-link-hover {
+            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+        }
+        
+        .nav-link-hover:hover {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            transform: translateX(4px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-link-active {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.5);
+        }
+        
+        .sidebar-gradient {
+            background: linear-gradient(180deg, #ffffff 0%, #fefbf3 50%, #fef3c7 100%);
+        }
+        
+        .logo-glow {
+            filter: drop-shadow(0 4px 6px rgba(245, 158, 11, 0.3));
+        }
     </style>
 </head>
 
-<body class="font-sans antialiased" x-data="{ sidebarOpen: false }">
-    <div class="flex h-screen bg-gray-100">
+<body class="font-sans antialiased bg-gradient-to-br from-yellow-50 via-white to-yellow-100" x-data="{ sidebarOpen: false }">
+    <div class="flex h-screen">
 
-        {{-- MODIFICATION START: Add classes for mobile responsive sidebar --}}
+        {{-- Enhanced Sidebar with Yellow Theme --}}
         <aside
-            class="w-64 bg-white shadow-md flex flex-col fixed inset-y-0 left-0 z-30 transform transition duration-300 ease-in-out md:relative md:translate-x-0"
+            class="w-64 sidebar-gradient shadow-2xl flex flex-col fixed inset-y-0 left-0 z-30 transform transition duration-300 ease-in-out md:relative md:translate-x-0 border-r border-yellow-200"
             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
 
-            <div class="p-4 border-b h-16 flex items-center shrink-0">
-                <a href="{{ route('dashboard') }}">
-                    <x-application-logo class="block h-9 w-auto" />
+            <div class="p-6 border-b border-yellow-200 h-20 flex items-center shrink-0">
+                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
+                    <x-application-logo class="block h-10 w-auto logo-glow" />
+                    <span class="text-xl font-bold text-yellow-gradient">Dashboard</span>
                 </a>
             </div>
 
-            <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
+            <nav class="flex-grow p-4 space-y-3 overflow-y-auto">
                 {{-- Dashboard link --}}
                 @php
                     $role = Auth::user()->role;
-                    $dashboardRoute = $role . '.dashboard'; // contoh: "admin.dashboard" atau "participant.dashboard"
+                    $dashboardRoute = $role . '.dashboard';
                 @endphp
 
-                <x-nav-link :href="route($dashboardRoute)" :active="request()->routeIs($dashboardRoute)">
-                    <div class="flex items-center space-x-3">
-                        {{-- Icon: Home/Dashboard --}}
-                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
-                        </svg>
-                        <span>{{ __('Dashboard') }}</span>
-                    </div>
-                </x-nav-link>
-
+                <a href="{{ route($dashboardRoute) }}" 
+                   class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs($dashboardRoute) ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
+                    </svg>
+                    <span class="font-medium">{{ __('Dashboard') }}</span>
+                </a>
 
                 @if (Auth::user()->role === 'participant')
-                    <x-nav-link :href="route('scan.index')" :active="request()->routeIs('scan.index')">
-                        <div class="flex items-center space-x-3">
-                            {{-- Icon: QR Code Scan --}}
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3.75 4.5a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V7.5a3 3 0 00-3-3H3.75zM9 13.5h6M9 10.5h6m-6-3h6m3 1.5v3m0 3v.001M12 18v3" />
-                            </svg>
-                            <span>{{ __('Scan Presensi') }}</span>
-                        </div>
-                    </x-nav-link>
+                    <a href="{{ route('scan.index') }}" 
+                       class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('scan.index') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h4.5v4.5h-4.5v-4.5z" />
+                        </svg>
+                        <span class="font-medium">{{ __('Scan Presensi') }}</span>
+                    </a>
                 @endif
 
-
                 @if (Auth::user()->role == 'admin')
-                    <x-nav-link :href="route('admin.events.index')" :active="request()->routeIs('admin.events.*')">
-                        <div class="flex items-center space-x-3">
-                            {{-- Icon: Calendar/Event Management --}}
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6.75 3v2.25m10.5-2.25v2.25M6.75 21v-2.25h10.5V21M3 10.5h18M3 10.5V21A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V10.5M3 10.5V6A2.25 2.25 0 015.25 3.75h13.5A2.25 2.25 0 0121 6v4.5" />
-                            </svg>
-                            <span>{{ __('Manajemen Event') }}</span>
-                        </div>
-                    </x-nav-link>
+                    <a href="{{ route('admin.events.index') }}" 
+                       class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('admin.events.*') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 002.25 2.25v7.5" />
+                        </svg>
+                        <span class="font-medium">{{ __('Manajemen Event') }}</span>
+                    </a>
 
-                    <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                            </svg>
-                            <span>{{ __('Users') }}</span>
-                        </div>
-                    </x-nav-link>
+                    <a href="{{ route('admin.users.index') }}" 
+                       class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('admin.users.*') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                        </svg>
+                        <span class="font-medium">{{ __('Users') }}</span>
+                    </a>
                 @endif
 
                 @if (Auth::user()->role == 'participant')
-                    <x-nav-link :href="route('participant.events.index')" :active="request()->routeIs('participant.events.*')">
-                        <div class="flex items-center space-x-3">
-                            {{-- Icon: Ticket/My Events --}}
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M16.5 6v.75m0 3v.75m0 3v.75m0 3v.75M4.5 6v.75m0 3v.75m0 3v.75m0 3v.75M6.75 6h10.5a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V6.75a.75.75 0 01.75-.75z" />
-                            </svg>
-                            <span>{{ __('Event Saya') }}</span>
-                        </div>
-                    </x-nav-link>
+                    <a href="{{ route('participant.events.index') }}" 
+                       class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('participant.events.*') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3v.75M9.75 6v.75m0 3v.75m0 3v.75m0 3v.75M10.5 2.25h3A1.125 1.125 0 0114.625 3.375v.375c0 .621-.504 1.125-1.125 1.125h-3A1.125 1.125 0 019.375 3.75v-.375A1.125 1.125 0 0110.5 2.25z" />
+                        </svg>
+                        <span class="font-medium">{{ __('Event Saya') }}</span>
+                    </a>
                 @endif
-                {{-- MODIFICATION END --}}
             </nav>
 
-            <div class="p-4 border-t shrink-0">
-                <div class="mb-2">
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+            <div class="p-4 border-t border-yellow-200 shrink-0 bg-gradient-to-r from-yellow-50 to-white">
+                <div class="mb-4 p-3 bg-white rounded-xl shadow-sm border border-yellow-100">
+                    <div class="font-semibold text-gray-800 text-sm">{{ Auth::user()->full_name ?? Auth::user()->name }}</div>
+                    <div class="text-xs text-gray-500">{{ Auth::user()->email }}</div>
+                    <div class="text-xs text-yellow-600 font-medium mt-1">{{ ucfirst(Auth::user()->role) }}</div>
                 </div>
-                {{-- MODIFICATION START: Added icons to Profile and Logout --}}
-                <x-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
-                    <div class="flex items-center space-x-3">
-                        {{-- Icon: User Circle/Profile --}}
-                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                
+                <div class="space-y-2">
+                    <a href="{{ route('profile.edit') }}" 
+                       class="flex items-center space-x-3 p-2 nav-link-hover text-sm {{ request()->routeIs('profile.edit') ? 'nav-link-active' : 'text-gray-600 hover:text-yellow-700' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <span>{{ __('Profile') }}</span>
-                    </div>
-                </x-nav-link>
-                <form method="POST" action="{{ route('logout') }}" class="mt-2">
-                    @csrf
-                    <x-nav-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();"
-                        :active="false">
-                        <div class="flex items-center space-x-3">
-                            {{-- Icon: Logout --}}
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    </a>
+                    
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" 
+                                class="w-full flex items-center space-x-3 p-2 nav-link-hover text-sm text-gray-600 hover:text-red-600 hover:bg-red-50">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                             </svg>
                             <span>{{ __('Log Out') }}</span>
-                        </div>
-                    </x-nav-link>
-                </form>
-                {{-- MODIFICATION END --}}
+                        </button>
+                    </form>
+                </div>
             </div>
         </aside>
-        {{-- MODIFICATION END: Sidebar structure complete --}}
 
-        {{-- MODIFICATION START: Add overlay for mobile sidebar --}}
-        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black opacity-50 z-20 md:hidden"
-            style="display: none;"></div>
-        {{-- MODIFICATION END --}}
+        {{-- Mobile overlay --}}
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black opacity-50 z-20 md:hidden" style="display: none;"></div>
 
         <div class="flex-1 flex flex-col overflow-y-auto">
             @include('layouts.navigation')
 
             @if (isset($header))
-                <header class="bg-white shadow">
+                <header class="bg-white shadow-sm border-b border-yellow-200">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
             @endif
 
-            <main class="flex-grow">
+            <main class="flex-grow bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
                 {{ $slot }}
             </main>
         </div>
@@ -184,19 +185,9 @@
 
     @vite(['resources/js/app.js'])
     
-    <!-- Load AlpineJS terlebih dahulu -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- Load helpers.js setelah AlpineJS -->
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
-    
-    <!-- Load script preline -->
-    <script src="./node_modules/preline/dist/preline.js"></script>
-    
-    <!-- Load script select.js -->
     <script src="{{ asset('vendor/bladewind/js/select.js') }}"></script>
-    
-    <!-- Load flatpickr dan lokaliasi -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     
@@ -219,7 +210,6 @@
                 });
             });
             
-            // Handler untuk ikon datepicker
             document.querySelectorAll('.datepicker-icon').forEach(icon => {
                 icon.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -230,7 +220,6 @@
                 });
             });
             
-            // Inisialisasi komponen Bladewind setelah AlpineJS siap
             document.addEventListener('alpine:initialized', () => {
                 if (typeof BladewindUI !== 'undefined' && typeof BladewindUI.init === 'function') {
                     BladewindUI.init();
@@ -239,6 +228,7 @@
         });
     </script>
     
+    @stack('styles')
     @stack('scripts')
 </body>
 

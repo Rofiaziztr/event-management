@@ -44,10 +44,10 @@
 
     <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
         <!-- Header Section -->
-        <div class="gradient-bg text-black py-8 px-6 animate-fade-in">
+        <div class="gradient-bg text-white py-8 px-6 animate-fade-in">
             <div class="max-w-7xl mx-auto">
                 <h1 class="text-3xl font-bold mb-2">Selamat Datang Kembali, {{ Auth::user()->full_name }}!</h1>
-                <p class="text-gray-500">Berikut adalah ringkasan aktivitas event Anda hari ini.</p>
+                <p class="text-yellow-100">Berikut adalah ringkasan aktivitas event Anda hari ini.</p>
             </div>
         </div>
 
