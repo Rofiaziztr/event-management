@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Category;
 use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,39 +14,76 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 
 class EventController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::with('creator', 'participants')->latest()->paginate(10);
-        return view('admin.events.index', compact('events'));
+        $query = Event::with('creator', 'participants', 'category');
+
+        // Filter berdasarkan nama event
+        if ($request->has('search') && $request->search != '') {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter berdasarkan kategori
+        if ($request->has('category_id') && $request->category_id != '') {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Filter berdasarkan rentang tanggal
+        if ($request->has('start_date') && $request->start_date != '') {
+            $query->whereDate('start_time', '>=', $request->start_date);
+        }
+
+        if ($request->has('end_date') && $request->end_date != '') {
+            $query->whereDate('end_time', '<=', $request->end_date);
+        }
+
+        $events = $query->latest()->paginate(9)->withQueryString();
+        $categories = Category::orderBy('name')->get();
+        
+        // Data Statistik untuk Kartu Info
+        $stats = [
+            'total' => Event::count(),
+            'berlangsung' => Event::where('status', 'Berlangsung')->count(),
+            'bulan_ini' => Event::whereMonth('start_time', now()->month)
+                                ->whereYear('start_time', now()->year)
+                                ->count(),
+        ];
+
+
+        return view('admin.events.index', compact('events', 'categories', 'stats'));
     }
 
+    // ... sisa method lainnya tetap sama ...
+    
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        return view('admin.events.create');
+        $categories = Category::orderBy('name')->get();
+        return view('admin.events.create', compact('categories'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'start_time' => 'required|date',
-        'end_time' => 'required|date|after_or_equal:start_time',
-        'location' => 'required|string|max:255',
-    ]);
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after_or_equal:start_time',
+            'location' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+        ]);
 
-    $event = new Event($validated);
-    $event->creator_id = auth()->id();
-    $event->save();
+        $event = new Event($validated);
+        $event->creator_id = auth()->id();
+        $event->save();
 
-    return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
-}
+        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
+    }
 
     /**
      * Display the specified resource.
@@ -77,7 +115,8 @@ class EventController extends Controller
      */
     public function edit(Event $event)
     {
-        return view('admin.events.edit', compact('event'));
+        $categories = Category::orderBy('name')->get();
+        return view('admin.events.edit', compact('event', 'categories'));
     }
 
     /**
@@ -92,6 +131,7 @@ class EventController extends Controller
             'end_time' => 'required|date|after_or_equal:start_time',
             'location' => 'required|string|max:255',
             'status' => 'required|string|in:Terjadwal,Berlangsung,Selesai,Dibatalkan',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $event->update($validated);

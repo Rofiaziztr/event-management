@@ -72,7 +72,7 @@
                         <x-application-logo class="w-16 h-16 text-white drop-shadow-lg" />
                     </div>
                     <div class="text-center">
-                        <h1 class="text-2xl font-bold text-black drop-shadow-lg">{{ config('app.name', 'Event Manager') }}</h1>
+                        <h1 class="text-2xl font-bold text-black drop-shadow-lg">{{ config('app.name', 'EventFlow') }}</h1>
                         <p class="text-black-100 text-sm">Sistem Manajemen Event</p>
                     </div>
                 </a>

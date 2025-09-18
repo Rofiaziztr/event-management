@@ -11,7 +11,6 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="{{ asset('vendor/bladewind/css/animate.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
@@ -74,7 +73,6 @@
             <div class="p-6 border-b border-yellow-200 h-20 flex items-center shrink-0">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
                     <x-application-logo class="block h-10 w-auto logo-glow" />
-                    <span class="text-xl font-bold text-yellow-gradient">Dashboard</span>
                 </a>
             </div>
 
@@ -188,45 +186,8 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
     <script src="{{ asset('vendor/bladewind/js/select.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi flatpickr
-            const dateInputs = document.querySelectorAll('.flatpickr');
-            dateInputs.forEach(input => {
-                flatpickr(input, {
-                    enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    time_24hr: true,
-                    locale: "id",
-                    minDate: "today",
-                    clickOpens: true,
-                    allowInput: true,
-                    onReady: function(selectedDates, dateStr, instance) {
-                        instance.calendarContainer.style.zIndex = '9999';
-                    }
-                });
-            });
-            
-            document.querySelectorAll('.datepicker-icon').forEach(icon => {
-                icon.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const input = this.closest('.relative').querySelector('.flatpickr');
-                    if (input && input._flatpickr) {
-                        input._flatpickr.open();
-                    }
-                });
-            });
-            
-            document.addEventListener('alpine:initialized', () => {
-                if (typeof BladewindUI !== 'undefined' && typeof BladewindUI.init === 'function') {
-                    BladewindUI.init();
-                }
-            });
-        });
-    </script>
+
     
     @stack('styles')
     @stack('scripts')

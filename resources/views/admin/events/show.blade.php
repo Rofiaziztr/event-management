@@ -3,7 +3,15 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">{{ $event->title }}</h2>
-                <p class="text-sm text-gray-600 mt-1">Dibuat oleh {{ $event->creator->full_name }}</p>
+                <div class="flex items-center space-x-2 text-sm text-gray-600 mt-1">
+                    <span>Dibuat oleh {{ $event->creator->full_name }}</span>
+                    @if ($event->category)
+                        <span>&bull;</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ $event->category->name }}
+                        </span>
+                    @endif
+                </div>
             </div>
             <div class="flex items-center space-x-3">
                 @php

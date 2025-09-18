@@ -132,7 +132,7 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <!-- Status -->
-                    <div class="flex items-center justify-between">
+                    {{-- <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-500">Status</span>
                         @php
                             $dynamicStatus = $event->status; // Gunakan accessor dinamis
@@ -160,7 +160,7 @@
                         @endif
                     </div>
 
-                    <hr class="border-gray-200">
+                    <hr class="border-gray-200"> --}}
 
                     {{-- Location --}}
                     <div>
@@ -174,6 +174,8 @@
                         <p class="text-sm font-semibold text-gray-900 pl-6">{{ $event->location }}</p>
                     </div>
 
+                    <hr class="border-gray-200">
+                    
                     {{-- Creator --}}
                     <div>
                         <div class="flex items-center mb-2">

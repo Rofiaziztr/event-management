@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute admin
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/export', [AdminDashboardController::class, 'export'])->name('dashboard.export');
 
         // Manajemen event
         Route::resource('events', EventController::class);

@@ -19,6 +19,19 @@
                                 :value="old('title', $event->title)" required autofocus />
                             <x-input-error :messages="$errors->get('title')" class="mt-2" />
                         </div>
+                        
+                        <div class="mt-4">
+                            <x-input-label for="category_id" :value="__('Kategori')" />
+                            <select name="category_id" id="category_id" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" @selected(old('category_id', $event->category_id) == $category->id)>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
+                        </div>
 
                         <div class="mt-4">
                             <x-input-label for="description" :value="__('Deskripsi')" />

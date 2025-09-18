@@ -26,6 +26,7 @@ class Event extends Model
         'location',
         'status',
         'code',
+        'category_id',
     ];
 
     /**
@@ -89,6 +90,14 @@ class Event extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+    
+    /**
+     * Mendapatkan kategori dari event ini.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function getCountdownStatusAttribute(): string

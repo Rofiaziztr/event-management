@@ -44,14 +44,14 @@
 
     <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
         <!-- Header Section -->
-        <div class="gradient-bg text-white py-8 px-6 animate-fade-in">
+        {{-- <div class="gradient-bg text-white py-8 px-6 animate-fade-in">
             <div class="max-w-7xl mx-auto">
                 <h1 class="text-3xl font-bold mb-2">Selamat Datang Kembali, {{ Auth::user()->full_name }}!</h1>
                 <p class="text-yellow-100">Berikut adalah ringkasan aktivitas event Anda hari ini.</p>
             </div>
-        </div>
+        </div> --}}
 
-        <div class="max-w-7xl mx-auto px-6 -mt-4 space-y-8 pb-8">
+        <div class="max-w-7xl mt-10 mx-auto px-6 -mt-4 space-y-8 pb-8">
             
             {{-- CTA for Ongoing Events --}}
             @if ($ongoingEvents->isNotEmpty())
