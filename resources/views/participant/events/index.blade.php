@@ -255,10 +255,14 @@
                 @endforelse
             </div>
 
-            {{-- Pagination --}}
-            <div class="mt-6">
-                {{ $events->links() }}
-            </div>
+            <!-- Pagination -->
+                {{-- <div class="mt-6">
+                    {{ $events->links() }}
+                </div> --}}
+
+                <div class="mt-6">
+                    <x-yellow-pagination :paginator="$events" />
+                </div>
         </div>
     </div>
 </x-app-layout>

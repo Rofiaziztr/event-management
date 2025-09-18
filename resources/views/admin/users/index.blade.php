@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-6 text-white shadow-lg">
                     <div class="flex items-center">
                         <div class="p-3 bg-white bg-opacity-20 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-orange-100 text-sm">Bergabung Bulan Ini</p>
+                            <p class="text-yellow-100 text-sm">Bergabung Bulan Ini</p>
                             <p class="text-2xl font-bold">
                                 {{ App\Models\User::where('created_at', '>=', now()->startOfMonth())->count() }}
                             </p>
@@ -83,7 +83,7 @@
 
             <!-- Filter -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 mx-4 sm:mx-0">
-                <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,13 +99,13 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Cari Pengguna</label>
                             <input type="text" name="search" placeholder="Nama atau email"
                                 value="{{ request('search') }}"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500" />
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
                             <select name="sort"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500">
                                 <option value="full_name" {{ request('sort') === 'full_name' ? 'selected' : '' }}>Nama</option>
                                 <option value="email" {{ request('sort') === 'email' ? 'selected' : '' }}>Email</option>
                                 <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>Tanggal Dibuat</option>
@@ -115,7 +115,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Arah Urutan</label>
                             <select name="direction"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500">
                                 <option value="asc" {{ request('direction') === 'asc' ? 'selected' : '' }}>A-Z (Naik)</option>
                                 <option value="desc" {{ request('direction') === 'desc' ? 'selected' : '' }}>Z-A (Turun)</option>
                             </select>
@@ -144,13 +144,13 @@
                             <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex flex-col relative group h-full transition-all duration-300 hover:shadow-xl">
                                 <div class="p-6 flex-grow z-10">
                                     <div class="flex items-start space-x-3">
-                                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                                            <span class="text-indigo-600 font-bold text-lg">
+                                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                                            <span class="text-yellow-600 font-bold text-lg">
                                                 {{ substr($user->full_name, 0, 1) }}
                                             </span>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <h3 class="font-semibold text-gray-900 truncate group-hover:text-indigo-600"
+                                            <h3 class="font-semibold text-gray-900 truncate group-hover:text-yellow-600"
                                                 title="{{ $user->full_name }}">
                                                 {{ \Illuminate\Support\Str::limit($user->full_name, 20) }}
                                             </h3>
@@ -231,8 +231,12 @@
                 </div>
 
                 <!-- Pagination -->
+                {{-- <div class="mt-6">
+                    {{ $events->links() }}
+                </div> --}}
+
                 <div class="mt-6">
-                    {{ $users->links() }}
+                    <x-yellow-pagination :paginator="$users" />
                 </div>
             </div>
         </div>

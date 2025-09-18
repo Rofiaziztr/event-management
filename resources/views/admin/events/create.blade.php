@@ -21,7 +21,7 @@
                         
                         <div class="mt-4">
                             <x-input-label for="category_id" :value="__('Kategori')" />
-                            <select name="category_id" id="category_id" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <select name="category_id" id="category_id" class="block w-full border-gray-300 focus:border-yellow-500 focus:ring-yellow-500 rounded-md shadow-sm">
                                 <option value="">-- Pilih Kategori --</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
@@ -35,7 +35,7 @@
                         <div class="mt-4">
                             <x-input-label for="description" :value="__('Deskripsi')" />
                             <textarea id="description" name="description"
-                                class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description') }}</textarea>
+                                class="block w-full border-gray-300 focus:border-yellow-500 focus:ring-yellow-500 rounded-md shadow-sm">{{ old('description') }}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 

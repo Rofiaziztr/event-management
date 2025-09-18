@@ -22,7 +22,7 @@
                         
                         <div class="mt-4">
                             <x-input-label for="category_id" :value="__('Kategori')" />
-                            <select name="category_id" id="category_id" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                            <select name="category_id" id="category_id" class="block w-full border-gray-300 focus:border-yellow-500 focus:ring-yellow-500 rounded-md shadow-sm">
                                 <option value="">-- Pilih Kategori --</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected(old('category_id', $event->category_id) == $category->id)>
@@ -36,7 +36,7 @@
                         <div class="mt-4">
                             <x-input-label for="description" :value="__('Deskripsi')" />
                             <textarea id="description" name="description"
-                                class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
+                                class="block w-full border-gray-300 focus:border-yellow-500 focus:ring-yellow-500 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
@@ -61,7 +61,7 @@
 
                         <div class="mt-4">
                             <x-input-label for="status" :value="__('Status (Override Manual)')" />
-                            <select name="status" id="status" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <select name="status" id="status" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-yellow-500 focus:ring-yellow-500">
                                 <option value="Terjadwal" @selected(old('status', $event->status) == 'Terjadwal')>Terjadwal (Default)</option>
                                 <option value="Berlangsung" @selected(old('status', $event->status) == 'Berlangsung')>Berlangsung</option>
                                 <option value="Selesai" @selected(old('status', $event->status) == 'Selesai')>Selesai</option>

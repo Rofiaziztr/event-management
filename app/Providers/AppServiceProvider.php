@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Event;
 use App\Observers\EventObserver;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -25,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::observe(EventObserver::class);
-        
+
         Mail::extend('brevo', function () {
             return (new BrevoTransportFactory)->create(
                 new Dsn(
@@ -35,5 +36,8 @@ class AppServiceProvider extends ServiceProvider
                 )
             );
         });
+
+        Paginator::defaultView('custom.pagination');
+        Paginator::defaultSimpleView('custom.simple-pagination');
     }
 }
