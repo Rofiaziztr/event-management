@@ -175,16 +175,7 @@
             </div>
 
             {{-- Save Button --}}
-            <div class="flex justify-between items-center pt-6">
-                <div class="text-sm text-gray-500">
-                    <span class="inline-flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                        </svg>
-                        Otomatis disimpan setiap 30 detik
-                    </span>
-                </div>
-                
+            <div class="flex justify-end pt-6">
                 <div class="flex items-center space-x-3">
                     <x-bladewind::button can_submit="true" color="violet" icon="save">
                         Simpan Notulensi
@@ -198,13 +189,9 @@
 @push('scripts')
 <script>
 let editor;
-let autoSaveTimer;
 
 document.addEventListener('DOMContentLoaded', function() {
     editor = document.getElementById('editor');
-    
-    // Initialize auto-save
-    startAutoSave();
     
     // Update hidden textarea when editor content changes
     editor.addEventListener('input', function() {
@@ -310,57 +297,5 @@ function updateHiddenTextarea() {
     const content = editor.innerHTML;
     document.getElementById('content').value = content === '<p class="text-gray-400 italic">Mulai menulis notulensi rapat di sini...</p>' ? '' : content;
 }
-
-function startAutoSave() {
-    autoSaveTimer = setInterval(() => {
-        autoSave();
-    }, 30000); // Auto-save every 30 seconds
-}
-
-function autoSave() {
-    const content = editor.innerHTML;
-    if (content.trim() && content !== '<p class="text-gray-400 italic">Mulai menulis notulensi rapat di sini...</p>') {
-        // Send AJAX request to save content
-        fetch('{{ route('admin.events.notulensi.store', $event) }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                content: content
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.statusText);
-            }
-            return response.text(); // Mengubah ke text karena respons mungkin HTML redirect
-        })
-        .then(data => {
-            // Cek jika respons adalah JSON
-            try {
-                const jsonData = JSON.parse(data);
-                if (jsonData.success) {
-                    // Success handling if needed
-                } else {
-                    console.error('Auto-save failed:', jsonData.message);
-                }
-            } catch (e) {
-                // Jika bukan JSON, kemungkinan redirect, anggap sukses jika no error
-            }
-        })
-        .catch(error => {
-            console.error('Auto-save error:', error);
-        });
-    }
-}
-
-// Clean up on page unload
-window.addEventListener('beforeunload', function() {
-    if (autoSaveTimer) {
-        clearInterval(autoSaveTimer);
-    }
-});
 </script>
 @endpush
