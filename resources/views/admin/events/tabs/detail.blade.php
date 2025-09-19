@@ -131,37 +131,6 @@
                     <h3 class="text-lg font-semibold text-white">Informasi Acara</h3>
                 </div>
                 <div class="p-6 space-y-4">
-                    <!-- Status -->
-                    {{-- <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-gray-500">Status</span>
-                        @php
-                            $dynamicStatus = $event->status; // Gunakan accessor dinamis
-                        @endphp
-                        @if ($dynamicStatus === 'Terjadwal')
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                                {{ $dynamicStatus }}
-                            </span>
-                        @elseif($dynamicStatus === 'Berlangsung')
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                                {{ $dynamicStatus }}
-                            </span>
-                        @elseif($dynamicStatus === 'Selesai')
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-                                {{ $dynamicStatus }}
-                            </span>
-                        @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                <div class="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
-                                {{ $dynamicStatus }}
-                            </span>
-                        @endif
-                    </div>
-
-                    <hr class="border-gray-200"> --}}
-
                     {{-- Location --}}
                     <div>
                         <div class="flex items-center mb-2">

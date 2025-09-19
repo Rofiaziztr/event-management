@@ -5,34 +5,75 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 class EventSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Buat 50 pengguna dummy
-        $users = User::factory(50)->create();
+        Event::withoutEvents(function () {
+            
+            $this->command->info('Membuat peserta...');
+            User::factory(80)->create(['institution' => 'PSDMBP']);
+            User::factory(25)->create(fn () => [
+                'institution' => 'Satker Badan Geologi Lainnya',
+                'phone_number' => rand(0, 1) ? null : fake('id_ID')->phoneNumber(),
+            ]);
 
-        // Buat 15 event dummy, dan tetapkan creator_id secara acak dari pengguna yang sudah dibuat
-        Event::factory(15)->make()->each(function ($event) use ($users) {
-            $event->creator_id = $users->random()->id;
-            $event->save();
-        });
+            $this->command->info('Membuat event...');
+            $events = Event::factory(40)->create();
+            $participants = User::where('role', 'participant')->get();
+            $categories = Category::all();
 
-        // Ambil semua user yang rolenya Peserta
-        $events = Event::inRandomOrder()->limit(5)->get();
-        $participants = User::where('role', 'participant')->get();
+            $this->command->info('Mengundang peserta dan membuat data kehadiran...');
+            $attendances = [];
 
-        if ($participants->count() > 0) {
             foreach ($events as $event) {
-                // Lampirkan sejumlah peserta acak ke setiap event yang terpilih
-                $event->participants()->attach(
-                    $participants->random(rand(1, $participants->count()))->pluck('id')->toArray()
-                );
+                $eventCategoryName = $categories->find($event->category_id)->name;
+
+                // Peserta yang relevan berdasarkan 'specialty'
+                $relevantParticipants = $participants->where('specialty', $eventCategoryName);
+                
+                // Peserta dari divisi 'Umum'
+                $generalParticipants = $participants->where('specialty', 'Umum');
+
+                // Gabungkan peserta (pastikan generalParticipants tidak kosong)
+                $invitedParticipants = $relevantParticipants;
+                if ($generalParticipants->isNotEmpty()) {
+                    $invitedParticipants = $invitedParticipants->merge($generalParticipants->random(min($generalParticipants->count(), rand(3, 5))));
+                }
+                $invitedParticipants = $invitedParticipants->unique('id');
+
+                if ($invitedParticipants->isEmpty()) continue;
+
+                if ($invitedParticipants->count() > 30) {
+                    $invitedParticipants = $invitedParticipants->random(30);
+                }
+
+                $event->participants()->attach($invitedParticipants->pluck('id'));
+
+                if ($event->status == 'Selesai') {
+                    foreach ($invitedParticipants as $participant) {
+                        if (rand(1, 100) <= 90) { // Peluang 90% hadir
+                            $checkInTime = (clone $event->start_time)->modify('+' . rand(5, 30) . ' minutes');
+                            $attendances[] = [
+                                'event_id' => $event->id,
+                                'user_id' => $participant->id,
+                                'check_in_time' => $checkInTime,
+                                'created_at' => $checkInTime,
+                                'updated_at' => $checkInTime,
+                            ];
+                        }
+                    }
+                }
             }
-        }
+            
+            if (!empty($attendances)) {
+                DB::table('attendances')->insert($attendances);
+            }
+        });
+        
+        $this->command->info('Seeding event dan peserta selesai!');
     }
 }

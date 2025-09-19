@@ -5,7 +5,7 @@
                 <h2 class="text-2xl font-bold text-gray-900">Tambah Pengguna Baru</h2>
                 <p class="text-sm text-gray-600 mt-1">Buat akun pengguna baru untuk sistem</p>
             </div>
-            <x-bladewind::button tag="a" href="{{ route('admin.users.index') }}" color="gray" 
+            <x-bladewind::button tag="a" href="{{ route('admin.users.index') }}" color="gray"
                 size="small" icon="arrow-left">
                 Kembali
             </x-bladewind::button>
@@ -22,7 +22,6 @@
                         </svg>
                         <h3 class="text-lg font-semibold text-white">Informasi Pengguna Baru</h3>
                     </div>
-                    <p class="text-indigo-100 text-sm mt-1">Lengkapi formulir di bawah untuk membuat akun pengguna baru</p>
                 </div>
 
                 <form method="POST" action="{{ route('admin.users.store') }}" class="p-6">
@@ -34,7 +33,7 @@
                                 <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
                                     Nama Lengkap <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="full_name" id="full_name" required 
+                                <input type="text" name="full_name" id="full_name" required
                                     value="{{ old('full_name') }}"
                                     class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 @error('full_name') border-red-300 @enderror"
                                     placeholder="Masukkan nama lengkap">
@@ -47,7 +46,7 @@
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                                     Alamat Email <span class="text-red-500">*</span>
                                 </label>
-                                <input type="email" name="email" id="email" required 
+                                <input type="email" name="email" id="email" required
                                     value="{{ old('email') }}"
                                     class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 @error('email') border-red-300 @enderror"
                                     placeholder="nama@example.com">
@@ -56,6 +55,29 @@
                                 @enderror
                             </div>
 
+                             <div>
+                                <label for="nip" class="block text-sm font-medium text-gray-700 mb-2">
+                                    NIP
+                                </label>
+                                <input type="text" name="nip" id="nip"
+                                    value="{{ old('nip') }}"
+                                    class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="Masukkan NIP (jika ada)">
+                            </div>
+
+                            <div>
+                                <label for="institution" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Institusi
+                                </label>
+                                <input type="text" name="institution" id="institution"
+                                    value="{{ old('institution') }}"
+                                    class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                    placeholder="Default: PSDMBP">
+                            </div>
+                        </div>
+
+                        {{-- Right Column --}}
+                        <div class="space-y-6">
                             <div>
                                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                                     Password <span class="text-red-500">*</span>
@@ -76,15 +98,12 @@
                                     class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                     placeholder="Ulangi password">
                             </div>
-                        </div>
 
-                        {{-- Right Column --}}
-                        <div class="space-y-6">
-                            <div>
+                             <div>
                                 <label for="position" class="block text-sm font-medium text-gray-700 mb-2">
                                     Posisi/Jabatan
                                 </label>
-                                <input type="text" name="position" id="position" 
+                                <input type="text" name="position" id="position"
                                     value="{{ old('position') }}"
                                     class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                     placeholder="Contoh: Manager, Staff, Supervisor">
@@ -94,24 +113,11 @@
                                 <label for="division" class="block text-sm font-medium text-gray-700 mb-2">
                                     Divisi/Departemen
                                 </label>
-                                <input type="text" name="division" id="division" 
+                                <input type="text" name="division" id="division"
                                     value="{{ old('division') }}"
                                     class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                     placeholder="Contoh: IT, HR, Finance">
                             </div>
-
-                            <div>
-                                <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Nomor Telepon
-                                </label>
-                                <input type="text" name="phone_number" id="phone_number" 
-                                    value="{{ old('phone_number') }}"
-                                    class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    placeholder="Contoh: 08123456789">
-                            </div>
-
-                            {{-- Role (Hidden) --}}
-                            <input type="hidden" name="role" value="participant">
 
                             {{-- Info Box --}}
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -128,7 +134,6 @@
                                                 <li>Password harus minimal 8 karakter</li>
                                                 <li>Email akan digunakan untuk login</li>
                                                 <li>Pengguna akan memiliki role "Participant"</li>
-                                                <li>Posisi dan divisi bersifat opsional</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -140,7 +145,8 @@
                     {{-- Form Actions --}}
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <div class="flex items-center justify-end space-x-3">
-                            <x-bladewind::button tag="a" href="{{ route('admin.users.index') }}" 
+                            <input type="hidden" name="role" value="participant">
+                            <x-bladewind::button tag="a" href="{{ route('admin.users.index') }}"
                                 color="gray" size="small">
                                 Batal
                             </x-bladewind::button>

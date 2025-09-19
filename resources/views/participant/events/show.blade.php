@@ -7,7 +7,7 @@
                     <span>Dibuat oleh {{ $event->creator->full_name }}</span>
                     @if ($event->category)
                         <span>&bull;</span>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                             {{ $event->category->name }}
                         </span>
                     @endif

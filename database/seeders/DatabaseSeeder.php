@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,26 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Buat 1 Admin spesifik untuk login
-        User::factory()->create([
-            'full_name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'role' => 'admin',
-        ]);
-
-        User::factory()->create([
-            'full_name' => 'Peserta A',
-            'email' => 'peserta@example.com',
-            'role' => 'participant',
-        ]);
-
-        // Buat 49 user sebagai Peserta
-        User::factory(49)->create([
-            'role' => 'participant',
-        ]);
-
         $this->call([
-            EventSeeder::class,
+            CategorySeeder::class,
+            UserSeeder::class, // Ini akan membuat 5 admin
+            EventSeeder::class,  // Ini akan membuat 105 peserta, 40 event, undangan, & kehadiran
         ]);
     }
 }

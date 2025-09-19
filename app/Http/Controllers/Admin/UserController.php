@@ -13,55 +13,49 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the users.
-     */
+    // ... (method index dan create tetap sama) ...
     public function index(Request $request)
-{
-    $query = User::query();
+    {
+        $query = User::query();
 
-    // --- Filtering ---
-    if ($request->filled('search')) {
-        $field = $request->input('search_field', 'full_name');
-        if (in_array($field, ['full_name', 'email'])) {
-            $query->where($field, 'like', '%' . $request->search . '%');
+        // --- Filtering ---
+        if ($request->filled('search')) {
+            $field = $request->input('search_field', 'full_name');
+            if (in_array($field, ['full_name', 'email'])) {
+                $query->where($field, 'like', '%' . $request->search . '%');
+            }
         }
-    }
 
-    if ($request->filled('status')) {
-        if ($request->status === 'active') {
-            $query->where(function ($q) {
-                $q->whereHas('attendances')
-                  ->orWhereHas('participatedEvents');
-            });
-        } elseif ($request->status === 'inactive') {
-            $query->whereDoesntHave('attendances')
-                  ->whereDoesntHave('participatedEvents');
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where(function ($q) {
+                    $q->whereHas('attendances')
+                        ->orWhereHas('participatedEvents');
+                });
+            } elseif ($request->status === 'inactive') {
+                $query->whereDoesntHave('attendances')
+                        ->whereDoesntHave('participatedEvents');
+            }
         }
+
+        // --- Sorting dengan fallback ---
+        $sort = $request->input('sort', 'full_name');
+        $direction = $request->input('direction', 'asc');
+
+        if (! in_array($sort, ['full_name', 'email'])) {
+            $sort = 'full_name';
+        }
+        if (! in_array($direction, ['asc', 'desc'])) {
+            $direction = 'asc';
+        }
+
+        $query->orderBy($sort, $direction);
+
+        $users = $query->paginate(10)->withQueryString();
+
+        return view('admin.users.index', compact('users'));
     }
 
-    // --- Sorting dengan fallback ---
-    $sort = $request->input('sort', 'full_name');
-    $direction = $request->input('direction', 'asc');
-
-    if (! in_array($sort, ['full_name', 'email'])) {
-        $sort = 'full_name';
-    }
-    if (! in_array($direction, ['asc', 'desc'])) {
-        $direction = 'asc';
-    }
-
-    $query->orderBy($sort, $direction);
-
-    $users = $query->paginate(10)->withQueryString();
-
-    return view('admin.users.index', compact('users'));
-}
-
-
-    /**
-     * Show the form for creating a new user.
-     */
     public function create()
     {
         return view('admin.users.create');
@@ -73,7 +67,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nip' => 'nullable|string|max:255',
+            'nip' => 'nullable|string|max:255|unique:users,nip',
             'full_name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
             'division' => 'nullable|string|max:255',
@@ -81,15 +75,23 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'institution' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|max:20',
-            'role' => ['required', Rule::in(['participant'])], // Hanya participant
+            'role' => ['required', Rule::in(['participant'])],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+
+        // --- PERBAIKAN DI SINI ---
+        // Jika input institusi kosong, set ke PSDMBP.
+        if (empty($validated['institution'])) {
+            $validated['institution'] = 'PSDMBP';
+        }
+
         User::create($validated);
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil dibuat.');
     }
 
+    // ... (method show dan edit tetap sama) ...
     public function show(User $user)
     {
         if ($user->role !== 'participant') {
@@ -99,9 +101,6 @@ class UserController extends Controller
         return view('admin.users.show', compact('user'));
     }
 
-    /**
-     * Show the form for editing the specified user.
-     */
     public function edit(User $user)
     {
         if ($user->role !== 'participant') {
@@ -116,13 +115,12 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        \Log::info('Update method called with data: ', $request->all());
         if ($user->role !== 'participant') {
             abort(403, 'Hanya participant yang bisa diedit.');
         }
 
         $validated = $request->validate([
-            'nip' => 'nullable|string|max:255',
+            'nip' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
             'full_name' => 'required|string|max:255',
             'position' => 'nullable|string|max:255',
             'division' => 'nullable|string|max:255',
@@ -139,15 +137,19 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
+        // --- PERBAIKAN DI SINI ---
+        // Jika input institusi kosong, set ke PSDMBP.
+        if (empty($validated['institution'])) {
+            $validated['institution'] = 'PSDMBP';
+        }
+
         $user->update($validated);
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified user from storage.
-     */
-    public function destroy(User $user)
+    // ... (method destroy dan export tetap sama) ...
+     public function destroy(User $user)
     {
         Log::info('Destroy method called for user: ' . $user->id);
         if ($user->role !== 'participant') {

@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::disableForeignKeyConstraints();
-
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('creator_id');
-            $table->foreign('creator_id')->references('id')->on('users');
+            $table->string('code')->unique()->nullable();
+            $table->foreignId('creator_id')->constrained('users');
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
             $table->string('title', 255);
             $table->text('description')->nullable();
             $table->dateTime('start_time');
@@ -25,8 +24,6 @@ return new class extends Migration
             $table->enum('status', ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])->default('Terjadwal');
             $table->timestamps();
         });
-
-        Schema::enableForeignKeyConstraints();
     }
 
     /**
