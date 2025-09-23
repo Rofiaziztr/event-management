@@ -52,8 +52,6 @@ class EventController extends Controller
 
         return view('admin.events.index', compact('events', 'categories', 'stats'));
     }
-
-    // ... sisa method lainnya tetap sama ...
     
     /**
      * Show the form for creating a new resource.

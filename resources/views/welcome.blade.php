@@ -261,7 +261,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Dokumen & Notulensi</h3>
                     <p class="text-gray-600 leading-relaxed">
-                        Upload materi presentasi dan buat notulensi rapat dengan editor yang mudah digunakan.
+                        Unggah lampiran-lampiran dan buat notulensi dengan editor yang mudah digunakan.
                     </p>
                 </div>
                 {{-- Feature 5 --}}

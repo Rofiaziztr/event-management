@@ -254,7 +254,7 @@ class ParticipantController extends Controller
     public function destroy(Event $event, User $user)
     {
         $event->participants()->detach($user->id);
-        return back()->with('success', 'Peserta berhasil dihapus.');
+        return back()->with('success', 'Peserta undangan berhasil dihapus.');
     }
 
     /**

@@ -12,11 +12,15 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $user->load(['participatedEvents', 'attendances.event']);
-        $period = $request->input('period', 'monthly');
-        $chartType = $request->input('chart_type', 'line');
+        $user->load(['participatedEvents.category', 'attendances.event.category']);
+        $historyPeriod = $request->input('history_period', 'all');
+        $search = $request->input('search', '');
+
         $allParticipatedEvents = $user->participatedEvents()
             ->where('status', '!=', 'Dibatalkan')
+            ->with(['category', 'attendances' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
             ->get();
 
         $attendedEventIds = $user->attendances->pluck('event_id')->unique()->toArray();
@@ -33,7 +37,12 @@ class DashboardController extends Controller
         $attendedCount = collect($attendedEventIds)->intersect($finishedEvents->pluck('id'))->count();
         $missedEventsCount = $totalInvitations - $attendedCount;
         $attendanceRate = ($totalInvitations > 0) ? round(($attendedCount / $totalInvitations) * 100) : 0;
-        $chartData = $this->getChartData($user, $period);
+
+        // History events with filter, search, and pagination
+        $historyEventsQuery = $this->getHistoryEventsQuery($user, $historyPeriod, $search);
+        $historyEvents = $historyEventsQuery->paginate(10); // Paginate with 10 items per page
+        $totalHistoryEvents = $historyEventsQuery->count();
+
         return view('participant.dashboard.index', compact(
             'totalInvitations',
             'attendedCount',
@@ -42,45 +51,45 @@ class DashboardController extends Controller
             'ongoingEvents',
             'upcomingEvents',
             'attendedEventIds',
-            'chartData',
-            'period',
-            'chartType'
+            'historyEvents',
+            'totalHistoryEvents',
+            'historyPeriod',
+            'search'
         ));
     }
-    private function getChartData($user, $period)
+
+    private function getHistoryEventsQuery($user, $historyPeriod, $search = '')
     {
-        $data = collect();
-        $labels = collect();
-        $now = Carbon::now();
-        if ($period == 'yearly') {
-            for ($i = 11; $i >= 0; $i--) {
-                $month = $now->copy()->subMonths($i);
-                $labels->push($month->format('M Y'));
-                $eventsInMonth = $user->participatedEvents()->whereYear('start_time', $month->year)->whereMonth('start_time', $month->month)->where('status', '!=', 'Dibatalkan')->count();
-                $attendanceInMonth = $user->attendances()->whereYear('check_in_time', $month->year)->whereMonth('check_in_time', $month->month)->count();
-                $data->push($eventsInMonth > 0 ? round(($attendanceInMonth / $eventsInMonth) * 100) : 0);
-            }
-        } elseif ($period == 'monthly') {
-            for ($i = 29; $i >= 0; $i--) {
-                $date = $now->copy()->subDays($i);
-                $labels->push($date->format('d M'));
-                $eventsOnDate = $user->participatedEvents()->whereDate('start_time', $date)->where('status', '!=', 'Dibatalkan')->count();
-                $attendanceOnDate = $user->attendances()->whereDate('check_in_time', $date)->count();
-                $data->push($eventsOnDate > 0 ? round(($attendanceOnDate / $eventsOnDate) * 100) : 0);
-            }
-        } else { // weekly
-            for ($i = 6; $i >= 0; $i--) {
-                $date = $now->copy()->subDays($i);
-                $labels->push($date->format('D, d M'));
-                $eventsOnDate = $user->participatedEvents()->whereDate('start_time', $date)->where('status', '!=', 'Dibatalkan')->count();
-                $attendanceOnDate = $user->attendances()->whereDate('check_in_time', $date)->count();
-                $data->push($eventsOnDate > 0 ? round(($attendanceOnDate / $eventsOnDate) * 100) : 0);
-            }
+        $query = $user->participatedEvents()
+            ->with(['category', 'attendances' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
+            ->where('status', '!=', 'Dibatalkan');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhereHas('category', fn($qc) => $qc->where('name', 'like', "%{$search}%"));
+            });
         }
-        // Pastikan mengembalikan array dengan struktur yang benar
-        return [
-            'labels' => $labels->toArray(),
-            'data' => $data->toArray(),
-        ];
+
+        // Apply period filter
+        switch ($historyPeriod) {
+            case 'last_year':
+                $query->where('start_time', '>=', now()->subYear());
+                break;
+            case 'last_6_months':
+                $query->where('start_time', '>=', now()->subMonths(6));
+                break;
+            case 'this_year':
+                $query->whereYear('start_time', now()->year);
+                break;
+            default: // 'all'
+                // No filter
+                break;
+        }
+
+        return $query->orderBy('start_time', 'desc');
     }
 }

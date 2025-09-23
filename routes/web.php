@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Manajemen peserta
         Route::controller(ParticipantController::class)->prefix('events/{event}/participants')->name('events.participants.')->group(function () {
-    Route::get('/', 'list')->name('list'); // Tambahkan ini
+    Route::get('/', 'list')->name('list');
     Route::post('/', 'store')->name('store');
     Route::post('/bulk', 'storeBulk')->name('store.bulk');
     Route::delete('/{user}', 'destroy')->name('destroy');

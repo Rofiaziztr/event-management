@@ -88,7 +88,7 @@ class UserController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dibuat.');
+        return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil dibuat.');
     }
 
     // ... (method show dan edit tetap sama) ...
@@ -145,7 +145,7 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
+        return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil diperbarui.');
     }
 
     // ... (method destroy dan export tetap sama) ...
@@ -158,7 +158,7 @@ class UserController extends Controller
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
 
     public function export()
