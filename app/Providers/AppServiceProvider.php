@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use App\Models\Event;
 use App\Observers\EventObserver;
 use Illuminate\Pagination\Paginator;
@@ -39,5 +40,7 @@ class AppServiceProvider extends ServiceProvider
 
         Paginator::defaultView('custom.pagination');
         Paginator::defaultSimpleView('custom.simple-pagination');
+
+        Carbon::setLocale('id');
     }
 }

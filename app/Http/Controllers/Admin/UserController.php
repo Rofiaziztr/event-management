@@ -13,7 +13,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
-    // ... (method index dan create tetap sama) ...
     public function index(Request $request)
     {
         $query = User::query();
@@ -80,7 +79,6 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
 
-        // --- PERBAIKAN DI SINI ---
         // Jika input institusi kosong, set ke PSDMBP.
         if (empty($validated['institution'])) {
             $validated['institution'] = 'PSDMBP';
@@ -91,7 +89,6 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil dibuat.');
     }
 
-    // ... (method show dan edit tetap sama) ...
     public function show(User $user)
     {
         if ($user->role !== 'participant') {
@@ -137,7 +134,6 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
-        // --- PERBAIKAN DI SINI ---
         // Jika input institusi kosong, set ke PSDMBP.
         if (empty($validated['institution'])) {
             $validated['institution'] = 'PSDMBP';

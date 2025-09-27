@@ -14,7 +14,11 @@
     <link href="{{ asset('vendor/bladewind/css/animate.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('vendor/bladewind/css/bladewind-ui.min.css') }}" rel="stylesheet" />
 
-    @vite(['resources/css/app.css'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
+    <script src="{{ asset('vendor/bladewind/js/select.js') }}"></script>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
         .bladewind-select .placeholder {
@@ -33,22 +37,19 @@
             background-clip: text;
         }
 
-        /* Enhanced hover effects */
+        /* Simplified hover effects */
         .nav-link-hover {
-            transition: all 0.3s ease;
             border-radius: 0.75rem;
         }
 
         .nav-link-hover:hover {
             background: linear-gradient(135deg, #fef3c7, #fde68a);
-            transform: translateX(4px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .nav-link-active {
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
             color: white !important;
-            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.5);
+            border-radius: 0.75rem;
         }
 
         .sidebar-gradient {
@@ -66,7 +67,7 @@
 
         {{-- Enhanced Sidebar with Yellow Theme --}}
         <aside
-            class="w-64 sidebar-gradient shadow-2xl flex flex-col fixed inset-y-0 left-0 z-30 transform transition duration-300 ease-in-out md:relative md:translate-x-0 border-r border-yellow-200"
+            class="w-64 sidebar-gradient shadow-2xl flex flex-col fixed inset-y-0 left-0 z-30 md:relative md:translate-x-0 border-r border-yellow-200"
             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
 
             <div class="p-6 border-b border-yellow-200 h-20 flex items-center justify-between shrink-0">
@@ -90,7 +91,7 @@
                 @endphp
 
                 <a href="{{ route($dashboardRoute) }}"
-                    class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs($dashboardRoute) ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                    class="flex items-center space-x-3 p-3 {{ request()->routeIs($dashboardRoute) ? 'nav-link-active' : 'nav-link-hover text-gray-700 hover:text-yellow-700' }}">
                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -101,7 +102,7 @@
 
                 @if (Auth::user()->role === 'participant')
                     <a href="{{ route('scan.index') }}"
-                        class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('scan.index') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        class="flex items-center space-x-3 p-3 {{ request()->routeIs('scan.index') ? 'nav-link-active' : 'nav-link-hover text-gray-700 hover:text-yellow-700' }}">
                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -115,7 +116,7 @@
 
                 @if (Auth::user()->role == 'admin')
                     <a href="{{ route('admin.events.index') }}"
-                        class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('admin.events.*') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        class="flex items-center space-x-3 p-3 {{ request()->routeIs('admin.events.*') ? 'nav-link-active' : 'nav-link-hover text-gray-700 hover:text-yellow-700' }}">
                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -125,7 +126,7 @@
                     </a>
 
                     <a href="{{ route('admin.users.index') }}"
-                        class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('admin.users.*') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        class="flex items-center space-x-3 p-3 {{ request()->routeIs('admin.users.*') ? 'nav-link-active' : 'nav-link-hover text-gray-700 hover:text-yellow-700' }}">
                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -137,7 +138,7 @@
 
                 @if (Auth::user()->role == 'participant')
                     <a href="{{ route('participant.events.index') }}"
-                        class="flex items-center space-x-3 p-3 nav-link-hover {{ request()->routeIs('participant.events.*') ? 'nav-link-active' : 'text-gray-700 hover:text-yellow-700' }}">
+                        class="flex items-center space-x-3 p-3 {{ request()->routeIs('participant.events.*') ? 'nav-link-active' : 'nav-link-hover text-gray-700 hover:text-yellow-700' }}">
                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -163,7 +164,7 @@
 
                 <div class="space-y-2">
                     <a href="{{ route('profile.edit') }}"
-                        class="flex items-center space-x-3 p-2 nav-link-hover text-sm {{ request()->routeIs('profile.edit') ? 'nav-link-active' : 'text-gray-600 hover:text-yellow-700' }}">
+                        class="flex items-center space-x-3 p-2 {{ request()->routeIs('profile.edit') ? 'nav-link-active' : 'nav-link-hover text-gray-600 hover:text-yellow-700' }}">
                         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -209,16 +210,6 @@
         </div>
     </div>
 
-    @vite(['resources/js/app.js'])
-
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="{{ asset('vendor/bladewind/js/helpers.js') }}"></script>
-    <script src="{{ asset('vendor/bladewind/js/select.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.min.js"
-        integrity="sha512-n/G+dROKbKL3GVngGWmWfwK0yPctjZQM752diVYnXZtD/48agpUKLIn0xDQL9ydZ91x6BiOmTIFwWjjFi2kEFg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    @stack('styles')
     @stack('scripts')
 </body>
 

@@ -15,56 +15,71 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 class EventController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Event::with('creator', 'participants', 'category');
+{
+    $search = $request->input('search');
+    $category_id = $request->input('category_id');
+    $start_date = $request->input('start_date');
+    $end_date = $request->input('end_date');
+    $status = $request->input('status');
 
-        // Filter berdasarkan nama event
-        if ($request->has('search') && $request->search != '') {
-            $query->where('title', 'like', '%' . $request->search . '%');
-        }
+    $query = Event::query();
 
-        // Filter berdasarkan kategori
-        if ($request->has('category_id') && $request->category_id != '') {
-            $query->where('category_id', $request->category_id);
-        }
-
-        // Filter berdasarkan rentang tanggal
-        if ($request->has('start_date') && $request->start_date != '') {
-            $query->whereDate('start_time', '>=', $request->start_date);
-        }
-
-        if ($request->has('end_date') && $request->end_date != '') {
-            $query->whereDate('end_time', '<=', $request->end_date);
-        }
-
-        $events = $query->latest()->paginate(9)->withQueryString();
-        $categories = Category::orderBy('name')->get();
-        
-        // Data Statistik untuk Kartu Info
-        $stats = [
-            'total' => Event::count(),
-            'berlangsung' => Event::where('status', 'Berlangsung')->count(),
-            'bulan_ini' => Event::whereMonth('start_time', now()->month)
-                                ->whereYear('start_time', now()->year)
-                                ->count(),
-        ];
-
-
-        return view('admin.events.index', compact('events', 'categories', 'stats'));
+    // Apply filters
+    if ($search) {
+        $query->where('title', 'like', "%{$search}%");
     }
+
+    if ($category_id) {
+        $query->where('category_id', $category_id);
+    }
+
+    if ($start_date) {
+        $query->where('start_time', '>=', $start_date);
+    }
+
+    if ($end_date) {
+        $query->where('end_time', '<=', $end_date);
+    }
+
+    if ($status) {
+        $now = now();
+        $query->where(function ($q) use ($status, $now) {
+            if ($status === 'Terjadwal') {
+                $q->where('start_time', '>', $now) // Hanya event di masa depan
+                   ->where('status', '!=', 'Dibatalkan'); // Kecualikan yang dibatalkan
+            } elseif ($status === 'Berlangsung') {
+                $q->where('start_time', '<=', $now)
+                   ->where('end_time', '>=', $now)
+                   ->where('status', '!=', 'Dibatalkan');
+            } elseif ($status === 'Selesai') {
+                $q->where('end_time', '<', $now)
+                   ->where('status', '!=', 'Dibatalkan');
+            } elseif ($status === 'Dibatalkan') {
+                $q->where('status', 'Dibatalkan');
+            }
+        });
+    }
+
+    $events = $query->with('category')->paginate(9)->appends(request()->all());
+
+    $categories = Category::all();
+    $stats = [
+        'total' => Event::count(),
+        'berlangsung' => Event::where('start_time', '<=', now())
+                            ->where('end_time', '>=', now())
+                            ->count(),
+        'bulan_ini' => Event::whereMonth('start_time', now()->month)->count(),
+    ];
+
+    return view('admin.events.index', compact('events', 'categories', 'stats'));
+}
     
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $categories = Category::orderBy('name')->get();
         return view('admin.events.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -73,7 +88,7 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',
             'location' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $event = new Event($validated);
@@ -83,43 +98,30 @@ class EventController extends Controller
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Request $request, Event $event)
     {
-        // Memuat relasi participants dengan pagination
         $participants = $event->participants()->with(['attendances' => function ($query) use ($event) {
             $query->where('event_id', $event->id);
         }])->paginate(10);
 
-        // Memuat data lain yang mungkin sudah ada (misalnya potentialParticipants)
-            $existingParticipantIds = $event->participants()->pluck('users.id');
-    $potentialParticipants = User::where('role', 'participant')
-        ->whereNotIn('id', $existingParticipantIds)
-        ->orderBy('full_name')
-        ->get();
+        $existingParticipantIds = $event->participants()->pluck('users.id');
+        $potentialParticipants = User::where('role', 'participant')
+            ->where('institution', 'PSDMBP') // Assume 'PSDMBP' for internal
+            ->whereNotIn('id', $existingParticipantIds)
+            ->orderBy('full_name')
+            ->get();
 
-        // Ambil tab aktif dari URL, default-nya adalah 'detail'
         $activeTab = $request->query('tab', 'detail');
 
-        // Mengirim data ke view
         return view('admin.events.show', compact('event', 'activeTab', 'potentialParticipants'));
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Event $event)
     {
         $categories = Category::orderBy('name')->get();
         return view('admin.events.edit', compact('event', 'categories'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Event $event)
     {
         $validated = $request->validate([
@@ -128,8 +130,8 @@ class EventController extends Controller
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',
             'location' => 'required|string|max:255',
-            'status' => 'required|string|in:Terjadwal,Berlangsung,Selesai,Dibatalkan',
-            'category_id' => 'nullable|exists:categories,id',
+            'status' => 'required|string|in:Terjadwal,Dibatalkan',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $event->update($validated);
@@ -137,18 +139,12 @@ class EventController extends Controller
         return redirect()->route('admin.events.show', $event)->with('success', 'Event berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Event $event)
     {
         $event->delete();
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus.');
     }
 
-    /**
-     * Menampilkan halaman QR Code untuk sebuah event.
-     */
     public function showQrCode(Event $event)
     {
         $event->load('participants', 'attendances');

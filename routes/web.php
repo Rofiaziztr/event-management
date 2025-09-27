@@ -42,14 +42,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Manajemen peserta
         Route::controller(ParticipantController::class)->prefix('events/{event}/participants')->name('events.participants.')->group(function () {
-    Route::get('/', 'list')->name('list');
-    Route::post('/', 'store')->name('store');
-    Route::post('/bulk', 'storeBulk')->name('store.bulk');
-    Route::delete('/{user}', 'destroy')->name('destroy');
-    Route::post('/external', 'storeExternal')->name('store.external');
-    Route::post('/{user}/manual', 'manualAttendance')->name('manual');
-    Route::post('/bulk-attendance', 'bulkAttendance')->name('bulk-attendance');
-});
+            Route::get('/', 'list')->name('list');
+            Route::post('/', 'store')->name('store');
+            Route::post('/invite-all', 'inviteAllAvailable')->name('invite-all-available');
+            Route::post('/invite-by-division', 'inviteByDivision')->name('invite-by-division');
+            Route::delete('/{user}', 'destroy')->name('destroy');
+            Route::post('/external', 'storeExternal')->name('store.external');
+            Route::post('/{user}/manual', 'manualAttendance')->name('manual');
+            Route::post('/bulk-attendance', 'bulkAttendance')->name('bulk-attendance');
+
+            // Export routes
+            Route::get('/export', 'export')->name('export');
+            Route::get('/export-filtered', 'exportFiltered')->name('export-filtered');
+        });
+
+        // General participant routes
+        Route::controller(ParticipantController::class)->prefix('participants')->name('participants.')->group(function () {
+            Route::get('/download-template', 'downloadTemplate')->name('download-template');
+        });
+
+        // Multi-event comparison
+        Route::post('/events/export-comparison', [ParticipantController::class, 'exportComparison'])
+            ->name('events.export-comparison');
 
         // Manajemen dokumen
         Route::controller(DocumentController::class)->group(function () {
@@ -62,7 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('users', UserController::class);
         Route::get('admin/users/export', [UserController::class, 'export'])->name('users.export');
 
-        // Presensi manual
+        // Presensi manual (sudah ada di dalam group participants, bisa dihapus jika duplikat)
         Route::post('/events/{event}/participants/{user}/manual', [ParticipantController::class, 'manualAttendance'])->name('events.participants.manual');
     });
 
@@ -81,60 +95,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/scan', 'verify')->name('scan.verify');
     });
 });
-
-
-// Route::get('/test-brevo-fixed', function () {
-//     try {
-//         $data = [
-//             'subject' => 'Test After Fix',
-//             'body' => 'This is a test after fixing configuration.',
-//             'title' => 'Test After Fix',
-//             'email' => 'rofrof90@gmail.com', // Tambahkan email jika diperlukan
-//         ];
-        
-//         Mail::to('rofrof90@gmail.com')->send(new SendEmail($data));
-        
-//         return response()->json([
-//             'status' => 'success',
-//             'message' => 'Test email sent after fixes'
-//         ]);
-//     } catch (\Exception $e) {
-//         return response()->json([
-//             'status' => 'error',
-//             'message' => $e->getMessage()
-//         ], 500);
-//     }
-// });
-
-// Route::get('/test-event-invitation', function () {
-//     try {
-//         // Dapatkan event dan user contoh
-//         $event = \App\Models\Event::first();
-//         $user = \App\Models\User::where('email', 'rofrof90@gmail.com')->first();
-        
-//         if (!$event || !$user) {
-//             return response()->json([
-//                 'status' => 'error',
-//                 'message' => 'Event or user not found for testing'
-//             ], 404);
-//         }
-        
-//         // Kirim email undangan
-//         Mail::to($user->email)->send(new \App\Mail\EventInvitationMail($event, $user));
-        
-//         return response()->json([
-//             'status' => 'success',
-//             'message' => 'Event invitation test email sent successfully',
-//             'event' => $event->title,
-//             'user' => $user->email
-//         ]);
-//     } catch (\Exception $e) {
-//         return response()->json([
-//             'status' => 'error',
-//             'message' => $e->getMessage(),
-//             'trace' => $e->getTraceAsString()
-//         ], 500);
-//     }
-// });
 
 require __DIR__ . '/auth.php';

@@ -18,7 +18,7 @@ class EventInvitationMail extends Mailable
 
     public function __construct($event, $participant, $password = null)
     {
-        $this->event = $event;
+        $this->event = $event->load(['category', 'creator']);
         $this->participant = $participant;
         $this->password = $password;
     }

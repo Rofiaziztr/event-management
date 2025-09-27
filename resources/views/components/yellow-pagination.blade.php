@@ -58,7 +58,7 @@
                                 {{ $page }}
                             </span>
                         @elseif ($page == 1 || $page == $paginator->lastPage() || ($page >= $paginator->currentPage() - 2 && $page <= $paginator->currentPage() + 2))
-                            <a href="{{ $url }}" 
+                            <a href="{{ $paginator->url($page) }}" 
                                class="flex items-center justify-center w-10 h-10 text-sm font-medium text-yellow-700 bg-white border border-yellow-300 rounded-xl hover:bg-yellow-50 hover:border-yellow-400 transition-all duration-200 hover:shadow-md transform hover:scale-105">
                                 {{ $page }}
                             </a>

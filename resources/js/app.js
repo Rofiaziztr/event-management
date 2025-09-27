@@ -4,6 +4,9 @@ import Alpine from 'alpinejs';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/l10n/id.js';
+import Chart from 'chart.js/auto';
+
+window.Chart = Chart;
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -27,23 +30,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // --- Date Picker Khusus: Izinkan Semua Tanggal (Hanya Tanggal) ---
-const dateOnlyPickers = document.querySelectorAll('.flatpickr-date-only');
-dateOnlyPickers.forEach(input => {
-    if (input._flatpickr) input._flatpickr.destroy();
+    const dateOnlyPickers = document.querySelectorAll('.flatpickr-date-only');
+    dateOnlyPickers.forEach(input => {
+        if (input._flatpickr) input._flatpickr.destroy();
 
-    flatpickr(input, {
-        enableTime: false,           // 🔴 Matikan waktu
-        dateFormat: "Y-m-d",         // Format YYYY-MM-DD
-        time_24hr: false,
-        locale: "id",
-        allowInput: true,
-        clickOpens: true,
-        minDate: null,               // 🔥 Bebas pilih masa lalu
-        onReady: (selectedDates, dateStr, instance) => {
-            instance.calendarContainer.style.zIndex = '9999';
-        }
+        flatpickr(input, {
+            enableTime: false,           // 🔴 Matikan waktu
+            dateFormat: "Y-m-d",         // Format YYYY-MM-DD
+            time_24hr: false,
+            locale: "id",
+            allowInput: true,
+            clickOpens: true,
+            minDate: null,               // 🔥 Bebas pilih masa lalu
+            onReady: (selectedDates, dateStr, instance) => {
+                instance.calendarContainer.style.zIndex = '9999';
+            }
+        });
     });
-});
 
     // --- Date Picker Khusus: Izinkan Semua Tanggal ---
     const allDatePickers = document.querySelectorAll('.flatpickr-all');

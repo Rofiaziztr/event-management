@@ -6,7 +6,7 @@
                     Dashboard Admin
                 </h2>
                 <p class="text-gray-600 mt-1">Selamat datang kembali, {{ auth()->user()->full_name }}</p>
-                <p class="text-sm text-yellow-600 font-medium">System Administrator</p>
+                <p class="text-sm text-yellow-600 font-medium">Administrator Sistem</p>
             </div>
             <a href="{{ route('admin.events.create') }}" 
                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 border border-transparent rounded-xl font-semibold text-white hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
@@ -76,7 +76,7 @@
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Total Events</p>
+                            <p class="text-sm font-medium text-gray-500">Total Event</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $totalEvents }}</p>
                             <div class="flex items-center mt-2">
                                 <span class="text-xs font-medium {{ $eventGrowth >= 0 ? 'text-green-600' : 'text-red-600' }}">
@@ -135,10 +135,10 @@
                             <p class="text-sm font-medium text-gray-500">Rata-rata Kehadiran</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $averageAttendanceRate }}%</p>
                             <p class="text-xs text-yellow-600 mt-2">
-                                @if($averageAttendanceRate >= 90) Excellent
-                                @elseif($averageAttendanceRate >= 80) Good
-                                @elseif($averageAttendanceRate >= 70) Fair
-                                @else Needs Improvement
+                                @if($averageAttendanceRate >= 90) Sangat Baik
+                                @elseif($averageAttendanceRate >= 80) Baik
+                                @elseif($averageAttendanceRate >= 70) Cukup
+                                @else Perlu Perbaikan
                                 @endif
                             </p>
                         </div>
@@ -420,217 +420,214 @@
         </div>
     </div>
 
-    @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Event Trend Chart (Line)
-            @if(!empty($eventTrendStats['datasets']))
-            const eventTrendCtx = document.getElementById('eventTrendChart').getContext('2d');
-            
-            new Chart(eventTrendCtx, {
-                type: 'line',
-                data: {
-                    labels: @json($eventTrendStats['labels']),
-                    datasets: @json($eventTrendStats['datasets']).map((ds, index) => ({
-                        label: ds.label,
-                        data: ds.data,
-                        borderColor: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6'][index % 5],
-                        backgroundColor: 'rgba(0, 0, 0, 0)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointHoverRadius: 8
-                    }))
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event Trend Chart (Line)
+        @if(!empty($eventTrendStats['datasets']))
+console.log('Initializing eventTrendChart', @json($eventTrendStats));
+const eventTrendCtx = document.getElementById('eventTrendChart').getContext('2d');
+        new Chart(eventTrendCtx, {
+            type: 'line',
+            data: {
+                labels: @json($eventTrendStats['labels']),
+                datasets: @json($eventTrendStats['datasets']).map((ds, index) => ({
+                    label: ds.label,
+                    data: ds.data,
+                    borderColor: ['#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6'][index % 5],
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                font: { size: 14 }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#f59e0b',
-                            borderWidth: 1,
-                            cornerRadius: 8,
-                            titleFont: { size: 14 },
-                            bodyFont: { size: 12 }
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 14 }
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                lineWidth: 1
-                            },
-                            ticks: {
-                                color: '#374151',
-                                font: { size: 12 },
-                                padding: 10,
-                                stepSize: 1
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#374151',
-                                font: { size: 12 },
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        }
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 12 }
                     }
-                }
-            });
-            @endif
-
-            // Category Chart (Horizontal Bar)
-            @if($categoryStats->isNotEmpty())
-            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-            
-            new Chart(categoryCtx, {
-                type: 'bar',
-                data: {
-                    labels: @json($categoryStats->pluck('category_name')),
-                    datasets: [{
-                        label: 'Total Kehadiran',
-                        data: @json($categoryStats->pluck('total_attendances')),
-                        backgroundColor: [
-                            '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6', 
-                            '#f97316', '#06b6d4', '#84cc16'
-                        ].slice(0, {{ $categoryStats->count() }}),
-                        borderColor: [
-                            '#d97706', '#059669', '#2563eb', '#dc2626', '#7c3aed', 
-                            '#ea580c', '#0891b2', '#65a30d'
-                        ].slice(0, {{ $categoryStats->count() }}),
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        borderSkipped: false
-                    }]
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            color: '#374151',
+                            font: { size: 12 },
+                            padding: 10,
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        grid: {
                             display: false
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#f59e0b',
-                            borderWidth: 1,
-                            cornerRadius: 8,
-                            titleFont: { size: 14 },
-                            bodyFont: { size: 12 },
-                            callbacks: {
-                                afterLabel: function(context) {
-                                    const categoryData = @json($categoryStats);
-                                    const category = categoryData[context.dataIndex];
-                                    return `${category.total_events} event${category.total_events !== 1 ? 's' : ''}`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                lineWidth: 1
-                            },
-                            ticks: {
-                                color: '#374151',
-                                font: { size: 12 },
-                                padding: 10
-                            }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#374151',
-                                font: { size: 12 },
-                                padding: 10
-                            }
+                        ticks: {
+                            color: '#374151',
+                            font: { size: 12 },
+                            maxRotation: 45,
+                            minRotation: 45
                         }
                     }
                 }
-            });
-            @endif
+            }
+        });
+        @endif
 
-            // Event Status Chart (Doughnut)
-            const eventStatusCtx = document.getElementById('eventStatusChart').getContext('2d');
-            
-            new Chart(eventStatusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'],
-                    datasets: [{
-                        data: [
-                            {{ $eventStatusData['Terjadwal'] }},
-                            {{ $eventStatusData['Berlangsung'] }},
-                            {{ $eventStatusData['Selesai'] }},
-                            {{ $eventStatusData['Dibatalkan'] }}
-                        ],
-                        backgroundColor: [
-                            '#f59e0b', // yellow-500 - Terjadwal
-                            '#10b981', // emerald-500 - Berlangsung
-                            '#6b7280', // gray-500 - Selesai
-                            '#ef4444'  // red-500 - Dibatalkan
-                        ],
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                        hoverBorderWidth: 3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                font: { size: 12 }
+        // Category Chart (Horizontal Bar)
+        @if($categoryStats->isNotEmpty())
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: @json($categoryStats->pluck('category_name')),
+                datasets: [{
+                    label: 'Total Kehadiran',
+                    data: @json($categoryStats->pluck('total_attendances')),
+                    backgroundColor: [
+                        '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6',
+                        '#f97316', '#06b6d4', '#84cc16'
+                    ].slice(0, {{ $categoryStats->count() }}),
+                    borderColor: [
+                        '#d97706', '#059669', '#2563eb', '#dc2626', '#7c3aed',
+                        '#ea580c', '#0891b2', '#65a30d'
+                    ].slice(0, {{ $categoryStats->count() }}),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 12 },
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const categoryData = @json($categoryStats);
+                                const category = categoryData[context.dataIndex];
+                                return `${category.total_events} event${category.total_events !== 1 ? 's' : ''}`;
                             }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            lineWidth: 1
                         },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#f59e0b',
-                            borderWidth: 1,
-                            cornerRadius: 8,
-                            titleFont: { size: 14 },
-                            bodyFont: { size: 12 }
+                        ticks: {
+                            color: '#374151',
+                            font: { size: 12 },
+                            padding: 10
                         }
                     },
-                    cutout: '60%'
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#374151',
+                            font: { size: 12 },
+                            padding: 10
+                        }
+                    }
                 }
-            });
+            }
         });
-    </script>
-    @endpush
+        @endif
+
+        // Event Status Chart (Doughnut)
+        const eventStatusCtx = document.getElementById('eventStatusChart').getContext('2d');
+        new Chart(eventStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'],
+                datasets: [{
+                    data: [
+                        {{ $eventStatusData['Terjadwal'] }},
+                        {{ $eventStatusData['Berlangsung'] }},
+                        {{ $eventStatusData['Selesai'] }},
+                        {{ $eventStatusData['Dibatalkan'] }}
+                    ],
+                    backgroundColor: [
+                        '#f59e0b', // yellow-500 - Terjadwal
+                        '#10b981', // emerald-500 - Berlangsung
+                        '#6b7280', // gray-500 - Selesai
+                        '#ef4444'  // red-500 - Dibatalkan
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 12 }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    });
+</script>
+@endpush
 </x-app-layout>
