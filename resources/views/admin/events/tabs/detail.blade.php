@@ -114,7 +114,6 @@
 
     {{-- Sidebar - Event Info --}}
     <div class="space-y-6">
-        <!-- Quick Info Card -->
         <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 overflow-hidden">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                 <h3 class="text-lg font-semibold text-white">Informasi Acara</h3>
@@ -167,79 +166,6 @@
                     </p>
                 </div>
             </div>
-        </div>
-
-        {{-- Quick Actions --}}
-        <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
-                <h3 class="text-lg font-semibold text-white">Aksi Cepat</h3>
-            </div>
-            <div class="p-6 space-y-3">
-    {{-- Tombol QR Code (Hijau) --}}
-    <a href="{{ route('admin.events.qrcode', $event) }}"
-        class="inline-flex items-center justify-center w-full px-4 py-2 
-               bg-gradient-to-r from-green-500 to-green-600 
-               border border-transparent rounded-xl 
-               font-semibold text-white text-sm shadow-sm
-               hover:from-green-600 hover:to-green-700 
-               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M9 16h4.01" />
-        </svg>
-        Tampilkan QR Code
-    </a>
-
-    {{-- Tombol Edit Event (Biru) --}}
-    <a href="{{ route('admin.events.edit', $event) }}"
-        class="inline-flex items-center justify-center w-full px-4 py-2 
-               bg-gradient-to-r from-indigo-500 to-indigo-600 
-               border border-transparent rounded-xl 
-               font-semibold text-white text-sm shadow-sm
-               hover:from-indigo-600 hover:to-indigo-700 
-               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414
-                   a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
-        Edit Event
-    </a>
-
-    {{-- Tombol Export Peserta (Emas/Kuning) --}}
-@if ($event->participants->count() > 0)
-    <div class="relative" x-data="{ exportOpen: false }">
-        <button @click="exportOpen = !exportOpen"
-            class="inline-flex items-center justify-center w-full px-4 py-2 
-                   bg-gradient-to-r from-yellow-400 to-yellow-500 
-                   border border-transparent rounded-xl 
-                   font-semibold text-white text-sm shadow-sm
-                   hover:from-yellow-500 hover:to-yellow-600 
-                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Export Peserta
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-        
-        <div x-show="exportOpen" x-transition @click.away="exportOpen = false"
-             class="absolute bottom-full left-0 mb-2 w-64 bg-white rounded-lg shadow-lg border z-50">
-            <div class="py-2">
-                <a href="{{ route('admin.events.participants.export', ['event' => $event, 'type' => 'detailed']) }}" 
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📋 Detail Lengkap</a>
-                <a href="{{ route('admin.events.participants.export', ['event' => $event, 'type' => 'summary']) }}" 
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📊 Ringkasan</a>
-                <a href="{{ route('admin.events.participants.export', ['event' => $event, 'type' => 'attendance_only']) }}" 
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">⏰ Kehadiran</a>
-            </div>
-        </div>
-    </div>
-@endif
-</div>
-
         </div>
 
         {{-- Event Stats --}}
@@ -296,18 +222,13 @@
                 </button>
             </div>
             <div id="preview-content" class="p-6 overflow-y-auto max-h-[60vh] prose max-w-none">
-                <!-- Preview content will be inserted here -->
-            </div>
+                </div>
         </div>
     </div>
 </div>
 
 @push('scripts')
     <script>
-        function exportParticipants() {
-            alert('Fitur export sedang dalam pengembangan');
-        }
-
         function previewNotulensi() {
             const contentElement = document.getElementById('notulensi-content');
             const fullContent = contentElement ? contentElement.getAttribute('data-full-content') || '' : '';

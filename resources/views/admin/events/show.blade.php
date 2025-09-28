@@ -111,7 +111,7 @@
                 <div class="border-b border-gray-100">
                     <nav class="flex space-x-8 px-6" aria-label="Tabs">
                         <a href="{{ route('admin.events.show', ['event' => $event, 'tab' => 'detail']) }}"
-                           class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'detail' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'detail' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -121,7 +121,7 @@
                         </a>
 
                         <a href="{{ route('admin.events.show', ['event' => $event, 'tab' => 'peserta']) }}"
-                           class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'peserta' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'peserta' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
@@ -131,7 +131,7 @@
                         </a>
 
                         <a href="{{ route('admin.events.show', ['event' => $event, 'tab' => 'lampiran']) }}"
-                           class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'lampiran' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'lampiran' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
@@ -141,7 +141,7 @@
                         </a>
 
                         <a href="{{ route('admin.events.show', ['event' => $event, 'tab' => 'notulensi']) }}"
-                           class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'notulensi' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            class="py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 {{ $activeTab == 'notulensi' ? 'border-yellow-500 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             <div class="flex items-center space-x-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -169,75 +169,57 @@
             @endif
 
             {{-- Action Bar --}}
-<div class="mt-8 flex justify-end space-x-3">
-    {{-- Tombol Kembali --}}
-    <a href="{{ route('admin.events.index') }}"
-       class="inline-flex items-center px-5 py-2.5 
-              bg-gray-100 border border-gray-300 rounded-xl 
-              font-medium text-gray-700 shadow-sm 
-              hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-        </svg>
-        Kembali
-    </a>
+            <div class="mt-8 flex justify-end space-x-3">
+                {{-- Tombol Kembali --}}
+                <a href="{{ route('admin.events.index') }}"
+                    class="inline-flex items-center px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-xl font-medium text-gray-700 shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Kembali
+                </a>
 
-    {{-- Tombol QR Code --}}
-    <a href="{{ route('admin.events.qrcode', $event) }}"
-       class="inline-flex items-center px-5 py-2.5 
-              bg-gradient-to-r from-green-500 to-green-600 
-              rounded-xl font-medium text-white shadow-sm
-              hover:from-green-600 hover:to-green-700 
-              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M12 4v1m6 11h2m-6 0h-2v4m6-5h-6m1-11a1 1 0 011-1h2a1 1 
-                     0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V4zm-9 7a1 1 
-                     0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 
-                     0 01-1-1v-2zm9 7a1 1 0 011-1h2a1 1 
-                     0 011 1v2a1 1 0 01-1 1h-2a1 1 
-                     0 01-1-1v-2z"/>
-        </svg>
-        QR Code
-    </a>
+                {{-- Tombol Unduh Laporan --}}
+                <a href="{{ route('admin.events.export', $event) }}"
+                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl font-medium text-white shadow-sm hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Unduh Laporan
+                </a>
 
-    {{-- Tombol Edit --}}
-    <a href="{{ route('admin.events.edit', $event) }}"
-       class="inline-flex items-center px-5 py-2.5 
-              bg-gradient-to-r from-indigo-500 to-indigo-600 
-              rounded-xl font-medium text-white shadow-sm
-              hover:from-indigo-600 hover:to-indigo-700 
-              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 
-                     2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-        </svg>
-        Edit
-    </a>
+                {{-- Tombol QR Code --}}
+                <a href="{{ route('admin.events.qrcode', $event) }}"
+                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-500 to-green-600 rounded-xl font-medium text-white shadow-sm hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m6-5h-6m1-11a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V4zm-9 7a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zm9 7a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z"/>
+                    </svg>
+                    QR Code
+                </a>
 
-    {{-- Tombol Hapus --}}
-    <form action="{{ route('admin.events.destroy', $event) }}" method="POST" class="inline"
-          onsubmit="return confirm('Yakin ingin menghapus event ini? Data terkait akan hilang permanen.')">
-        @csrf
-        @method('DELETE')
-        <button type="submit"
-                class="inline-flex items-center px-5 py-2.5 
-                       bg-gradient-to-r from-red-500 to-red-600 
-                       rounded-xl font-medium text-white shadow-sm
-                       hover:from-red-600 hover:to-red-700 
-                       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 
-                         0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 
-                         1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            Hapus
-        </button>
-    </form>
-</div>
+                {{-- Tombol Edit --}}
+                <a href="{{ route('admin.events.edit', $event) }}"
+                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl font-medium text-white shadow-sm hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                    Edit
+                </a>
 
+                {{-- Tombol Hapus --}}
+                <form action="{{ route('admin.events.destroy', $event) }}" method="POST" class="inline"
+                    onsubmit="return confirm('Yakin ingin menghapus event ini? Data terkait akan hilang permanen.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                        class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 rounded-xl font-medium text-white shadow-sm hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Hapus
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

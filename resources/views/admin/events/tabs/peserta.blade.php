@@ -1,6 +1,4 @@
 <div class="space-y-8">
-    {{-- Export Buttons  --}}
-    @include('admin.events.participants.export-buttons', ['event' => $event])
     {{-- Form Undang Peserta --}}
     <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
         <div class="p-6 border-b border-gray-100">

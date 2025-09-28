@@ -44,14 +44,19 @@ class EventController extends Controller
         return view('participant.events.index', compact('events', 'attendedEventIds', 'categories'));
     }
 
-    public function show(Event $event)
+        public function show(Event $event)
     {
-        $user = Auth::user();
-        $event->load('documents.user');
+        // Pastikan user adalah peserta event ini
+        if (!auth()->user()->participatedEvents()->where('event_id', $event->id)->exists()) {
+            abort(403, 'Anda tidak diundang ke acara ini.');
+        }
 
-        // Cek apakah user sudah memiliki data kehadiran untuk event ini
-        $attendance = $user->attendances()->where('event_id', $event->id)->first();
-
+        // Muat semua relasi yang dibutuhkan oleh view
+        $event->load('creator', 'category', 'documents');
+        
+        // Ambil data kehadiran user saat ini untuk event ini
+        $attendance = $event->attendances()->where('user_id', auth()->id())->first();
+        
         return view('participant.events.show', compact('event', 'attendance'));
     }
 }

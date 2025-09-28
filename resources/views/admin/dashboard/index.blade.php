@@ -8,8 +8,8 @@
                 <p class="text-gray-600 mt-1">Selamat datang kembali, {{ auth()->user()->full_name }}</p>
                 <p class="text-sm text-yellow-600 font-medium">Administrator Sistem</p>
             </div>
-            <a href="{{ route('admin.events.create') }}" 
-               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 border border-transparent rounded-xl font-semibold text-white hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+            <a href="{{ route('admin.events.create') }}"
+               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 border border-transparent rounded-xl font-semibold text-white hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -41,6 +41,7 @@
         .progress-bar {
             transition: width 1s ease-in-out;
         }
+        /* FIX: Mengembalikan ukuran chart container ke default agar tidak mempengaruhi card lain */
         .chart-container {
             position: relative;
             width: 100%;
@@ -48,7 +49,7 @@
         }
         @media (min-width: 1280px) {
             .chart-container {
-                min-height: 500px;
+                min-height: 420px; /* Sedikit lebih tinggi untuk layar besar */
             }
         }
     </style>
@@ -72,7 +73,6 @@
 
             {{-- Main Statistics Cards --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
-                <!-- Total Events -->
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
                     <div class="flex items-center justify-between">
                         <div>
@@ -92,7 +92,6 @@
                     </div>
                 </div>
 
-                <!-- Total Participants -->
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
                     <div class="flex items-center justify-between">
                         <div>
@@ -108,7 +107,6 @@
                     </div>
                 </div>
 
-                <!-- Total Attendances -->
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
                     <div class="flex items-center justify-between">
                         <div>
@@ -128,7 +126,6 @@
                     </div>
                 </div>
 
-                <!-- Average Attendance Rate -->
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
                     <div class="flex items-center justify-between">
                         <div>
@@ -155,8 +152,10 @@
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {{-- Left Side - Charts --}}
                 <div class="xl:col-span-2 space-y-8">
+                    
                     {{-- Event Trend Chart --}}
-                    <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-fade-in">
+                    {{-- FIX: Menambahkan class h-[550px] untuk memaksa tinggi card dan flex flex-col agar konten di dalamnya bisa diatur --}}
+                    <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-fade-in flex flex-col h-[550px]">
                         <div class="p-6 border-b border-gray-100">
                             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
                                 <div>
@@ -173,9 +172,10 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="p-6">
+                        {{-- FIX: Menambahkan class flex-grow agar chart mengisi sisa ruang vertikal --}}
+                        <div class="p-6 flex-grow">
                             @if(!empty($eventTrendStats['datasets']))
-                                <div class="chart-container">
+                                <div class="chart-container h-full">
                                     <canvas id="eventTrendChart"></canvas>
                                 </div>
                             @else
@@ -190,7 +190,8 @@
                     </div>
 
                     {{-- Category Performance Chart --}}
-                    <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-fade-in">
+                    {{-- FIX: Menambahkan class h-[550px] untuk memaksa tinggi card dan flex flex-col agar konten di dalamnya bisa diatur --}}
+                    <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-fade-in flex flex-col h-[550px]">
                         <div class="p-6 border-b border-gray-100">
                             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
                                 <div>
@@ -207,9 +208,10 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="p-6">
+                        {{-- FIX: Menambahkan class flex-grow agar chart mengisi sisa ruang vertikal --}}
+                        <div class="p-6 flex-grow">
                             @if($categoryStats->isNotEmpty())
-                                <div class="chart-container">
+                                <div class="chart-container h-full">
                                     <canvas id="categoryChart"></canvas>
                                 </div>
                             @else
@@ -399,7 +401,7 @@
                                             </div>
                                         </div>
                                         <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full progress-bar" 
+                                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full progress-bar"
                                                  style="width: {{ $rate }}%"></div>
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1">{{ $event->start_time->format('d M Y') }}</p>

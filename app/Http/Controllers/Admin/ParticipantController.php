@@ -7,12 +7,7 @@ use App\Models\Event;
 use App\Models\Attendance;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Exports\EventParticipantsExport;
-use App\Exports\EventSummaryExport;
-use App\Exports\AttendanceReportExport;
 use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EventInvitationMail;
 use Illuminate\Support\Facades\Log;
@@ -35,20 +30,16 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($newIds);
 
-        // Kirim email undangan ke peserta baru
         $newUsers = User::find($newIds);
         foreach ($newUsers as $user) {
             try {
-                Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
+                // Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
             } catch (\Exception $e) {
-                Log::error('Gagal kirim email undangan ke: ' . $user->email, [
-                    'error' => $e->getMessage(),
-                    'event_id' => $event->id,
-                ]);
+                Log::error('Gagal kirim email undangan ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id]);
             }
         }
 
-        return back()->with('success', count($newIds) . ' peserta berhasil diundang. Notifikasi email telah dikirim.');
+        return back()->with('success', count($newIds) . ' peserta berhasil diundang (Mode Testing: Email tidak dikirim).');
     }
 
     public function inviteAllAvailable(Request $request, Event $event)
@@ -63,19 +54,15 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($newUsers->pluck('id'));
 
-        // Kirim email undangan ke semua peserta baru
         foreach ($newUsers as $user) {
             try {
-                Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
+                // Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
             } catch (\Exception $e) {
-                Log::error('Gagal kirim email undangan massal (semua) ke: ' . $user->email, [
-                    'error' => $e->getMessage(),
-                    'event_id' => $event->id,
-                ]);
+                Log::error('Gagal kirim email undangan massal (semua) ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id]);
             }
         }
 
-        return back()->with('success', $newUsers->count() . ' peserta berhasil diundang. Notifikasi email telah dikirim.');
+        return back()->with('success', $newUsers->count() . ' peserta berhasil diundang (Mode Testing: Email tidak dikirim).');
     }
 
     public function inviteByDivision(Request $request, Event $event)
@@ -95,20 +82,15 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($newUsers->pluck('id'));
 
-        // Kirim email undangan ke peserta baru per divisi
         foreach ($newUsers as $user) {
             try {
-                Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
+                // Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
             } catch (\Exception $e) {
-                Log::error('Gagal kirim email undangan massal (divisi) ke: ' . $user->email, [
-                    'error' => $e->getMessage(),
-                    'event_id' => $event->id,
-                    'division' => $division,
-                ]);
+                Log::error('Gagal kirim email undangan massal (divisi) ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id, 'division' => $division]);
             }
         }
 
-        return back()->with('success', count($newUsers) . " peserta dari divisi '$division' berhasil diundang. Notifikasi email telah dikirim.");
+        return back()->with('success', count($newUsers) . " peserta dari divisi '$division' berhasil diundang (Mode Testing: Email tidak dikirim).");
     }
 
     public function storeExternal(Request $request, Event $event)
@@ -140,18 +122,13 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($user->id);
 
-        // Kirim email undangan (sertakan password jika user baru)
         try {
-            Mail::to($user->email)->queue(new EventInvitationMail($event, $user, $isNew ? $password : null));
+            // Mail::to($user->email)->queue(new EventInvitationMail($event, $user, $isNew ? $password : null));
         } catch (\Exception $e) {
-            Log::error('Gagal kirim email undangan eksternal ke: ' . $user->email, [
-                'error' => $e->getMessage(),
-                'event_id' => $event->id,
-                'is_new_user' => $isNew,
-            ]);
+            Log::error('Gagal kirim email undangan eksternal ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id, 'is_new_user' => $isNew]);
         }
 
-        return back()->with('success', 'Peserta eksternal berhasil diundang. Notifikasi email telah dikirim.');
+        return back()->with('success', 'Peserta eksternal berhasil diundang (Mode Testing: Email tidak dikirim).');
     }
 
     public function bulkAttendance(Request $request, Event $event)
@@ -183,7 +160,6 @@ class ParticipantController extends Controller
 
     public function destroy(Event $event, User $user)
     {
-        // Hapus attendance terkait
         Attendance::where('event_id', $event->id)->where('user_id', $user->id)->delete();
         $event->participants()->detach($user->id);
         return back()->with('success', 'Peserta berhasil dihapus.');
@@ -244,72 +220,5 @@ class ParticipantController extends Controller
         ]);
 
         return back()->with('success', 'Peserta berhasil dihadirkan secara manual.');
-    }
-
-    /**
-     * Export detailed participants report with professional styling
-     */
-    public function export(Event $event, Request $request)
-    {
-        $type = $request->get('type', 'detailed'); // detailed, summary, attendance_only
-
-        $filename = $this->generateExportFilename($event, $type);
-
-        switch ($type) {
-            case 'summary':
-                return Excel::download(new EventSummaryExport($event), $filename);
-            case 'attendance_only':
-                return Excel::download(new AttendanceReportExport($event), $filename);
-            case 'detailed':
-            default:
-                return Excel::download(new EventParticipantsExport($event), $filename);
-        }
-    }
-
-
-
-    /**
-     * Export participants with custom filters
-     */
-    public function exportFiltered(Event $event, Request $request)
-    {
-        $filters = $request->only(['division', 'institution', 'attendance_status']);
-        $filename = $this->generateExportFilename($event, 'filtered', $filters);
-
-        return Excel::download(new EventParticipantsExport($event, $filters), $filename);
-    }
-
-    /**
-     * Generate appropriate filename for exports
-     */
-    private function generateExportFilename(Event $event, string $type, array $filters = []): string
-    {
-        $baseTitle = 'Peserta_' . Str::slug($event->title, '_');
-        $timestamp = now()->format('Y-m-d_H-i');
-
-        $typeMap = [
-            'detailed' => 'Detail',
-            'summary' => 'Ringkasan',
-            'attendance_only' => 'Kehadiran',
-            'filtered' => 'Filter'
-        ];
-
-        $filename = $baseTitle . '_' . ($typeMap[$type] ?? 'Export') . '_' . $timestamp;
-
-        // Add filter info to filename
-        if (!empty($filters)) {
-            $filterParts = [];
-            if (isset($filters['division'])) {
-                $filterParts[] = 'Div-' . Str::slug($filters['division']);
-            }
-            if (isset($filters['attendance_status'])) {
-                $filterParts[] = $filters['attendance_status'] === 'attended' ? 'Hadir' : 'TidakHadir';
-            }
-            if (!empty($filterParts)) {
-                $filename .= '_' . implode('_', $filterParts);
-            }
-        }
-
-        return $filename . '.xlsx';
     }
 }

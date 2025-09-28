@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Category;
+use Illuminate\Support\Str;
 use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
+use App\Exports\EventReportExport; // <-- IMPORT KELAS BARU
 use App\Http\Controllers\Controller;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
@@ -15,65 +17,53 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 class EventController extends Controller
 {
     public function index(Request $request)
-{
-    $search = $request->input('search');
-    $category_id = $request->input('category_id');
-    $start_date = $request->input('start_date');
-    $end_date = $request->input('end_date');
-    $status = $request->input('status');
+    {
+        $search = $request->input('search');
+        $category_id = $request->input('category_id');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        $status = $request->input('status');
 
-    $query = Event::query();
+        $query = Event::query();
 
-    // Apply filters
-    if ($search) {
-        $query->where('title', 'like', "%{$search}%");
+        if ($search) {
+            $query->where('title', 'like', "%{$search}%");
+        }
+        if ($category_id) {
+            $query->where('category_id', $category_id);
+        }
+        if ($start_date) {
+            $query->where('start_time', '>=', $start_date);
+        }
+        if ($end_date) {
+            $query->where('end_time', '<=', $end_date);
+        }
+        if ($status) {
+            $now = now();
+            $query->where(function ($q) use ($status, $now) {
+                if ($status === 'Terjadwal') {
+                    $q->where('start_time', '>', $now)->where('status', '!=', 'Dibatalkan');
+                } elseif ($status === 'Berlangsung') {
+                    $q->where('start_time', '<=', $now)->where('end_time', '>=', $now)->where('status', '!=', 'Dibatalkan');
+                } elseif ($status === 'Selesai') {
+                    $q->where('end_time', '<', $now)->where('status', '!=', 'Dibatalkan');
+                } elseif ($status === 'Dibatalkan') {
+                    $q->where('status', 'Dibatalkan');
+                }
+            });
+        }
+
+        $events = $query->with('category')->paginate(9)->appends(request()->all());
+        $categories = Category::all();
+        $stats = [
+            'total' => Event::count(),
+            'berlangsung' => Event::where('start_time', '<=', now())->where('end_time', '>=', now())->count(),
+            'bulan_ini' => Event::whereMonth('start_time', now()->month)->count(),
+        ];
+
+        return view('admin.events.index', compact('events', 'categories', 'stats'));
     }
 
-    if ($category_id) {
-        $query->where('category_id', $category_id);
-    }
-
-    if ($start_date) {
-        $query->where('start_time', '>=', $start_date);
-    }
-
-    if ($end_date) {
-        $query->where('end_time', '<=', $end_date);
-    }
-
-    if ($status) {
-        $now = now();
-        $query->where(function ($q) use ($status, $now) {
-            if ($status === 'Terjadwal') {
-                $q->where('start_time', '>', $now) // Hanya event di masa depan
-                   ->where('status', '!=', 'Dibatalkan'); // Kecualikan yang dibatalkan
-            } elseif ($status === 'Berlangsung') {
-                $q->where('start_time', '<=', $now)
-                   ->where('end_time', '>=', $now)
-                   ->where('status', '!=', 'Dibatalkan');
-            } elseif ($status === 'Selesai') {
-                $q->where('end_time', '<', $now)
-                   ->where('status', '!=', 'Dibatalkan');
-            } elseif ($status === 'Dibatalkan') {
-                $q->where('status', 'Dibatalkan');
-            }
-        });
-    }
-
-    $events = $query->with('category')->paginate(9)->appends(request()->all());
-
-    $categories = Category::all();
-    $stats = [
-        'total' => Event::count(),
-        'berlangsung' => Event::where('start_time', '<=', now())
-                            ->where('end_time', '>=', now())
-                            ->count(),
-        'bulan_ini' => Event::whereMonth('start_time', now()->month)->count(),
-    ];
-
-    return view('admin.events.index', compact('events', 'categories', 'stats'));
-}
-    
     public function create()
     {
         $categories = Category::orderBy('name')->get();
@@ -106,7 +96,7 @@ class EventController extends Controller
 
         $existingParticipantIds = $event->participants()->pluck('users.id');
         $potentialParticipants = User::where('role', 'participant')
-            ->where('institution', 'PSDMBP') // Assume 'PSDMBP' for internal
+            ->where('institution', 'PSDMBP')
             ->whereNotIn('id', $existingParticipantIds)
             ->orderBy('full_name')
             ->get();
@@ -165,5 +155,14 @@ class EventController extends Controller
         $qrCodeDataUri = $result->getDataUri();
 
         return view('admin.events.qrcode', compact('event', 'qrCodeDataUri'));
+    }
+
+    /**
+     * Mengekspor laporan lengkap event dalam satu file Excel dengan beberapa sheet.
+     */
+    public function export(Event $event)
+    {
+        $fileName = 'Laporan Event - ' . Str::slug($event->title) . '.xlsx';
+        return (new EventReportExport($event))->download($fileName);
     }
 }

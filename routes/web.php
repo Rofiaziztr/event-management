@@ -39,6 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Manajemen event
         Route::resource('events', EventController::class);
         Route::get('events/{event}/qrcode', [EventController::class, 'showQrCode'])->name('events.qrcode');
+        // Rute Ekspor Baru yang Terpusat
+        Route::get('events/{event}/export', [EventController::class, 'export'])->name('events.export');
+
 
         // Manajemen peserta
         Route::controller(ParticipantController::class)->prefix('events/{event}/participants')->name('events.participants.')->group(function () {
@@ -48,12 +51,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/invite-by-division', 'inviteByDivision')->name('invite-by-division');
             Route::delete('/{user}', 'destroy')->name('destroy');
             Route::post('/external', 'storeExternal')->name('store.external');
+            // HAPUS RUTE LAMA DARI SINI
+            // Route::get('/export', 'export')->name('export');
+            // Route::get('/export-filtered', 'exportFiltered')->name('export-filtered');
             Route::post('/{user}/manual', 'manualAttendance')->name('manual');
             Route::post('/bulk-attendance', 'bulkAttendance')->name('bulk-attendance');
-
-            // Export routes
-            Route::get('/export', 'export')->name('export');
-            Route::get('/export-filtered', 'exportFiltered')->name('export-filtered');
         });
 
         // General participant routes
@@ -75,9 +77,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Manajemen pengguna
         Route::resource('users', UserController::class);
         Route::get('admin/users/export', [UserController::class, 'export'])->name('users.export');
-
-        // Presensi manual (sudah ada di dalam group participants, bisa dihapus jika duplikat)
-        Route::post('/events/{event}/participants/{user}/manual', [ParticipantController::class, 'manualAttendance'])->name('events.participants.manual');
     });
 
     // Rute peserta
