@@ -2,9 +2,8 @@
 
 namespace App\Exports;
 
-use App\Exports\Sheets\AttendanceReportSheet;
-use App\Exports\Sheets\EventParticipantsSheet;
 use App\Exports\Sheets\EventSummarySheet;
+use App\Exports\Sheets\ParticipantsAttendanceSheet;
 use App\Exports\Traits\PreparesEventData;
 use App\Models\Event;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -39,8 +38,7 @@ class EventReportExport implements WithMultipleSheets
     {
         return [
             new EventSummarySheet($this->event),
-            new EventParticipantsSheet($this->event),
-            new AttendanceReportSheet($this->event),
+            new ParticipantsAttendanceSheet($this->event),
         ];
     }
 }

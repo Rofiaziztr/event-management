@@ -157,9 +157,27 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
 
-    public function export()
+    public function export(Request $request)
     {
         Log::info('Export route hit for admin.users.export');
-        return Excel::download(new UsersExport, 'users_' . now()->format('Ymd_His') . '.xlsx');
+        
+        // Collect filters from request
+        $filters = [];
+        
+        if ($request->filled('division')) {
+            $filters['division'] = $request->division;
+        }
+        
+        if ($request->filled('institution')) {
+            $filters['institution'] = $request->institution;
+        }
+        
+        if ($request->filled('search')) {
+            $filters['search'] = $request->search;
+        }
+        
+        $filename = 'daftar_pengguna_' . now()->format('Ymd_His') . '.xlsx';
+        
+        return Excel::download(new UsersExport($filters), $filename);
     }
 }
