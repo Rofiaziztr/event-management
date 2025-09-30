@@ -1,8 +1,15 @@
 <form action="{{ route('admin.events.participants.store', $event) }}" method="POST">
     @csrf
-    <label class="block text-lg font-semibold text-gray-800 mb-2">Undang Peserta Pilihan</label>
+    <label class="block text-lg md:text-xl lg:text-xl font-semibold text-gray-800 mb-2">Undang Peserta Pilihan</label>
     <div class="space-y-2">
-        <input type="text" id="search-internal" placeholder="Cari nama atau divisi..." class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
+        <div class="relative">
+            <div class="absolute inset-y-0 start-0 flex items-center pl-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input type="text" id="search-internal" placeholder="Cari nama atau divisi..." class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500 pl-10 p-2.5 md:p-3 lg:p-3 md:text-base lg:text-base">
+        </div>
         <div class="border border-gray-200 rounded-lg max-h-60 overflow-y-auto p-2">
             @php $counter = 1; @endphp
             @forelse ($potentialParticipants as $user)
@@ -22,7 +29,7 @@
         </div>
     </div>
     <div class="flex justify-end pt-4">
-        <x-bladewind::button can_submit="true" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+        <x-bladewind::button can_submit="true" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white md:px-4 md:py-2 lg:px-5 lg:py-2 md:text-sm lg:text-base">
             Undang Terpilih
         </x-bladewind::button>
     </div>
@@ -36,7 +43,7 @@
             <x-bladewind::button 
                 can_submit="true" 
                 has_spinner="true"
-                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white">
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white md:py-2 lg:py-2 md:text-sm lg:text-base">
                 Undang Semua Peserta Tersedia ({{ $potentialParticipants->count() }})
             </x-bladewind::button>
         </form>
@@ -60,7 +67,7 @@
                     <x-bladewind::button 
                         can_submit="true" 
                         has_spinner="true"
-                        class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                        class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white md:py-2 lg:py-2 md:text-sm lg:text-base">
                         Undang Per Divisi
                     </x-bladewind::button>
                 </div>

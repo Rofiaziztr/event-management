@@ -1,0 +1,27 @@
+/* Modal Styles */
+.modal-open .app-wrapper {
+    filter: blur(4px);
+    transition: filter 0.3s ease;
+}
+
+#modal-backdrop {
+    transition: opacity 0.3s ease;
+}
+
+body.modal-open {
+    position: relative;
+}
+
+body.modal-open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background-color: transparent;
+    pointer-events: none;
+}
+
+/* Adjust blur strength */
+.backdrop-blur-md {
+    backdrop-filter: blur(8px);
+}

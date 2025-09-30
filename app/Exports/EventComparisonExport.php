@@ -27,17 +27,17 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
     public function array(): array
     {
         $data = [];
-        
+
         // Header utama
         $data[] = ["📊 PERBANDINGAN KEHADIRAN MULTI EVENT"];
         $data[] = []; // Empty row
-        
+
         // Export info
         $data[] = ["📋 INFORMASI EKSPOR"];
         $data[] = ["🎯 Jumlah Event", $this->events->count()];
         $data[] = ["📅 Tanggal Ekspor", now()->format('d/m/Y H:i')];
         $data[] = []; // Empty row
-        
+
         // Summary comparison
         $data[] = ["📈 RINGKASAN PERBANDINGAN"];
         $data[] = [
@@ -50,12 +50,12 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
             "📊 Tingkat Kehadiran (%)",
             "🏷️ Status Event"
         ];
-        
+
         foreach ($this->events as $index => $event) {
             $totalInvited = $event->participants->count();
             $totalAttended = $event->participants->filter(fn($p) => $p->attendances->isNotEmpty())->count();
             $attendanceRate = $totalInvited > 0 ? round(($totalAttended / $totalInvited) * 100, 1) : 0;
-            
+
             $data[] = [
                 $index + 1,
                 $event->title,
@@ -67,20 +67,20 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
                 $event->status
             ];
         }
-        
+
         $data[] = []; // Empty row
-        
+
         // Detailed participant tracking across events
         $allParticipants = collect();
         foreach ($this->events as $event) {
             $allParticipants = $allParticipants->merge($event->participants);
         }
-        
+
         $uniqueParticipants = $allParticipants->unique('id')->sortBy('full_name');
-        
+
         if ($uniqueParticipants->isNotEmpty()) {
             $data[] = ["👥 TRACKING PESERTA LINTAS EVENT"];
-            
+
             // Build dynamic header
             $header = ["No", "🆔 NIP", "👤 Nama Lengkap", "🏢 Divisi", "🏛️ Institusi"];
             foreach ($this->events as $event) {
@@ -89,9 +89,9 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
             $header[] = "📬 Total Event Diundang";
             $header[] = "✅ Total Event Hadir";
             $header[] = "📊 Tingkat Partisipasi (%)";
-            
+
             $data[] = $header;
-            
+
             foreach ($uniqueParticipants as $index => $participant) {
                 $row = [
                     $index + 1,
@@ -100,14 +100,14 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
                     $participant->division ?? '-',
                     $participant->institution ?? '-'
                 ];
-                
+
                 $invitedCount = 0;
                 $attendedCount = 0;
-                
+
                 foreach ($this->events as $event) {
                     $isInvited = $event->participants->contains('id', $participant->id);
                     $isAttended = false;
-                    
+
                     if ($isInvited) {
                         $invitedCount++;
                         $attendance = $event->attendances->where('user_id', $participant->id)->first();
@@ -116,18 +116,18 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
                             $attendedCount++;
                         }
                     }
-                    
+
                     $row[] = $isInvited ? ($isAttended ? 'Hadir' : 'Tidak Hadir') : 'Tidak Diundang';
                 }
-                
+
                 $row[] = $invitedCount;
                 $row[] = $attendedCount;
                 $row[] = $invitedCount > 0 ? round(($attendedCount / $invitedCount) * 100, 1) : 0;
-                
+
                 $data[] = $row;
             }
         }
-        
+
         return $data;
     }
 
@@ -150,7 +150,7 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
     {
         $highestRow = $sheet->getHighestRow();
         $highestCol = $sheet->getHighestColumn();
-        
+
         // Set basic column widths
         $this->setColumnWidths($sheet, [
             'A' => 6,   // No
@@ -166,7 +166,7 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
         // Find different sections
         $summaryHeaderRow = null;
         $participantHeaderRow = null;
-        
+
         for ($row = 1; $row <= $highestRow; $row++) {
             $cellValue = $sheet->getCell("A{$row}")->getValue();
             if (strpos($cellValue, 'RINGKASAN PERBANDINGAN') !== false) {
@@ -185,23 +185,25 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
         if ($summaryHeaderRow) {
             $this->styleSectionHeader($sheet, "A{$summaryHeaderRow}:{$highestCol}{$summaryHeaderRow}");
             $summaryTableRow = $summaryHeaderRow + 1;
-            
+
             // Find end of summary table
             $summaryEndRow = $summaryTableRow;
             for ($row = $summaryTableRow + 1; $row <= $highestRow; $row++) {
-                if (empty($sheet->getCell("A{$row}")->getValue()) || 
-                    !is_numeric($sheet->getCell("A{$row}")->getValue())) {
+                if (
+                    empty($sheet->getCell("A{$row}")->getValue()) ||
+                    !is_numeric($sheet->getCell("A{$row}")->getValue())
+                ) {
                     $summaryEndRow = $row - 1;
                     break;
                 }
             }
-            
+
             $this->styleDataTable(
-                $sheet, 
-                "A{$summaryTableRow}:H{$summaryTableRow}", 
+                $sheet,
+                "A{$summaryTableRow}:H{$summaryTableRow}",
                 "A" . ($summaryTableRow + 1) . ":H{$summaryEndRow}"
             );
-            
+
             // Format percentage column
             $this->formatNumbers($sheet, "G" . ($summaryTableRow + 1) . ":G{$summaryEndRow}", '0.0');
         }
@@ -210,31 +212,31 @@ class EventComparisonExport implements FromArray, WithTitle, WithEvents
         if ($participantHeaderRow) {
             $this->styleSectionHeader($sheet, "A{$participantHeaderRow}:{$highestCol}{$participantHeaderRow}");
             $participantTableRow = $participantHeaderRow + 1;
-            
+
             $this->styleDataTable(
-                $sheet, 
-                "A{$participantTableRow}:{$highestCol}{$participantTableRow}", 
+                $sheet,
+                "A{$participantTableRow}:{$highestCol}{$participantTableRow}",
                 "A" . ($participantTableRow + 1) . ":{$highestCol}{$highestRow}"
             );
-            
+
             // Apply conditional formatting for attendance status
             $eventColumns = [];
             $headerRow = $sheet->rangeToArray("A{$participantTableRow}:{$highestCol}{$participantTableRow}")[0];
-            
+
             foreach ($headerRow as $colIndex => $headerValue) {
                 if (strpos($headerValue, '(') !== false && strpos($headerValue, ')') !== false) {
                     $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
                     $eventColumns[] = $columnLetter;
                 }
             }
-            
+
             foreach ($eventColumns as $col) {
                 $this->applyStatusConditionalFormatting($sheet, "{$col}" . ($participantTableRow + 1) . ":{$col}{$highestRow}");
             }
-            
+
             // Set freeze panes
             $this->setFreezePanes($sheet, "A" . ($participantTableRow + 1));
-            
+
             // Set auto filter
             $this->setAutoFilter($sheet, "A{$participantTableRow}:{$highestCol}{$highestRow}");
         }

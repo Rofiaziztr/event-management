@@ -35,7 +35,7 @@ trait ExcelStylingTrait
     {
         $sheet->mergeCells($range);
         $sheet->setCellValue(explode(':', $range)[0], $title);
-        
+
         $sheet->getStyle($range)->applyFromArray([
             'font' => [
                 'bold' => true,
@@ -58,7 +58,7 @@ trait ExcelStylingTrait
                 ]
             ]
         ]);
-        
+
         // Set row height
         $row = (int) filter_var(explode(':', $range)[0], FILTER_SANITIZE_NUMBER_INT);
         $sheet->getRowDimension($row)->setRowHeight(35);
@@ -151,10 +151,10 @@ trait ExcelStylingTrait
         $rangeArr = explode(':', $range);
         $startCell = $rangeArr[0];
         $endCell = $rangeArr[1];
-        
+
         preg_match('/([A-Z]+)(\d+)/', $startCell, $startMatches);
         preg_match('/([A-Z]+)(\d+)/', $endCell, $endMatches);
-        
+
         $startRow = (int) $startMatches[2];
         $endRow = (int) $endMatches[2];
         $startCol = $startMatches[1];
@@ -314,24 +314,24 @@ trait ExcelStylingTrait
     protected function configurePrintSettings(Worksheet $sheet, string $orientation = 'landscape'): void
     {
         $pageSetup = $sheet->getPageSetup();
-        
+
         if ($orientation === 'landscape') {
             $pageSetup->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
         } else {
             $pageSetup->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_PORTRAIT);
         }
-        
+
         $pageSetup->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
         $pageSetup->setFitToPage(true);
         $pageSetup->setFitToWidth(1);
         $pageSetup->setFitToHeight(0);
-        
+
         // Margins
         $sheet->getPageMargins()->setLeft(0.5);
         $sheet->getPageMargins()->setRight(0.5);
         $sheet->getPageMargins()->setTop(0.75);
         $sheet->getPageMargins()->setBottom(0.75);
-        
+
         // Header & Footer
         $sheet->getHeaderFooter()
             ->setOddHeader('&C&B' . config('app.name', 'Event Management System'))

@@ -1,12 +1,14 @@
 import 'preline';
 import './bootstrap';
 import Alpine from 'alpinejs';
+import './alpine-components';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/l10n/id.js';
 import Chart from 'chart.js/auto';
 
 window.Chart = Chart;
+window.Alpine = Alpine;
 
 document.addEventListener('DOMContentLoaded', function () {
 

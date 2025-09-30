@@ -33,7 +33,7 @@ class UserController extends Controller
                 });
             } elseif ($request->status === 'inactive') {
                 $query->whereDoesntHave('attendances')
-                        ->whereDoesntHave('participatedEvents');
+                    ->whereDoesntHave('participatedEvents');
             }
         }
 
@@ -145,7 +145,7 @@ class UserController extends Controller
     }
 
     // ... (method destroy dan export tetap sama) ...
-     public function destroy(User $user)
+    public function destroy(User $user)
     {
         Log::info('Destroy method called for user: ' . $user->id);
         if ($user->role !== 'participant') {
@@ -160,24 +160,24 @@ class UserController extends Controller
     public function export(Request $request)
     {
         Log::info('Export route hit for admin.users.export');
-        
+
         // Collect filters from request
         $filters = [];
-        
+
         if ($request->filled('division')) {
             $filters['division'] = $request->division;
         }
-        
+
         if ($request->filled('institution')) {
             $filters['institution'] = $request->institution;
         }
-        
+
         if ($request->filled('search')) {
             $filters['search'] = $request->search;
         }
-        
+
         $filename = 'daftar_pengguna_' . now()->format('Ymd_His') . '.xlsx';
-        
+
         return Excel::download(new UsersExport($filters), $filename);
     }
 }

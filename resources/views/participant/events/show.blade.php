@@ -106,14 +106,14 @@
 
                     {{-- Notulensi --}}
                     @php $notulensi = $event->documents->whereNull('file_path')->first(); @endphp
-                     <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200">
+                     <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-yellow-200">
                         <div class="flex items-center mb-4">
                             <div class="p-2 bg-violet-100 rounded-lg">
                                 <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </div>
                             <h3 class="text-lg font-semibold text-gray-900 ml-3">Notulensi Acara</h3>
                         </div>
-                        <div class="prose max-w-none text-gray-700 leading-relaxed">
+                        <div class="prose max-w-none text-gray-700 leading-relaxed overflow-x-auto">
                             @if ($notulensi && $notulensi->content)
                                 {!! $notulensi->content !!}
                             @else

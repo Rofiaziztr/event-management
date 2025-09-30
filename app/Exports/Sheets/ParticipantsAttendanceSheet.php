@@ -24,15 +24,15 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
     public function array(): array
     {
         $data = [];
-        
+
         // Header utama
         $data[] = ["DAFTAR PESERTA & KEHADIRAN: " . strtoupper($this->event->title)];
         $data[] = []; // Empty row
-        
+
         // Participants and attendance table
         $data[] = [
             "No",
-            "NIP", 
+            "NIP",
             "Nama Lengkap",
             "Jabatan",
             "Divisi",
@@ -45,10 +45,10 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
             "Selisih dari Mulai Event",
             "Kategori Waktu"
         ];
-        
+
         // Get attended participants for timing calculation
         $attendedParticipants = $this->event->participants->filter(fn($p) => $p->attendances->isNotEmpty());
-        
+
         // All participants data (attended and not attended)
         $allParticipants = $this->event->participants
             ->sortBy(function ($participant) {
@@ -57,17 +57,17 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
                 return ($attendance ? '0' : '1') . $participant->full_name;
             })
             ->values();
-            
+
         foreach ($allParticipants as $index => $participant) {
             $attendance = $participant->attendances->first();
-            
+
             if ($attendance) {
                 // For attended participants
                 $attendanceStatus = 'Hadir';
                 $checkInTime = $attendance->check_in_time;
                 $checkInTimeStr = $checkInTime->format('d/m/Y H:i:s');
                 $diffInMinutes = $checkInTime->diffInMinutes($this->event->start_time, false);
-                
+
                 // Determine timing category
                 if ($checkInTime->lt($this->event->start_time)) {
                     $timingCategory = "Lebih Awal";
@@ -86,7 +86,7 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
                 $timeDiff = '-';
                 $timingCategory = '-';
             }
-            
+
             $data[] = [
                 $index + 1,
                 "'" . ($participant->nip ?? '-'), // Prevent scientific notation
@@ -103,7 +103,7 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
                 $timingCategory
             ];
         }
-        
+
         return $data;
     }
 
@@ -126,7 +126,7 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
     {
         $highestRow = $sheet->getHighestRow();
         $highestCol = $sheet->getHighestColumn();
-        
+
         // Set column widths
         $this->setColumnWidths($sheet, [
             'A' => 6,   // No
@@ -156,18 +156,18 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
                 break;
             }
         }
-        
+
         // Style main participants table
         if ($tableHeaderRow) {
             $this->styleDataTable(
-                $sheet, 
-                "A{$tableHeaderRow}:{$highestCol}{$tableHeaderRow}", 
+                $sheet,
+                "A{$tableHeaderRow}:{$highestCol}{$tableHeaderRow}",
                 "A" . ($tableHeaderRow + 1) . ":{$highestCol}{$highestRow}"
             );
 
             // Format NIP column as text
             $this->formatNIP($sheet, "B" . ($tableHeaderRow + 1) . ":B{$highestRow}");
-            
+
             // Apply conditional formatting for attendance status (column J)
             $conditional1 = new \PhpOffice\PhpSpreadsheet\Style\Conditional();
             $conditional1->setConditionType(\PhpOffice\PhpSpreadsheet\Style\Conditional::CONDITION_CONTAINSTEXT);
@@ -210,16 +210,16 @@ class ParticipantsAttendanceSheet implements FromArray, WithTitle, WithEvents
 
             $timingConditionalStyles = [$conditional3, $conditional4, $conditional5];
             $sheet->getStyle("M" . ($tableHeaderRow + 1) . ":M{$highestRow}")->setConditionalStyles($timingConditionalStyles);
-            
+
             // Format date column (K - check-in time)
             $this->formatDate($sheet, "K" . ($tableHeaderRow + 1) . ":K{$highestRow}");
-            
+
             // Set freeze panes
             $this->setFreezePanes($sheet, "A" . ($tableHeaderRow + 1));
-            
+
             // Set auto filter
             $this->setAutoFilter($sheet, "A{$tableHeaderRow}:{$highestCol}{$highestRow}");
-            
+
             // Set print titles
             $sheet->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1, $tableHeaderRow);
         }

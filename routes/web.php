@@ -30,6 +30,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/profile', 'update')->name('profile.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
+    
+    // Contoh Alert System
+    Route::controller(\App\Http\Controllers\AlertExampleController::class)->group(function () {
+        Route::get('/alert-examples', 'showExamples')->name('alert.examples');
+        Route::get('/alert-examples/success', 'successAlert')->name('alert.success');
+        Route::get('/alert-examples/error', 'errorAlert')->name('alert.error');
+        Route::get('/alert-examples/warning', 'warningAlert')->name('alert.warning');
+        Route::get('/alert-examples/info', 'infoAlert')->name('alert.info');
+        Route::post('/alert-examples/js', 'jsAlert')->name('alert.js');
+    });
 
     // Rute admin
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {

@@ -8,15 +8,15 @@
             </div>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.users.export') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 border border-transparent rounded-xl font-semibold text-white text-sm hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center px-6 py-3 bg-green-500 border border-transparent rounded-xl font-semibold text-white hover:bg-green-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                     </svg>
                     Export Data
                 </a>
                 <a href="{{ route('admin.users.create') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 border border-transparent rounded-xl font-semibold text-white text-sm hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
                     Tambah Pengguna
@@ -48,8 +48,7 @@
     </style>
     @endpush
 
-    <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
-        <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div class="px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
             @if (session('success'))
                 <div class="animate-fade-in">
@@ -66,59 +65,65 @@
 
             <!-- Statistik -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Total Pengguna</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ App\Models\User::count() }}</p>
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Divisi Terdaftar</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ App\Models\User::distinct('division')->whereNotNull('division')->count() }}</p>
-                        </div>
-                        <div class="p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m0 0h4M9 7h6m-6 4h6m-6 4h6"/>
-                            </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Pengguna</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ App\Models\User::count() }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Bergabung Bulan Ini</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ App\Models\User::where('created_at', '>=', now()->startOfMonth())->count() }}</p>
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-purple">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Divisi Terdaftar</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ App\Models\User::distinct('division')->whereNotNull('division')->count() }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Bergabung Bulan Ini</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ App\Models\User::where('created_at', '>=', now()->startOfMonth())->count() }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filter -->
-            <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 overflow-hidden animate-fade-in">
-                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                        </svg>
-                        <h3 class="text-lg font-semibold text-white">Filter & Pencarian Pengguna</h3>
-                    </div>
+            <div class="bg-yellow-500 rounded-t-xl p-4 animate-fade-in">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-white">Filter & Pencarian Pengguna</h3>
                 </div>
+            </div>
+            <div class="bg-white rounded-b-xl shadow-xl border border-yellow-200 border-t-0 overflow-hidden animate-fade-in">
 
                 <form method="GET" class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -261,6 +266,5 @@
                     <x-yellow-pagination :paginator="$users" />
                 </div>
             </div>
-        </div>
     </div>
 </x-app-layout>

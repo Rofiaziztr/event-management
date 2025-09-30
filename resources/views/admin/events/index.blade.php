@@ -7,7 +7,7 @@
                 </h2>
             </div>
             <a href="{{ route('admin.events.create') }}" 
-               class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 border border-transparent rounded-xl font-semibold text-white hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+               class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -39,8 +39,7 @@
     </style>
     @endpush
 
-    <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
-        <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
             @if (session('success'))
                 <div class="animate-fade-in">
@@ -57,60 +56,65 @@
 
             <!-- Statistik -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Total Event</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Sedang Berlangsung</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $stats['berlangsung'] }}</p>
-                        </div>
-                        <div class="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Event</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Event Bulan Ini</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $stats['bulan_ini'] }}</p>
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-green">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 0 1 0 1.953l-7.108 4.062A1.125 1.125 0 0 1 3 16.81V8.688ZM12.75 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 0 1 0 1.953l-7.108 4.062a1.125 1.125 0 0 1-1.683-.977V8.688Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Sedang Berlangsung</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['berlangsung'] }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Bulan Ini</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['bulan_ini'] }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Filter -->
-            <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 overflow-hidden animate-fade-in">
-                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                        </svg>
-                        <h3 class="text-lg font-semibold text-white">Filter & Pencarian Event</h3>
-                    </div>
+            <div class="bg-yellow-500 rounded-t-xl p-4 animate-fade-in">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-white">Filter & Pencarian Event</h3>
                 </div>
+            </div>
+            <div class="bg-white rounded-b-xl shadow-xl border border-yellow-200 border-t-0 overflow-hidden animate-fade-in">
 
                 <form method="GET" action="{{ route('admin.events.index') }}" class="p-6 space-y-4">
                     <!-- Baris 1: Cari Nama Event (full width) -->
@@ -252,6 +256,5 @@
                     <x-yellow-pagination :paginator="$events" />
                 </div>
             </div>
-        </div>
     </div>
 </x-app-layout>

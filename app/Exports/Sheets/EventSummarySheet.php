@@ -52,11 +52,11 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
         })->values();
 
         $data = [];
-        
+
         // Header utama - lebih simple
         $data[] = ["RINGKASAN: " . strtoupper($this->event->title)];
         $data[] = []; // Empty row
-        
+
         // Overview singkat dalam satu section
         $data[] = ["📋 EVENT OVERVIEW"];
         $data[] = ["🎯 Event", $this->event->title];
@@ -64,29 +64,29 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
         $data[] = ["📍 Lokasi", $this->event->location];
         $data[] = ["🏷️ Status", $this->event->status];
         $data[] = []; // Empty row
-        
+
         // Key metrics dalam format yang lebih menarik
         $data[] = ["📊 RINGKASAN KEHADIRAN"];
         $data[] = ["📊 Total Peserta", $totalInvited . " orang"];
         $data[] = ["✅ Hadir", $totalAttended . " orang"];
         $data[] = ["📈 Tingkat Kehadiran", $attendanceRate . "%"];
-        
+
         // Analyze attendance timing
         $attendedParticipants = $this->event->participants->filter(fn($p) => $p->attendances->isNotEmpty());
         $ontimeCount = $attendedParticipants->filter(function ($p) {
             return $p->attendances->first()->check_in_time->lte($this->event->start_time->copy()->addMinutes(15));
         })->count();
         $lateCount = $totalAttended - $ontimeCount;
-        
+
         $data[] = ["⏰ Tepat Waktu", $ontimeCount . " orang (" . round(($ontimeCount / max($totalAttended, 1)) * 100, 1) . "%)"];
         $data[] = ["⏳ Terlambat", $lateCount . " orang (" . round(($lateCount / max($totalAttended, 1)) * 100, 1) . "%)"];
         $data[] = []; // Empty row
-        
+
         // Breakdown per Division - lebih compact
         if ($byDivision->isNotEmpty() && $byDivision->count() > 1) {
             $data[] = ["🏢 BREAKDOWN PER DIVISI"];
             $data[] = ["🏢 Divisi", "👥 Peserta", "✅ Hadir", "📊 Rate (%)"];
-            
+
             foreach ($byDivision->sortByDesc('rate') as $division) {
                 $rateIcon = $division['rate'] >= 80 ? "🟢" : ($division['rate'] >= 60 ? "🟡" : "🔴");
                 $data[] = [
@@ -98,12 +98,12 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
             }
             $data[] = []; // Empty row
         }
-        
+
         // Breakdown per Institution - hanya jika lebih dari 1 institusi
         if ($byInstitution->isNotEmpty() && $byInstitution->count() > 1) {
             $data[] = ["�️ BREAKDOWN PER INSTITUSI"];
             $data[] = ["🏛️ Institusi", "👥 Peserta", "✅ Hadir", "📊 Rate (%)"];
-            
+
             foreach ($byInstitution->sortByDesc('rate') as $institution) {
                 $rateIcon = $institution['rate'] >= 80 ? "🟢" : ($institution['rate'] >= 60 ? "🟡" : "🔴");
                 $data[] = [
@@ -137,7 +137,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
     {
         $highestRow = $sheet->getHighestRow();
         $highestCol = $sheet->getHighestColumn();
-        
+
         // Set column widths for better readability
         $this->setColumnWidths($sheet, [
             'A' => 30,  // Labels - wider for emojis and text
@@ -154,7 +154,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
         $ringkasanRow = null;
         $divisiRow = null;
         $institusiRow = null;
-        
+
         for ($row = 1; $row <= $highestRow; $row++) {
             $cellValue = $sheet->getCell("A{$row}")->getValue();
             if (strpos($cellValue, 'EVENT OVERVIEW') !== false) {
@@ -173,13 +173,13 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
             // Merge header across appropriate columns (A:D for overview section)
             $sheet->mergeCells("A{$overviewRow}:D{$overviewRow}");
             $this->styleSectionHeader($sheet, "A{$overviewRow}:D{$overviewRow}");
-            
+
             // Style overview section
             $overviewEndRow = ($ringkasanRow ? $ringkasanRow - 2 : $overviewRow + 5);
             $this->styleInfoSection($sheet, "A" . ($overviewRow + 1) . ":B{$overviewEndRow}");
             $this->styleInfoLabels($sheet, "A" . ($overviewRow + 1) . ":A{$overviewEndRow}");
             $this->styleInfoValues($sheet, "B" . ($overviewRow + 1) . ":B{$overviewEndRow}");
-            
+
             // Ensure consistent white background for overview section
             $sheet->getStyle("A" . ($overviewRow + 1) . ":B{$overviewEndRow}")->applyFromArray([
                 'fill' => [
@@ -188,18 +188,18 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                 ]
             ]);
         }
-        
+
         if ($ringkasanRow) {
             // Merge header across appropriate columns (A:D for ringkasan section)
             $sheet->mergeCells("A{$ringkasanRow}:D{$ringkasanRow}");
             $this->styleSectionHeader($sheet, "A{$ringkasanRow}:D{$ringkasanRow}");
-            
+
             // Style ringkasan section dengan emoji styling
             $ringkasanEndRow = ($divisiRow ? $divisiRow - 2 : ($institusiRow ? $institusiRow - 2 : $ringkasanRow + 6));
             $this->styleInfoSection($sheet, "A" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}");
             $this->styleInfoLabels($sheet, "A" . ($ringkasanRow + 1) . ":A{$ringkasanEndRow}");
             $this->styleInfoValues($sheet, "B" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}");
-            
+
             // Ensure consistent white background for ringkasan section
             $sheet->getStyle("A" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}")->applyFromArray([
                 'fill' => [
@@ -211,24 +211,24 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                     'name' => 'Segoe UI Emoji, Segoe UI'
                 ]
             ]);
-            
+
             // Make emoji labels bold (column A in ringkasan section)
             $sheet->getStyle("A" . ($ringkasanRow + 1) . ":A{$ringkasanEndRow}")->applyFromArray([
                 'font' => ['bold' => true]
             ]);
         }
-        
+
         if ($divisiRow) {
             // Merge header across table columns (A:D for division table)
             $sheet->mergeCells("A{$divisiRow}:D{$divisiRow}");
             $this->styleSectionHeader($sheet, "A{$divisiRow}:D{$divisiRow}");
-            
+
             $divisiTableRow = $divisiRow + 1;
             $divisiEndRow = $institusiRow ? $institusiRow - 2 : $highestRow;
-            
+
             if ($divisiEndRow > $divisiTableRow) {
                 $this->styleDataTable($sheet, "A{$divisiTableRow}:D{$divisiTableRow}", "A" . ($divisiTableRow + 1) . ":D{$divisiEndRow}");
-                
+
                 // Format ALL rate column cells to be center aligned
                 $sheet->getStyle("D" . ($divisiTableRow + 1) . ":D{$divisiEndRow}")->applyFromArray([
                     'alignment' => [
@@ -237,7 +237,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                     ],
                     'font' => ['bold' => false] // Ensure consistent font weight
                 ]);
-                
+
                 // Override alternating colors - ensure consistent background for division table
                 for ($row = $divisiTableRow + 1; $row <= $divisiEndRow; $row++) {
                     $bgColor = ($row % 2 == 0) ? self::COLORS['GRAY_100'] : self::COLORS['WHITE'];
@@ -250,17 +250,17 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                 }
             }
         }
-        
+
         if ($institusiRow) {
             // Merge header across table columns (A:D for institution table)
             $sheet->mergeCells("A{$institusiRow}:D{$institusiRow}");
             $this->styleSectionHeader($sheet, "A{$institusiRow}:D{$institusiRow}");
-            
+
             $institusiTableRow = $institusiRow + 1;
-            
+
             if ($highestRow > $institusiTableRow) {
                 $this->styleDataTable($sheet, "A{$institusiTableRow}:D{$institusiTableRow}", "A" . ($institusiTableRow + 1) . ":D{$highestRow}");
-                
+
                 // Format ALL rate column cells to be center aligned
                 $sheet->getStyle("D" . ($institusiTableRow + 1) . ":D{$highestRow}")->applyFromArray([
                     'alignment' => [
@@ -269,7 +269,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                     ],
                     'font' => ['bold' => false] // Ensure consistent font weight
                 ]);
-                
+
                 // Override alternating colors - ensure consistent background for institution table
                 for ($row = $institusiTableRow + 1; $row <= $highestRow; $row++) {
                     $bgColor = ($row % 2 == 0) ? self::COLORS['GRAY_100'] : self::COLORS['WHITE'];
@@ -282,14 +282,14 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                 }
             }
         }
-        
+
         // Configure print settings
         $this->configurePrintSettings($sheet, 'portrait');
-        
+
         // FINAL STYLING: Apply bold to Status and Terlambat LABELS (done last to prevent override)
         for ($row = 1; $row <= $highestRow; $row++) {
             $labelValue = $sheet->getCell("A{$row}")->getValue();
-            
+
             // Style Status LABEL (column A)
             if ($labelValue === 'Status') {
                 $sheet->getStyle("A{$row}")->applyFromArray([
@@ -300,7 +300,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                     ]
                 ]);
             }
-            
+
             // Style Terlambat LABEL (column A)
             if (strpos($labelValue, '⏳ Terlambat') !== false || strpos($labelValue, 'Terlambat') !== false) {
                 $sheet->getStyle("A{$row}")->applyFromArray([
@@ -312,7 +312,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                 ]);
             }
         }
-        
+
         // FINAL ALIGNMENT FIX: Ensure ALL Rate (%) columns are center aligned (done last to prevent override)
         for ($row = 1; $row <= $highestRow; $row++) {
             $cellValue = $sheet->getCell("D{$row}")->getValue();
@@ -324,7 +324,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
                         'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
                     ]
                 ]);
-                
+
                 // Also fix any numeric values in rate columns (for data rows)
                 if (is_numeric(str_replace(['%', '🟢', '🟡', '🔴', ' '], '', $cellValue))) {
                     $sheet->getStyle("D{$row}")->applyFromArray([

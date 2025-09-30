@@ -18,7 +18,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind('alert', function ($app) {
+            return new \App\Helpers\Alert();
+        });
     }
 
     /**
@@ -42,5 +44,10 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultSimpleView('custom.simple-pagination');
 
         Carbon::setLocale('id');
+        
+        // Register alert-handler component
+        $this->loadViewComponentsAs('', [
+            'alert-handler' => \App\View\Components\AlertHandler::class,
+        ]);
     }
 }

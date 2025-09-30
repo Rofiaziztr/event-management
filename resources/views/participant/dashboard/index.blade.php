@@ -1,34 +1,129 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard Peserta') }}
-        </h2>
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0"
+             x-data="slideIn('down', 100)">
+            <div>
+                <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center">
+                    <span class="mr-3 text-xl">👋</span>
+                    {{ __('Dashboard Peserta') }}
+                </h2>
+                <p class="text-gray-600 mt-1">Selamat datang, {{ auth()->user()->full_name }}</p>
+                <p class="text-sm text-yellow-600 font-medium flex items-center">
+                    <span class="mr-1">🎪</span>
+                    Peserta Event
+                </p>
+            </div>
+            <a href="{{ route('scan.index') }}"
+               class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+               x-data="slideIn('right', 300)">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 16h4.01"></path>
+                </svg>
+                Scan QR Code
+            </a>
+        </div>
     </x-slot>
+
+    <div class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8"
+         x-data="{
+             counters: { registered: 0, attended: 0, upcoming: 0, completed: 0 },
+             animateCounters() {
+                 this.animateCounter('registered', {{ $registeredEvents ?? 0 }});
+                 this.animateCounter('attended', {{ $attendedEvents ?? 0 }});
+                 this.animateCounter('upcoming', {{ $upcomingEvents ?? 0 }});
+                 this.animateCounter('completed', {{ $completedEvents ?? 0 }});
+             },
+             animateCounter(key, target) {
+                 const duration = 2000;
+                 const increment = target / (duration / 16);
+                 const timer = setInterval(() => {
+                     this.counters[key] += increment;
+                     if (this.counters[key] >= target) {
+                         this.counters[key] = target;
+                         clearInterval(timer);
+                     }
+                 }, 16);
+             }
+         }"
+         x-init="setTimeout(animateCounters, 500)">
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Registered Events -->
+            <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-yellow-100 card-animate hover-lift"
+                 x-data="slideIn('left', 100)">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                <span class="text-2xl text-white">📝</span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Terdaftar</h3>
+                            <p class="text-2xl font-bold text-gray-900" x-text="Math.floor(counters.registered)">{{ $registeredEvents ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attended Events -->
+            <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-yellow-100 card-animate hover-lift"
+                 x-data="slideIn('left', 200)">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                                <span class="text-2xl text-white">✅</span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Dihadiri</h3>
+                            <p class="text-2xl font-bold text-gray-900" x-text="Math.floor(counters.attended)">{{ $attendedEvents ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-yellow-100 card-animate hover-lift"
+                 x-data="slideIn('left', 300)">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                                <span class="text-2xl text-white">⏰</span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Mendatang</h3>
+                            <p class="text-2xl font-bold text-gray-900" x-text="Math.floor(counters.upcoming)">{{ $upcomingEvents ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Events -->
+            <div class="bg-white overflow-hidden shadow-lg rounded-xl border border-yellow-100 card-animate hover-lift"
+                 x-data="slideIn('left', 400)">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                <span class="text-2xl text-white">🏁</span>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Selesai</h3>
+                            <p class="text-2xl font-bold text-gray-900" x-text="Math.floor(counters.completed)">{{ $completedEvents ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     @push('styles')
         <style>
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-
-                to {
-                    opacity: 1;
-                }
-            }
-
-            @keyframes slideUp {
-                from {
-                    transform: translateY(20px);
-                    opacity: 0;
-                }
-
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-
             .gradient-bg {
                 background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
             }
@@ -37,15 +132,6 @@
                 backdrop-filter: blur(10px);
                 background: rgba(255, 255, 255, 0.1);
                 border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-
-            .card-hover {
-                transition: all 0.3s ease;
-            }
-
-            .card-hover:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             }
 
             .animate-pulse-slow {
@@ -101,14 +187,15 @@
             {{-- Statistics Cards --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                </svg>
+                            </div>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <p class="text-sm text-gray-500 font-medium">Total Undangan</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $totalInvitations }}</p>
                             <p class="text-xs text-blue-600 mt-1">Event selesai</p>
@@ -116,14 +203,15 @@
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-green">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <p class="text-sm text-gray-500 font-medium">Total Kehadiran</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $attendedCount }}</p>
                             <p class="text-xs text-green-600 mt-1">{{ $attendanceRate }}% tingkat hadir</p>
@@ -131,14 +219,15 @@
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-orange">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <p class="text-sm text-gray-500 font-medium">Event Terlewat</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $missedEventsCount }}</p>
                             <p class="text-xs text-red-600 mt-1">
@@ -148,14 +237,15 @@
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <p class="text-sm text-gray-500 font-medium">Tingkat Kehadiran</p>
                             <p class="text-3xl font-bold text-gray-900">{{ $attendanceRate }}%</p>
                             <p class="text-xs text-yellow-600 mt-1">

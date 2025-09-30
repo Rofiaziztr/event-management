@@ -1,16 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
-            <div>
-                <h2 class="font-bold text-2xl text-gray-800 leading-tight">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0"
+             x-data="slideIn('down', 100)">
+            <div x-data="fadeIn(200)">
+                <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center">
+                    <span class="mr-3 text-2xl">🎪</span>
                     {{ __('Event Saya') }}
                 </h2>
+                <p class="text-gray-600 mt-1">Daftar event yang Anda ikuti</p>
             </div>
             <a href="{{ route('scan.index') }}"
-                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 border border-transparent rounded-xl font-semibold text-white text-sm hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                x-data="slideIn('right', 300)">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M9 16h4.01" />
+                        d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h4.5v4.5h-4.5v-4.5z" />
                 </svg>
                 Scan Presensi
             </a>
@@ -56,8 +61,7 @@
         </style>
     @endpush
 
-    <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
-        <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <div class="px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
             @if (session('success'))
                 <div class="animate-fade-in">
@@ -75,83 +79,56 @@
             @endif
 
             {{-- Statistics Cards --}}
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Total Event</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $events->total() ?? 0 }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-green">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Sudah Hadir</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ count($attendedEventIds ?? []) }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Sudah Hadir</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ count($attendedEventIds ?? []) }}</p>
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-orange">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Belum Hadir</p>
-                            <p class="text-3xl font-bold text-gray-900">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Belum Hadir</p>
+                            <p class="text-2xl font-bold text-gray-900">
                                 {{ ($events->total() ?? 0) - count($attendedEventIds ?? []) }}</p>
                         </div>
-                        <div class="p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Event Aktif</p>
-                            <p class="text-3xl font-bold text-gray-900">
-                                {{ $events->where('status', 'Berlangsung')->count() ?? 0 }}</p>
-                        </div>
-                        <div class="p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             {{-- Filter Section --}}
-            <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 overflow-hidden animate-fade-in">
-                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            <div class="bg-yellow-500 rounded-t-xl p-4 animate-fade-in">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                         </svg>
                         <h3 class="text-lg font-semibold text-white">Filter & Pencarian Event</h3>
                     </div>
                 </div>
 
-                <form method="GET" action="{{ route('participant.events.index') }}" class="p-6 space-y-4">
+                <form method="GET" action="{{ route('participant.events.index') }}" class="bg-white rounded-b-xl p-6 space-y-4 shadow-md">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
                             <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Nama
@@ -205,11 +182,19 @@
             </div>
 
             {{-- Events Grid --}}
+            <div class="bg-yellow-500 rounded-t-xl p-4 animate-fade-in mb-6">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-white">Kartu Event</h3>
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
                 @forelse ($events as $event)
                     <a href="{{ route('participant.events.show', $event) }}" class="block">
                         <div
-                            class="bg-white rounded-2xl shadow-xl border border-yellow-200 overflow-hidden flex flex-col relative group transition-all duration-300 card-hover">
+                            class="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col relative group transition-all duration-300 card-hover">
                             <div class="p-6 flex-grow z-10">
                                 <div class="flex justify-between items-start mb-2">
                                     <h3
@@ -307,6 +292,5 @@
             <div class="mt-6">
                 <x-yellow-pagination :paginator="$events" />
             </div>
-        </div>
     </div>
 </x-app-layout>

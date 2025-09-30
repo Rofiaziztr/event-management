@@ -140,7 +140,9 @@ class ParticipantController extends Controller
             'user_ids.*' => 'exists:users,id',
         ])['user_ids'];
 
-        if (!$event->isActiveForAttendance()) {
+        // Admin diperbolehkan untuk menambahkan kehadiran peserta meskipun event sudah selesai
+        // Validasi hanya menampilkan peringatan jika event sudah selesai
+        if (!$event->isActiveForAttendance() && $event->status !== 'Selesai') {
             return response()->json(['error' => 'Event tidak sedang berlangsung.'], 422);
         }
 
@@ -154,8 +156,18 @@ class ParticipantController extends Controller
                 $attended++;
             }
         }
+        
+        $message = "$attended peserta berhasil dihadirkan.";
+        
+        // Tambahkan konteks status event jika statusnya Selesai
+        if ($event->status === 'Selesai') {
+            return response()->json([
+                'success' => $message,
+                'event_status' => 'Selesai'
+            ]);
+        }
 
-        return response()->json(['success' => "$attended peserta berhasil dihadirkan."]);
+        return response()->json(['success' => $message]);
     }
 
     public function destroy(Event $event, User $user)

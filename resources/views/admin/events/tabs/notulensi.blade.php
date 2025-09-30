@@ -1,7 +1,7 @@
 <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
     <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
         @if (session('success'))
-            <div class="animate-fade-in">
+            <div class="content-transition">
                 <div class="bg-green-50 border border-green-200 rounded-2xl p-4 shadow-sm">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,20 +13,20 @@
             </div>
         @endif
 
-        <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 content-transition">
             <div class="p-6 border-b border-gray-100">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
                     <div>
-                        <h3 class="text-2xl font-bold text-gray-900">Notulensi</h3>
-                        <p class="text-gray-500 mt-1">Dokumentasi hasil dan keputusan acara</p>
+                        <h3 class="text-lg md:text-xl font-bold text-gray-900">Notulensi</h3>
+                        <p class="text-xs md:text-sm text-gray-600 mt-1">Dokumentasi hasil dan keputusan acara</p>
                     </div>
                     @php
                         $notulensi = $event->documents->whereNull('file_path')->first();
                         $lastUpdated = $notulensi ? $notulensi->updated_at : null;
                     @endphp
                     @if($lastUpdated)
-                        <div class="text-right">
-                            <p class="text-yellow-600 text-sm">Terakhir diperbarui</p>
+                        <div class="text-right bg-yellow-50 px-3 py-2 rounded-lg border border-yellow-100">
+                            <p class="text-yellow-700 text-xs">Terakhir diperbarui</p>
                             <p class="text-gray-900 text-sm font-medium">{{ $lastUpdated->format('d M Y, H:i') }} WIB</p>
                         </div>
                     @endif
@@ -35,10 +35,10 @@
             <form action="{{ route('admin.events.notulensi.store', $event) }}" method="POST" class="p-6">
                 @csrf
                 
-                <div class="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div class="flex items-center space-x-4">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex flex-wrap gap-2 mb-4 md:mb-0">
                         <button type="button" onclick="insertTemplate('agenda')" 
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            class="inline-flex items-center px-3 py-2.5 sm:py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 w-full sm:w-auto justify-center sm:justify-start">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
@@ -46,7 +46,7 @@
                         </button>
                         
                         <button type="button" onclick="insertTemplate('keputusan')" 
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            class="inline-flex items-center px-3 py-2.5 sm:py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 w-full sm:w-auto justify-center sm:justify-start">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -54,19 +54,19 @@
                         </button>
                         
                         <button type="button" onclick="insertCurrentTime()" 
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            class="inline-flex items-center px-3 py-2.5 sm:py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 w-full sm:w-auto justify-center sm:justify-start">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             Insert Waktu
                         </button>
                     </div>
-                    <div class="text-sm text-gray-500">
+                    <div class="hidden md:block text-xs text-gray-500 bg-gray-50 p-2 rounded-lg border border-gray-200">
                         <span class="inline-flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Gunakan template untuk mempercepat penulisan
+                            <span class="text-gray-700">Gunakan template untuk mempercepat penulisan notulensi</span>
                         </span>
                     </div>
                 </div>
@@ -77,10 +77,10 @@
                     </label>
                     
                     <div class="border border-gray-300 rounded-lg overflow-hidden">
-                        <div class="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap items-center gap-1">
+                        <div class="bg-gray-100 border-b border-gray-300 p-2 flex items-center gap-1 rounded-t-lg overflow-x-auto whitespace-nowrap" style="-webkit-overflow-scrolling: touch;">
                             <div class="flex items-center border-r border-gray-300 pr-2 mr-2">
                                 <button type="button" onclick="formatText('bold')" title="Bold"
-                                    class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded">
+                                    class="p-2 sm:p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded transition-colors duration-150">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5 4v3h5.5a2 2 0 110 4H5v3h5.5a3.5 3.5 0 100-7H5z" clip-rule="evenodd"/>
                                     </svg>
@@ -142,7 +142,7 @@
                             </div>
 
                             <div class="flex items-center">
-                                <select onchange="formatHeading(this.value)" class="text-sm border border-gray-300 rounded px-2 py-1 bg-white">
+                                <select onchange="formatHeading(this.value)" class="text-sm min-w-[100px] border border-gray-300 rounded-md px-3 py-1.5 sm:py-1.5 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-yellow-400">
                                     <option value="">Normal</option>
                                     <option value="h1">Heading 1</option>
                                     <option value="h2">Heading 2</option>
@@ -153,8 +153,8 @@
 
                         <div id="editor" 
                              contenteditable="true" 
-                             class="prose max-w-none p-4 min-h-[400px] focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-                             style="max-height: 600px; overflow-y: auto;">
+                             class="prose max-w-none p-4 sm:p-5 min-h-[250px] sm:min-h-[400px] focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-yellow-400 bg-white rounded-b-lg"
+                             style="max-height: 400px; overflow-y: auto; font-size: 0.95rem; line-height: 1.5;">
                             @if($notulensi && $notulensi->content)
                                 {!! $notulensi->content !!}
                             @else
@@ -171,8 +171,8 @@
                 </div>
 
                 <div class="flex justify-end pt-6">
-                    <div class="flex items-center space-x-3">
-                        <x-bladewind::button can_submit="true" color="yellow" icon="save">
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <x-bladewind::button can_submit="true" color="yellow" icon="save" class="shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-auto justify-center">
                             Simpan Notulensi
                         </x-bladewind::button>
                     </div>
@@ -188,19 +188,29 @@
     document.addEventListener('DOMContentLoaded', function() {
         editor = document.getElementById('editor');
         
+        if (!editor) {
+            console.error('Editor element not found');
+            return;
+        }
+        
         editor.addEventListener('input', function() {
             const content = editor.innerHTML;
             document.getElementById('content').value = content;
         });
         
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const content = editor.innerHTML;
-            if (content === '<p class="text-gray-400 italic">Mulai menulis notulensi di sini...</p>') {
-                document.getElementById('content').value = '';
-            } else {
-                document.getElementById('content').value = content;
-            }
-        });
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const content = editor.innerHTML;
+                const placeholderText = '<p class="text-gray-400 italic">Mulai menulis notulensi di sini...</p>';
+                
+                if (content === placeholderText) {
+                    document.getElementById('content').value = '';
+                } else {
+                    document.getElementById('content').value = content;
+                }
+            });
+        }
     });
 
     function formatText(command, value = null) {
@@ -231,13 +241,13 @@
         
         if (type === 'agenda') {
             template = `
-                <h3>Agenda</h3>
+                <h3>Agenda Acara</h3>
                 <ol>
-                    <li>Pembukaan</li>
-                    <li>Laporan Kegiatan</li>
-                    <li>Pembahasan</li>
-                    <li>Keputusan</li>
-                    <li>Penutup</li>
+                    <li><strong>Pembukaan</strong> - <em>Waktu: ...</em></li>
+                    <li><strong>Laporan Kegiatan</strong> - <em>Oleh: ...</em></li>
+                    <li><strong>Pembahasan</strong></li>
+                    <li><strong>Keputusan</strong></li>
+                    <li><strong>Penutup</strong> - <em>Waktu: ...</em></li>
                 </ol>
             `;
         } else if (type === 'keputusan') {
@@ -287,8 +297,15 @@
     }
 
     function updateHiddenTextarea() {
-        const content = editor.innerHTML;
-        document.getElementById('content').value = content === '<p class="text-gray-400 italic">Mulai menulis notulensi di sini...</p>' ? '' : content;
+        if (!editor) return;
+        
+        try {
+            const content = editor.innerHTML;
+            const placeholderText = '<p class="text-gray-400 italic">Mulai menulis notulensi di sini...</p>';
+            document.getElementById('content').value = (content === placeholderText) ? '' : content;
+        } catch (error) {
+            console.error('Error updating textarea:', error);
+        }
     }
     </script>
     @endpush

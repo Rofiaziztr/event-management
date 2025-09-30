@@ -24,11 +24,11 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
     public function array(): array
     {
         $data = [];
-        
+
         // Header utama
         $data[] = ["DAFTAR PESERTA EVENT: " . strtoupper($this->event->title)];
         $data[] = []; // Empty row
-        
+
         // Event info section
         $data[] = ["INFORMASI EVENT"];
         $data[] = ["Nama Event", $this->event->title];
@@ -37,12 +37,12 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
         $data[] = ["Total Peserta", $this->event->participants->count()];
         $data[] = ["Tanggal Export", now()->format('d/m/Y H:i')];
         $data[] = []; // Empty row
-        
+
         // Table header
         $data[] = [
             "No",
             "NIP",
-            "Nama Lengkap", 
+            "Nama Lengkap",
             "Jabatan",
             "Divisi",
             "Institusi",
@@ -52,18 +52,18 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
             "Status Kehadiran",
             "Waktu Check-in"
         ];
-        
+
         // Participants data
         $participants = $this->event->participants
             ->sortBy('full_name')
             ->values();
-            
+
         foreach ($participants as $index => $participant) {
             $attendance = $participant->attendances->first();
             $attendanceStatus = $attendance ? 'Hadir' : 'Tidak Hadir';
             $checkInTime = $attendance ? $attendance->check_in_time->format('d/m/Y H:i:s') : '-';
             $participantType = $participant->participant_type ?? 'Internal';
-            
+
             $data[] = [
                 $index + 1,
                 "'" . ($participant->nip ?? '-'), // Add apostrophe to prevent scientific notation
@@ -78,7 +78,7 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
                 $checkInTime
             ];
         }
-        
+
         return $data;
     }
 
@@ -101,7 +101,7 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
     {
         $highestRow = $sheet->getHighestRow();
         $highestCol = $sheet->getHighestColumn();
-        
+
         // Set column widths
         $this->setColumnWidths($sheet, [
             'A' => 6,   // No
@@ -123,7 +123,7 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
         // Find sections dynamically
         $infoEventRow = null;
         $tableHeaderRow = null;
-        
+
         for ($row = 1; $row <= $highestRow; $row++) {
             $cellValue = $sheet->getCell("A{$row}")->getValue();
             if (strpos($cellValue, 'INFORMASI EVENT') !== false) {
@@ -137,17 +137,17 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
         // Style info section
         if ($infoEventRow) {
             $this->styleSectionHeader($sheet, "A{$infoEventRow}:{$highestCol}{$infoEventRow}");
-            
+
             $infoEndRow = $tableHeaderRow ? $tableHeaderRow - 2 : $infoEventRow + 5;
             $this->styleInfoSection($sheet, "A" . ($infoEventRow + 1) . ":B{$infoEndRow}");
             $this->styleInfoLabels($sheet, "A" . ($infoEventRow + 1) . ":A{$infoEndRow}");
             $this->styleInfoValues($sheet, "B" . ($infoEventRow + 1) . ":B{$infoEndRow}");
         }
-        
+
         // Style table
         if ($tableHeaderRow) {
             $this->styleDataTable(
-                $sheet, 
+                $sheet,
                 "A{$tableHeaderRow}:{$highestCol}{$tableHeaderRow}", // Header
                 "A" . ($tableHeaderRow + 1) . ":{$highestCol}{$highestRow}" // Data
             );
@@ -180,7 +180,7 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
 
             // Set freeze panes (freeze header and info sections)
             $this->setFreezePanes($sheet, "A" . ($tableHeaderRow + 1));
-            
+
             // Set auto filter pada tabel - CORRECT PLACEMENT
             $this->setAutoFilter($sheet, "A{$tableHeaderRow}:{$highestCol}{$highestRow}");
 
@@ -188,7 +188,7 @@ class EventParticipantsSheet implements FromArray, WithTitle, WithEvents
             if ($highestRow > $tableHeaderRow) {
                 $this->formatDate($sheet, "K" . ($tableHeaderRow + 1) . ":K{$highestRow}");
             }
-            
+
             // Set print titles (repeat header on each page)
             $sheet->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1, $tableHeaderRow);
         }

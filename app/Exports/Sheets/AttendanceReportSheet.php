@@ -24,22 +24,22 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
     public function array(): array
     {
         $data = [];
-        
+
         // Header utama
         $data[] = ["LAPORAN KEHADIRAN EVENT: " . strtoupper($this->event->title)];
         $data[] = []; // Empty row
-        
+
         // Event info section
         $data[] = ["INFORMASI EVENT"];
         $data[] = ["Nama Event", $this->event->title];
         $data[] = ["Tanggal", $this->event->start_time->format('d/m/Y H:i') . ' - ' . $this->event->end_time->format('d/m/Y H:i')];
         $data[] = ["Lokasi", $this->event->location];
-        
+
         // Statistics
         $attendedParticipants = $this->event->participants->filter(fn($p) => $p->attendances->isNotEmpty());
         $totalParticipants = $this->event->participants->count();
         $attendanceRate = $totalParticipants > 0 ? round(($attendedParticipants->count() / $totalParticipants) * 100, 1) : 0;
-        
+
         $data[] = ["Total Peserta", $totalParticipants];
         $data[] = ["Hadir", $attendedParticipants->count()];
         $data[] = ["Tingkat Kehadiran", $attendanceRate . "%"];
@@ -69,31 +69,31 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
         $data[] = ["Tepat Waktu (0-15 menit)", $timeSlots['ontime']->count(), round(($timeSlots['ontime']->count() / max($attendedParticipants->count(), 1)) * 100, 1) . "%"];
         $data[] = ["Terlambat (>15 menit)", $timeSlots['late']->count(), round(($timeSlots['late']->count() / max($attendedParticipants->count(), 1)) * 100, 1) . "%"];
         $data[] = []; // Empty row
-        
+
         // Detailed attendance list
         $data[] = ["DAFTAR PESERTA YANG HADIR"];
         $data[] = [
             "No",
-            "NIP", 
+            "NIP",
             "Nama Lengkap",
             "Divisi",
             "Institusi",
-            "Tipe Peserta", 
+            "Tipe Peserta",
             "Waktu Check-in",
             "Selisih dari Mulai Event",
             "Kategori Waktu"
         ];
-        
+
         // Sort by check-in time
         $sortedAttendees = $attendedParticipants
             ->sortBy(fn($p) => $p->attendances->first()->check_in_time)
             ->values();
-            
+
         foreach ($sortedAttendees as $index => $participant) {
             $attendance = $participant->attendances->first();
             $checkInTime = $attendance->check_in_time;
             $diffInMinutes = $checkInTime->diffInMinutes($this->event->start_time, false);
-            
+
             // Determine timing category
             if ($checkInTime->lt($this->event->start_time)) {
                 $timingCategory = "Lebih Awal";
@@ -105,7 +105,7 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
                 $timingCategory = "Terlambat";
                 $timeDiff = "+" . $diffInMinutes . " menit";
             }
-            
+
             $data[] = [
                 $index + 1,
                 "'" . ($participant->nip ?? '-'), // Add apostrophe to prevent scientific notation
@@ -118,7 +118,7 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
                 $timingCategory
             ];
         }
-        
+
         return $data;
     }
 
@@ -141,7 +141,7 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
     {
         $highestRow = $sheet->getHighestRow();
         $highestCol = $sheet->getHighestColumn();
-        
+
         // Set column widths
         $this->setColumnWidths($sheet, [
             'A' => 6,   // No
@@ -163,7 +163,7 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
         $analisisRow = null;
         $daftarPesertaRow = null;
         $tableHeaderRow = null;
-        
+
         for ($row = 1; $row <= $highestRow; $row++) {
             $cellValue = $sheet->getCell("A{$row}")->getValue();
             if (strpos($cellValue, 'INFORMASI EVENT') !== false) {
@@ -181,7 +181,7 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
         // Style info section
         if ($infoEventRow) {
             $this->styleSectionHeader($sheet, "A{$infoEventRow}:{$highestCol}{$infoEventRow}");
-            
+
             $infoEndRow = $analisisRow ? $analisisRow - 2 : $infoEventRow + 7;
             $this->styleInfoSection($sheet, "A" . ($infoEventRow + 1) . ":B{$infoEndRow}");
             $this->styleInfoLabels($sheet, "A" . ($infoEventRow + 1) . ":A{$infoEndRow}");
@@ -191,29 +191,29 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
         // Style timing analysis section
         if ($analisisRow) {
             $this->styleSectionHeader($sheet, "A{$analisisRow}:{$highestCol}{$analisisRow}");
-            
+
             $analisisTableRow = $analisisRow + 1;
             $analisisEndRow = $daftarPesertaRow ? $daftarPesertaRow - 2 : $analisisRow + 4;
-            
+
             $this->styleDataTable($sheet, "A{$analisisTableRow}:C{$analisisTableRow}", "A" . ($analisisTableRow + 1) . ":C{$analisisEndRow}");
         }
-        
+
         // Style attendance list section
         if ($daftarPesertaRow) {
             $this->styleSectionHeader($sheet, "A{$daftarPesertaRow}:{$highestCol}{$daftarPesertaRow}");
         }
-        
+
         // Style detailed attendance table
         if ($tableHeaderRow) {
             $this->styleDataTable(
-                $sheet, 
-                "A{$tableHeaderRow}:{$highestCol}{$tableHeaderRow}", 
+                $sheet,
+                "A{$tableHeaderRow}:{$highestCol}{$tableHeaderRow}",
                 "A" . ($tableHeaderRow + 1) . ":{$highestCol}{$highestRow}"
             );
 
             // Format NIP column as text
             $this->formatNIP($sheet, "B" . ($tableHeaderRow + 1) . ":B{$highestRow}");
-            
+
             // Apply conditional formatting for timing categories (column I)
             $conditional1 = new \PhpOffice\PhpSpreadsheet\Style\Conditional();
             $conditional1->setConditionType(\PhpOffice\PhpSpreadsheet\Style\Conditional::CONDITION_CONTAINSTEXT);
@@ -241,16 +241,16 @@ class AttendanceReportSheet implements FromArray, WithTitle, WithEvents
 
             $conditionalStyles = [$conditional1, $conditional2, $conditional3];
             $sheet->getStyle("I" . ($tableHeaderRow + 1) . ":I{$highestRow}")->setConditionalStyles($conditionalStyles);
-            
+
             // Format date column (G)
             $this->formatDate($sheet, "G" . ($tableHeaderRow + 1) . ":G{$highestRow}");
-            
+
             // Set freeze panes
             $this->setFreezePanes($sheet, "A" . ($tableHeaderRow + 1));
-            
+
             // Set auto filter - CORRECT PLACEMENT
             $this->setAutoFilter($sheet, "A{$tableHeaderRow}:{$highestCol}{$highestRow}");
-            
+
             // Set print titles
             $sheet->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1, $tableHeaderRow);
         }
