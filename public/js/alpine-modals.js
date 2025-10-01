@@ -1,6 +1,6 @@
-document.addEventListener('alpine:init', function() {
+document.addEventListener("alpine:init", function () {
     // Create a global Alpine store for managing modal states
-    Alpine.store('modalState', {
+    Alpine.store("modalState", {
         open: false,
         toggleModal() {
             this.open = !this.open;
@@ -10,6 +10,6 @@ document.addEventListener('alpine:init', function() {
         },
         closeModal() {
             this.open = false;
-        }
+        },
     });
 });

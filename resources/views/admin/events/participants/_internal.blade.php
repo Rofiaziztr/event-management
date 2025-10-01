@@ -3,19 +3,17 @@
     <label class="block text-lg md:text-xl lg:text-xl font-semibold text-gray-800 mb-2">Undang Peserta Pilihan</label>
     <div class="space-y-2">
         <div class="relative">
-            <div class="absolute inset-y-0 start-0 flex items-center pl-3 pointer-events-none">
-                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </div>
-            <input type="text" id="search-internal" placeholder="Cari nama atau divisi..." class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500 pl-10 p-2.5 md:p-3 lg:p-3 md:text-base lg:text-base">
+            <input type="text" id="search-internal" placeholder="Cari nama atau divisi..."
+                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500 pl-10 p-2.5 md:p-3 lg:p-3 md:text-base lg:text-base">
         </div>
         <div class="border border-gray-200 rounded-lg max-h-60 overflow-y-auto p-2">
             @php $counter = 1; @endphp
             @forelse ($potentialParticipants as $user)
-                <div class="participant-item" data-name="{{ strtolower($user->full_name) }}" data-division="{{ strtolower($user->division ?? '') }}">
+                <div class="participant-item" data-name="{{ strtolower($user->full_name) }}"
+                    data-division="{{ strtolower($user->division ?? '') }}">
                     <label class="flex items-center p-3 space-x-3 hover:bg-yellow-50 rounded-lg cursor-pointer">
-                        <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                        <input type="checkbox" name="user_ids[]" value="{{ $user->id }}"
+                            class="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
                         <span class="text-gray-500 text-sm w-6 text-right">{{ $counter++ }}.</span>
                         <div class="flex-1">
                             <div class="font-medium text-gray-800">{{ $user->full_name }}</div>
@@ -29,20 +27,20 @@
         </div>
     </div>
     <div class="flex justify-end pt-4">
-        <x-bladewind::button can_submit="true" class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white md:px-4 md:py-2 lg:px-5 lg:py-2 md:text-sm lg:text-base">
+        <x-bladewind::button can_submit="true"
+            class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white md:px-4 md:py-2 lg:px-5 lg:py-2 md:text-sm lg:text-base">
             Undang Terpilih
         </x-bladewind::button>
     </div>
 </form>
 
 <div class="border-t border-gray-100 pt-8 space-y-4">
-    @if($potentialParticipants->isNotEmpty())
+    @if ($potentialParticipants->isNotEmpty())
         {{-- Undang Semua --}}
-        <form action="{{ route('admin.events.participants.invite-all-available', $event) }}" method="POST" onsubmit="return confirm('Yakin ingin mengundang SEMUA peserta yang tersedia?')">
+        <form action="{{ route('admin.events.participants.invite-all-available', $event) }}" method="POST"
+            onsubmit="return confirm('Yakin ingin mengundang SEMUA peserta yang tersedia?')">
             @csrf
-            <x-bladewind::button 
-                can_submit="true" 
-                has_spinner="true"
+            <x-bladewind::button can_submit="true" has_spinner="true"
                 class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white md:py-2 lg:py-2 md:text-sm lg:text-base">
                 Undang Semua Peserta Tersedia ({{ $potentialParticipants->count() }})
             </x-bladewind::button>
@@ -54,19 +52,20 @@
             $divisionCounts = $potentialParticipants->groupBy('division')->map->count();
         @endphp
 
-        @if($divisions->count() > 1)
-            <form action="{{ route('admin.events.participants.invite-by-division', $event) }}" method="POST" class="mt-4" onsubmit="return confirmDivisionInvite(event)">
+        @if ($divisions->count() > 1)
+            <form action="{{ route('admin.events.participants.invite-by-division', $event) }}" method="POST"
+                class="mt-4" onsubmit="return confirmDivisionInvite(event)">
                 @csrf
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <select name="division" required class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <select name="division" required
+                        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         <option value="">-- Pilih Divisi --</option>
-                        @foreach($divisions as $div)
-                            <option value="{{ $div }}">{{ $div }} ({{ $divisionCounts[$div] }} peserta)</option>
+                        @foreach ($divisions as $div)
+                            <option value="{{ $div }}">{{ $div }} ({{ $divisionCounts[$div] }}
+                                peserta)</option>
                         @endforeach
                     </select>
-                    <x-bladewind::button 
-                        can_submit="true" 
-                        has_spinner="true"
+                    <x-bladewind::button can_submit="true" has_spinner="true"
                         class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white md:py-2 lg:py-2 md:text-sm lg:text-base">
                         Undang Per Divisi
                     </x-bladewind::button>
@@ -81,20 +80,21 @@
 </div>
 
 <script>
-document.getElementById('search-internal')?.addEventListener('input', function() {
-    const term = this.value.toLowerCase();
-    document.querySelectorAll('.participant-item').forEach(row => {
-        const name = row.dataset.name || '';
-        const division = row.dataset.division || '';
-        row.style.display = (name.includes(term) || division.includes(term)) ? '' : 'none';
+    document.getElementById('search-internal')?.addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('.participant-item').forEach(row => {
+            const name = row.dataset.name || '';
+            const division = row.dataset.division || '';
+            row.style.display = (name.includes(term) || division.includes(term)) ? '' : 'none';
+        });
     });
-});
 
-function confirmDivisionInvite(e) {
-    const select = e.target.querySelector('select[name="division"]');
-    if (select && select.value) {
-        return confirm(`Yakin ingin mengundang semua peserta dari divisi "${select.options[select.selectedIndex].text}"?`);
+    function confirmDivisionInvite(e) {
+        const select = e.target.querySelector('select[name="division"]');
+        if (select && select.value) {
+            return confirm(
+                `Yakin ingin mengundang semua peserta dari divisi "${select.options[select.selectedIndex].text}"?`);
+        }
+        return true;
     }
-    return true;
-}
 </script>

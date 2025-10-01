@@ -156,9 +156,9 @@ class ParticipantController extends Controller
                 $attended++;
             }
         }
-        
+
         $message = "$attended peserta berhasil dihadirkan.";
-        
+
         // Tambahkan konteks status event jika statusnya Selesai
         if ($event->status === 'Selesai') {
             return response()->json([

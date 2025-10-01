@@ -1,35 +1,35 @@
 // Alpine.js Components for Event Management System
 // This file contains reusable components for animations, alerts, modals, and UI behaviors
 
-document.addEventListener('alpine:init', () => {
+document.addEventListener("alpine:init", () => {
     // Global state management
-    Alpine.store('app', {
+    Alpine.store("app", {
         loading: false,
         sidebarOpen: false,
         alerts: [],
-        
+
         // Loading state management
         setLoading(state) {
             this.loading = state;
         },
-        
+
         // Alert system
         addAlert(type, message, duration = 5000) {
             const id = Date.now();
             const alert = { id, type, message, show: true };
             this.alerts.push(alert);
-            
+
             if (duration > 0) {
                 setTimeout(() => {
                     this.removeAlert(id);
                 }, duration);
             }
-            
+
             return id;
         },
-        
+
         removeAlert(id) {
-            const index = this.alerts.findIndex(alert => alert.id === id);
+            const index = this.alerts.findIndex((alert) => alert.id === id);
             if (index > -1) {
                 this.alerts[index].show = false;
                 setTimeout(() => {
@@ -37,207 +37,229 @@ document.addEventListener('alpine:init', () => {
                 }, 300);
             }
         },
-        
+
         // Sidebar management
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
         },
-        
+
         closeSidebar() {
             this.sidebarOpen = false;
-        }
+        },
     });
 
     // Alert Component
-    Alpine.data('alertSystem', () => ({
+    Alpine.data("alertSystem", () => ({
         init() {
             // Auto-show Laravel session messages
             this.checkSessionMessages();
         },
-        
+
         checkSessionMessages() {
             // Check for Laravel session messages
-            const successMessage = document.querySelector('[data-success-message]');
-            const errorMessage = document.querySelector('[data-error-message]');
-            const warningMessage = document.querySelector('[data-warning-message]');
-            const infoMessage = document.querySelector('[data-info-message]');
-            
+            const successMessage = document.querySelector(
+                "[data-success-message]"
+            );
+            const errorMessage = document.querySelector("[data-error-message]");
+            const warningMessage = document.querySelector(
+                "[data-warning-message]"
+            );
+            const infoMessage = document.querySelector("[data-info-message]");
+
             if (successMessage) {
-                this.$store.app.addAlert('success', successMessage.textContent.trim());
+                this.$store.app.addAlert(
+                    "success",
+                    successMessage.textContent.trim()
+                );
                 successMessage.remove();
             }
             if (errorMessage) {
-                this.$store.app.addAlert('error', errorMessage.textContent.trim());
+                this.$store.app.addAlert(
+                    "error",
+                    errorMessage.textContent.trim()
+                );
                 errorMessage.remove();
             }
             if (warningMessage) {
-                this.$store.app.addAlert('warning', warningMessage.textContent.trim());
+                this.$store.app.addAlert(
+                    "warning",
+                    warningMessage.textContent.trim()
+                );
                 warningMessage.remove();
             }
             if (infoMessage) {
-                this.$store.app.addAlert('info', infoMessage.textContent.trim());
+                this.$store.app.addAlert(
+                    "info",
+                    infoMessage.textContent.trim()
+                );
                 infoMessage.remove();
             }
-        }
+        },
     }));
 
     // Form Component with validation and loading states
-    Alpine.data('enhancedForm', (options = {}) => ({
+    Alpine.data("enhancedForm", (options = {}) => ({
         loading: false,
         errors: {},
-        
+
         init() {
             this.options = {
                 validateOnSubmit: true,
                 showLoader: true,
                 autoFocus: true,
-                ...options
+                ...options,
             };
-            
+
             if (this.options.autoFocus) {
                 this.$nextTick(() => {
-                    const firstInput = this.$el.querySelector('input, select, textarea');
+                    const firstInput = this.$el.querySelector(
+                        "input, select, textarea"
+                    );
                     if (firstInput) firstInput.focus();
                 });
             }
         },
-        
+
         async submitForm() {
             if (this.options.showLoader) {
                 this.loading = true;
                 this.$store.app.setLoading(true);
             }
-            
+
             try {
                 // Let the form submit normally, but with enhanced UX
                 this.$el.submit();
             } catch (error) {
-                console.error('Form submission error:', error);
-                this.$store.app.addAlert('error', 'Terjadi kesalahan saat mengirim form');
+                console.error("Form submission error:", error);
+                this.$store.app.addAlert(
+                    "error",
+                    "Terjadi kesalahan saat mengirim form"
+                );
             }
         },
-        
+
         clearError(field) {
             if (this.errors[field]) {
                 delete this.errors[field];
             }
-        }
+        },
     }));
 
     // Modal Component
-    Alpine.data('modal', (initialOpen = false) => ({
+    Alpine.data("modal", (initialOpen = false) => ({
         open: initialOpen,
-        
+
         show() {
             this.open = true;
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = "hidden";
         },
-        
+
         hide() {
             this.open = false;
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = "auto";
         },
-        
+
         toggle() {
             this.open ? this.hide() : this.show();
-        }
+        },
     }));
 
     // Dropdown Component
-    Alpine.data('dropdown', () => ({
+    Alpine.data("dropdown", () => ({
         open: false,
-        
+
         toggle() {
             this.open = !this.open;
         },
-        
+
         close() {
             this.open = false;
-        }
+        },
     }));
 
     // Tab Component
-    Alpine.data('tabs', (initialTab = 0) => ({
+    Alpine.data("tabs", (initialTab = 0) => ({
         activeTab: initialTab,
-        
+
         setTab(index) {
             this.activeTab = index;
         },
-        
+
         isActive(index) {
             return this.activeTab === index;
-        }
+        },
     }));
 
     // Data Table Component
-    Alpine.data('dataTable', () => ({
-        search: '',
-        sortBy: '',
-        sortDirection: 'asc',
+    Alpine.data("dataTable", () => ({
+        search: "",
+        sortBy: "",
+        sortDirection: "asc",
         currentPage: 1,
         itemsPerPage: 10,
-        
+
         sort(column) {
             if (this.sortBy === column) {
-                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+                this.sortDirection =
+                    this.sortDirection === "asc" ? "desc" : "asc";
             } else {
                 this.sortBy = column;
-                this.sortDirection = 'asc';
+                this.sortDirection = "asc";
             }
             this.currentPage = 1;
-        }
+        },
     }));
 
     // Animation helpers
-    Alpine.data('fadeIn', (delay = 0) => ({
+    Alpine.data("fadeIn", (delay = 0) => ({
         init() {
             setTimeout(() => {
-                this.$el.classList.add('animate-fade-in');
+                this.$el.classList.add("animate-fade-in");
             }, delay);
-        }
+        },
     }));
 
-    Alpine.data('slideIn', (direction = 'left', delay = 0) => ({
+    Alpine.data("slideIn", (direction = "left", delay = 0) => ({
         init() {
             setTimeout(() => {
                 this.$el.classList.add(`animate-slide-in-${direction}`);
             }, delay);
-        }
+        },
     }));
 
     // QR Scanner Component (for scan page)
-    Alpine.data('qrScanner', () => ({
+    Alpine.data("qrScanner", () => ({
         scanning: false,
-        result: '',
-        error: '',
-        
+        result: "",
+        error: "",
+
         async startScan() {
             this.scanning = true;
-            this.error = '';
-            
+            this.error = "";
+
             try {
                 // Integration with html5-qrcode library would go here
                 // This is a placeholder for the QR scanning functionality
-                console.log('QR Scanner started');
+                console.log("QR Scanner started");
             } catch (error) {
-                this.error = 'Tidak dapat mengakses kamera';
+                this.error = "Tidak dapat mengakses kamera";
                 this.scanning = false;
             }
         },
-        
+
         stopScan() {
             this.scanning = false;
-        }
+        },
     }));
 
     // Statistics Counter Animation
-    Alpine.data('counter', (target, duration = 2000) => ({
+    Alpine.data("counter", (target, duration = 2000) => ({
         current: 0,
-        
+
         init() {
             this.animateCounter(target, duration);
         },
-        
+
         animateCounter(target, duration) {
             const increment = target / (duration / 16);
             const timer = setInterval(() => {
@@ -247,14 +269,14 @@ document.addEventListener('alpine:init', () => {
                     clearInterval(timer);
                 }
             }, 16);
-        }
+        },
     }));
 
     // Image lazy loading
-    Alpine.data('lazyImage', () => ({
+    Alpine.data("lazyImage", () => ({
         loaded: false,
         error: false,
-        
+
         init() {
             const img = this.$el;
             const observer = new IntersectionObserver((entries) => {
@@ -265,11 +287,11 @@ document.addEventListener('alpine:init', () => {
             });
             observer.observe(img);
         },
-        
+
         loadImage() {
             const img = this.$el;
             const src = img.dataset.src;
-            
+
             if (src) {
                 img.src = src;
                 img.onload = () => {
@@ -279,26 +301,32 @@ document.addEventListener('alpine:init', () => {
                     this.error = true;
                 };
             }
-        }
+        },
     }));
 
     // Copy to clipboard functionality
-    Alpine.data('clipboard', () => ({
+    Alpine.data("clipboard", () => ({
         copied: false,
-        
+
         async copy(text) {
             try {
                 await navigator.clipboard.writeText(text);
                 this.copied = true;
-                this.$store.app.addAlert('success', 'Berhasil disalin ke clipboard');
-                
+                this.$store.app.addAlert(
+                    "success",
+                    "Berhasil disalin ke clipboard"
+                );
+
                 setTimeout(() => {
                     this.copied = false;
                 }, 2000);
             } catch (error) {
-                this.$store.app.addAlert('error', 'Gagal menyalin ke clipboard');
+                this.$store.app.addAlert(
+                    "error",
+                    "Gagal menyalin ke clipboard"
+                );
             }
-        }
+        },
     }));
 });
 
@@ -414,9 +442,9 @@ const animationStyles = `
 `;
 
 // Add styles to document if not already present
-if (!document.querySelector('#alpine-animations')) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'alpine-animations';
+if (!document.querySelector("#alpine-animations")) {
+    const styleSheet = document.createElement("style");
+    styleSheet.id = "alpine-animations";
     styleSheet.textContent = animationStyles;
     document.head.appendChild(styleSheet);
 }

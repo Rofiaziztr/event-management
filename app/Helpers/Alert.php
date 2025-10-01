@@ -15,12 +15,12 @@ class Alert
     {
         session()->flash('alert_type', 'success');
         session()->flash('alert_message', $message);
-        
+
         if (!empty($options)) {
             session()->flash('alert_options', json_encode($options));
         }
     }
-    
+
     /**
      * Flash an error message to the session
      *
@@ -32,12 +32,12 @@ class Alert
     {
         session()->flash('alert_type', 'error');
         session()->flash('alert_message', $message);
-        
+
         if (!empty($options)) {
             session()->flash('alert_options', json_encode($options));
         }
     }
-    
+
     /**
      * Flash a warning message to the session
      *
@@ -49,12 +49,12 @@ class Alert
     {
         session()->flash('alert_type', 'warning');
         session()->flash('alert_message', $message);
-        
+
         if (!empty($options)) {
             session()->flash('alert_options', json_encode($options));
         }
     }
-    
+
     /**
      * Flash an info message to the session
      *
@@ -66,7 +66,7 @@ class Alert
     {
         session()->flash('alert_type', 'info');
         session()->flash('alert_message', $message);
-        
+
         if (!empty($options)) {
             session()->flash('alert_options', json_encode($options));
         }

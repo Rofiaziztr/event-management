@@ -4,14 +4,14 @@ The alert system provides an easy way to display notifications to users in the E
 
 ## Features
 
-- Four types of alerts: success, error, warning, info
-- Auto-dismissal with progress indicator
-- Custom titles, icons, and durations
-- Backend (PHP) and Frontend (JavaScript) APIs
-- Responsive design
-- Animated appearance/disappearance
-- Laravel session flash integration
-- Facade support
+-   Four types of alerts: success, error, warning, info
+-   Auto-dismissal with progress indicator
+-   Custom titles, icons, and durations
+-   Backend (PHP) and Frontend (JavaScript) APIs
+-   Responsive design
+-   Animated appearance/disappearance
+-   Laravel session flash integration
+-   Facade support
 
 ## Backend Usage (PHP)
 
@@ -47,9 +47,9 @@ Alert::success('Operation successful!');
 public function store(Request $request)
 {
     // Process form...
-    
+
     Alert::success('Data saved successfully!');
-    
+
     return redirect()->route('dashboard');
 }
 ```
@@ -60,18 +60,18 @@ public function store(Request $request)
 
 ```javascript
 // Basic usage
-window.showSuccess('Operation successful!');
-window.showError('Something went wrong!');
-window.showWarning('Warning message');
-window.showInfo('Informational message');
+window.showSuccess("Operation successful!");
+window.showError("Something went wrong!");
+window.showWarning("Warning message");
+window.showInfo("Informational message");
 
 // With custom duration (milliseconds)
-window.showSuccess('Success message', 8000);
+window.showSuccess("Success message", 8000);
 
 // With additional options
-window.showSuccess('Success message', 5000, {
-    title: 'Custom Title',
-    icon: '🚀', // Custom icon
+window.showSuccess("Success message", 5000, {
+    title: "Custom Title",
+    icon: "🚀", // Custom icon
 });
 ```
 
@@ -79,9 +79,9 @@ window.showSuccess('Success message', 5000, {
 
 ```javascript
 // Direct access to the alert store
-window.Alpine.store('app').addAlert('success', 'Custom message', 5000, {
-    title: 'Custom Title',
-    icon: '👍',
+window.Alpine.store("app").addAlert("success", "Custom message", 5000, {
+    title: "Custom Title",
+    icon: "👍",
 });
 ```
 

@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultSimpleView('custom.simple-pagination');
 
         Carbon::setLocale('id');
-        
+
         // Register alert-handler component
         $this->loadViewComponentsAs('', [
             'alert-handler' => \App\View\Components\AlertHandler::class,

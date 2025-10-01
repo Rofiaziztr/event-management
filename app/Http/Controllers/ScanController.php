@@ -30,7 +30,7 @@ class ScanController extends Controller
 
         // Cari event berdasarkan kode unik
         $event = Event::where('code', $eventCode)->first();
-        
+
         if (!$event) {
             Log::warning('Event tidak ditemukan dengan kode: ' . $eventCode . ' oleh user: ' . $user->id);
             return redirect()->route('scan.index')
@@ -45,7 +45,7 @@ class ScanController extends Controller
         if (!$isParticipant) {
             Log::warning('User ' . $user->id . ' mencoba presensi untuk event ' . $event->id . ' yang tidak diikutinya.');
             return redirect()->route('scan.index')
-                ->with('error', 'Anda bukan peserta terdaftar untuk event "' . $event->title . '".');
+                ->with('error', '❌ Akses Ditolak: Anda tidak diundang ke event "' . $event->title . '". Silakan hubungi panitia jika ada kesalahan.');
         }
 
         // Cek apakah event aktif untuk presensi
@@ -63,7 +63,7 @@ class ScanController extends Controller
         if ($alreadyAttended) {
             Log::info('User ' . $user->id . ' sudah presensi untuk event ' . $event->id);
             return redirect()->route('scan.index')
-                ->with('warning', 'Anda sudah tercatat hadir di event "' . $event->title . '".');
+                ->with('warning', '✅ Sudah Tercatat: Anda sudah presensi untuk event "' . $event->title . '" sebelumnya. Terima kasih atas kehadiran Anda!');
         }
 
         // Catat kehadiran
@@ -74,7 +74,7 @@ class ScanController extends Controller
         ]);
 
         Log::info('Presensi berhasil: User ' . $user->id . ' untuk event ' . $event->id);
-        
+
         return redirect()->route('scan.index')
             ->with('success', "Presensi untuk event '{$event->title}' berhasil!");
     }

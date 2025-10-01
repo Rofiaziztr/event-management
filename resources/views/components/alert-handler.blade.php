@@ -14,4 +14,12 @@
     @if (session('error'))
         <div data-error-message class="hidden">{{ session('error') }}</div>
     @endif
+
+    @if (session('warning'))
+        <div data-warning-message class="hidden">{{ session('warning') }}</div>
+    @endif
+
+    @if (session('info'))
+        <div data-info-message class="hidden">{{ session('info') }}</div>
+    @endif
 </div>

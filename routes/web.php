@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/profile', 'update')->name('profile.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
-    
+
     // Contoh Alert System
     Route::controller(\App\Http\Controllers\AlertExampleController::class)->group(function () {
         Route::get('/alert-examples', 'showExamples')->name('alert.examples');
