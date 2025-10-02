@@ -137,25 +137,6 @@
             </template>
         </div>
 
-        <!-- Logo Section -->
-        <div class="mb-8 animate-fade-in" x-data="logoAnimation">
-            <a href="/" class="flex flex-col items-center space-y-2 group">
-                <div class="relative">
-                    <!-- Main Logo Container -->
-                    <div class="p-6 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30 group-hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
-                        <x-application-logo class="w-20 h-20 text-white drop-shadow-lg" />
-                    </div>
-                    <!-- Decorative Elements -->
-                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-pulse"></div>
-                    <div class="absolute -bottom-1 -left-1 w-4 h-4 bg-orange-400 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
-                </div>
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-black drop-shadow-lg group-hover:text-yellow-900 transition-colors duration-300">{{ config('app.name', 'EventFlow') }}</h1>
-                    <p class="text-black/80 text-sm font-medium">Sistem Manajemen Event</p>
-                </div>
-            </a>
-        </div>
-
         <!-- Form Container -->
         <div class="w-full sm:max-w-md animate-fade-in" style="animation-delay: 0.3s;">
             <div class="glass-effect shadow-2xl rounded-2xl overflow-hidden border-white/20 hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]">
@@ -180,18 +161,6 @@
             inputs.forEach(input => {
                 input.classList.add('input-focus');
             });
-        });
-
-        // Logo animation component
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('logoAnimation', () => ({
-                init() {
-                    // Simple float animation
-                    setTimeout(() => {
-                        this.$el.style.animation = 'float 3s ease-in-out infinite';
-                    }, 100);
-                }
-            }));
         });
     </script>
 </body>
