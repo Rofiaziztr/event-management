@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $period = $request->input('period', 'monthly');
         $categoryPeriod = $request->input('category_period', 'this_month');
         $selectedCategory = $request->input('category_filter', 'all'); // Filter for category
-        
+
         // Basic Statistics
         $totalEvents = Event::count();
         $totalParticipants = User::where('role', 'participant')->count();
@@ -29,8 +29,8 @@ class DashboardController extends Controller
         $thisMonth = now()->startOfMonth();
         $eventsThisMonth = Event::where('created_at', '>=', $thisMonth)->count();
         $attendancesThisMonth = Attendance::where('created_at', '>=', $thisMonth)->count();
-        $activeEvents = Event::where('status', 'Berlangsung')->count();
-        $upcomingEvents = Event::where('status', 'Terjadwal')
+        $activeEvents = Event::byStatus('Berlangsung')->count();
+        $upcomingEvents = Event::byStatus('Terjadwal')
             ->where('start_time', '>', now())
             ->count();
 
@@ -38,18 +38,18 @@ class DashboardController extends Controller
         $avgAttendanceData = Event::withCount(['participants', 'attendances'])
             ->having('participants_count', '>', 0)
             ->get();
-        
-        $averageAttendanceRate = $avgAttendanceData->isNotEmpty() 
+
+        $averageAttendanceRate = $avgAttendanceData->isNotEmpty()
             ? round($avgAttendanceData->avg(fn($e) => ($e->attendances_count / $e->participants_count) * 100), 1)
             : 0;
 
         // Category Analysis - Most attended categories
         $categoryStats = $this->getCategoryAttendanceStats($categoryPeriod);
-        
+
         // Event trend per category (last 12 months)
         $eventTrendStats = $this->getEventTrendStats($selectedCategory);
         $categories = Category::all(); // For category filter dropdown
-        
+
         // Upcoming events (next 7 days)
         $upcomingEventsDetailed = Event::with(['participants', 'attendances', 'category'])
             ->where('start_time', '>', now())
@@ -57,44 +57,44 @@ class DashboardController extends Controller
             ->orderBy('start_time', 'asc')
             ->take(5)
             ->get();
-            
+
         // Recent high-performing events
         $topPerformingEvents = Event::withCount(['participants', 'attendances'])
             ->having('participants_count', '>', 0)
             ->whereDate('start_time', '>=', now()->subDays(30))
             ->get()
-            ->sortByDesc(function($event) {
-                return $event->participants_count > 0 
-                    ? ($event->attendances_count / $event->participants_count) * 100 
+            ->sortByDesc(function ($event) {
+                return $event->participants_count > 0
+                    ? ($event->attendances_count / $event->participants_count) * 100
                     : 0;
             })
             ->take(5);
 
         // Event status distribution
         $eventStatusData = [
-            'Terjadwal' => Event::where('status', 'Terjadwal')->count(),
-            'Berlangsung' => Event::where('status', 'Berlangsung')->count(),
-            'Selesai' => Event::where('status', 'Selesai')->count(),
-            'Dibatalkan' => Event::where('status', 'Dibatalkan')->count(),
+            'Terjadwal' => Event::byStatus('Terjadwal')->count(),
+            'Berlangsung' => Event::byStatus('Berlangsung')->count(),
+            'Selesai' => Event::byStatus('Selesai')->count(),
+            'Dibatalkan' => Event::byStatus('Dibatalkan')->count(),
         ];
 
         // Monthly comparison
         $lastMonth = now()->subMonth()->startOfMonth();
         $eventsLastMonth = Event::whereBetween('created_at', [
-            $lastMonth, 
-            $lastMonth->copy()->endOfMonth()
-        ])->count();
-        
-        $attendancesLastMonth = Attendance::whereBetween('created_at', [
-            $lastMonth, 
+            $lastMonth,
             $lastMonth->copy()->endOfMonth()
         ])->count();
 
-        $eventGrowth = $eventsLastMonth > 0 
+        $attendancesLastMonth = Attendance::whereBetween('created_at', [
+            $lastMonth,
+            $lastMonth->copy()->endOfMonth()
+        ])->count();
+
+        $eventGrowth = $eventsLastMonth > 0
             ? round((($eventsThisMonth - $eventsLastMonth) / $eventsLastMonth) * 100, 1)
             : ($eventsThisMonth > 0 ? 100 : 0);
-            
-        $attendanceGrowth = $attendancesLastMonth > 0 
+
+        $attendanceGrowth = $attendancesLastMonth > 0
             ? round((($attendancesThisMonth - $attendancesLastMonth) / $attendancesLastMonth) * 100, 1)
             : ($attendancesThisMonth > 0 ? 100 : 0);
 
@@ -104,7 +104,7 @@ class DashboardController extends Controller
             'totalAttendances',
             'totalCategories',
             'eventsThisMonth',
-            'attendancesThisMonth', 
+            'attendancesThisMonth',
             'activeEvents',
             'upcomingEvents',
             'averageAttendanceRate',

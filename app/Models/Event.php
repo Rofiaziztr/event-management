@@ -91,7 +91,7 @@ class Event extends Model
     {
         return $this->hasMany(Attendance::class);
     }
-    
+
     /**
      * Mendapatkan kategori dari event ini.
      */
@@ -134,24 +134,43 @@ class Event extends Model
      * Mendapatkan status event berdasarkan waktu saat ini.
      */
     public function getStatusAttribute()
-{
-    $status = $this->attributes['status'] ?? null; // hindari undefined
+    {
+        $status = $this->attributes['status'] ?? null; // hindari undefined
 
-    if ($status === 'Dibatalkan') {
-        return 'Dibatalkan';
+        if ($status === 'Dibatalkan') {
+            return 'Dibatalkan';
+        }
+
+        $now = now();
+
+        if ($now < $this->start_time) {
+            return 'Terjadwal';
+        } elseif ($now >= $this->start_time && $now <= $this->end_time) {
+            return 'Berlangsung';
+        } else {
+            return 'Selesai';
+        }
     }
 
-    $now = now();
+    /**
+     * Scope untuk filter berdasarkan status computed.
+     */
+    public function scopeByStatus($query, $status)
+    {
+        $now = now();
 
-    if ($now < $this->start_time) {
-        return 'Terjadwal';
-    } elseif ($now >= $this->start_time && $now <= $this->end_time) {
-        return 'Berlangsung';
-    } else {
-        return 'Selesai';
+        return match ($status) {
+            'Dibatalkan' => $query->where('status', 'Dibatalkan'),
+            'Terjadwal' => $query->where('status', '!=', 'Dibatalkan')
+                ->where('start_time', '>', $now),
+            'Berlangsung' => $query->where('status', '!=', 'Dibatalkan')
+                ->where('start_time', '<=', $now)
+                ->where('end_time', '>=', $now),
+            'Selesai' => $query->where('status', '!=', 'Dibatalkan')
+                ->where('end_time', '<', $now),
+            default => $query,
+        };
     }
-}
-
 
     /**
      * Cek apakah event masih aktif untuk presensi (QR code).

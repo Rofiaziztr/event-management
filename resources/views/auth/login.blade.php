@@ -4,10 +4,10 @@
         <div data-success-message style="display: none;">{{ session('status') }}</div>
     @endif
 
-    <div class="text-center mb-8" x-data="fadeIn(100)">
-        <div class="mb-6" x-data="slideIn('up', 200)">
+    <div class="text-center mb-8">
+        <div class="mb-6">
             <div
-                class="mx-auto w-20 h-20 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg hover-glow">
+                class="mx-auto w-20 h-20 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
@@ -15,8 +15,8 @@
                 </svg>
             </div>
         </div>
-        <h2 class="text-3xl font-bold text-gray-800 mb-2 animate-fade-in" x-data="fadeIn(300)">Selamat Datang</h2>
-        <p class="text-gray-600 animate-fade-in" x-data="fadeIn(400)">Masuk ke akun Anda untuk melanjutkan</p>
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Selamat Datang</h2>
+        <p class="text-gray-600">Masuk ke akun Anda untuk melanjutkan</p>
     </div>
 
     <form method="POST" action="{{ route('login') }}" class="space-y-6" x-data="enhancedForm({ validateOnSubmit: true, showLoader: true })" @submit="submitForm()"
@@ -24,14 +24,13 @@
         @csrf
 
         <!-- Email Address -->
-        <div x-data="slideIn('left', 100)" class="stagger-2">
+        <div>
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
             </label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 transition-colors duration-200" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207">
                         </path>
@@ -39,7 +38,7 @@
                 </div>
                 <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
                     autocomplete="username"
-                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200 input-animate hover-lift"
+                    class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     placeholder="nama@email.com" @focus="clearError('email')" x-transition:focus>
             </div>
             @if ($errors->get('email'))
@@ -58,7 +57,7 @@
         </div>
 
         <!-- Password -->
-        <div x-data="slideIn('right', 200)" class="stagger-3">
+        <div>
             <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
                 Password
             </label>
@@ -73,7 +72,7 @@
                 </div>
                 <input id="password" :type="showPassword ? 'text' : 'password'" name="password" required
                     autocomplete="current-password"
-                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200 input-animate hover-lift"
+                    class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     placeholder="Masukkan password Anda" @focus="clearError('password')">
                 <button type="button" @click="showPassword = !showPassword"
                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200">
@@ -109,11 +108,11 @@
         </div>
 
         <!-- Remember Me -->
-        <div class="flex items-center justify-between" x-data="slideIn('up', 300)" class="stagger-4">
+        <div class="flex items-center justify-between">
             <label for="remember_me" class="flex items-center group cursor-pointer">
                 <input id="remember_me" type="checkbox" name="remember"
-                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded transition-all duration-200 hover:scale-110">
-                <span class="ml-2 text-sm text-gray-700 group-hover:text-gray-900 transition-colors duration-200">Ingat
+                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+                <span class="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Ingat
                     saya</span>
             </label>
 
@@ -127,8 +126,7 @@
 
         <!-- Login Button -->
         <button type="submit" :disabled="loading" :class="loading ? 'opacity-75 cursor-not-allowed' : ''"
-            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 btn-animate hover-glow stagger-5"
-            x-data="slideIn('up', 400)">
+            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
             <svg x-show="!loading" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
@@ -146,11 +144,10 @@
         </button>
 
         <!-- Register Link -->
-        <div class="text-center pt-4 border-t border-gray-200" x-data="fadeIn(500)">
+        <div class="text-center pt-4 border-t border-gray-200">
             <p class="text-sm text-gray-600">
                 Belum punya akun?
-                <a href="{{ route('register') }}"
-                    class="font-medium text-yellow-600 hover:text-yellow-700 transition-all duration-200 hover:underline btn-animate">
+                <a href="{{ route('register') }}" class="font-medium text-yellow-600 hover:text-yellow-700">
                     Daftar sekarang
                 </a>
             </p>
