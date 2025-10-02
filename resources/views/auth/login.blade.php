@@ -6,21 +6,25 @@
 
     <div class="text-center mb-8">
         <div class="mb-6">
-            <div
-                class="mx-auto w-20 h-20 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                    </path>
-                </svg>
+            <div class="relative inline-block">
+                <div
+                    class="mx-auto w-20 h-20 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
+                </div>
+                <!-- Decorative dots -->
+                <div class="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-pulse"></div>
+                <div class="absolute -bottom-1 -left-1 w-2 h-2 bg-orange-300 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
             </div>
         </div>
         <h2 class="text-3xl font-bold text-gray-800 mb-2">Selamat Datang</h2>
         <p class="text-gray-600">Masuk ke akun Anda untuk melanjutkan</p>
     </div>
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-6" x-data="enhancedForm({ validateOnSubmit: true, showLoader: true })" @submit="submitForm()"
-        x-init="animate - fade - in stagger - 1">
+    <form method="POST" action="{{ route('login') }}" class="space-y-6" x-data="enhancedForm({ validateOnSubmit: true, showLoader: true })" @submit="submitForm()">
         @csrf
 
         <!-- Email Address -->
