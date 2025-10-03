@@ -26,7 +26,8 @@ class DashboardController extends Controller
         $attendedEventIds = $user->attendances->pluck('event_id')->unique()->toArray();
         $upcomingEvents = $allParticipatedEvents
             ->where('start_time', '>', now())
-            ->sortBy('start_time');
+            ->sortBy('start_time')
+            ->take(5);
         $ongoingEvents = $allParticipatedEvents
             ->filter(fn($event) => $event->status === 'Berlangsung')
             ->sortBy('start_time');
