@@ -82,7 +82,8 @@
 </head>
 
 <body class="font-sans text-gray-900 antialiased" x-data="alertSystem">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 gradient-bg bg-pattern relative overflow-hidden"
+    <div
+        class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 gradient-bg bg-pattern relative overflow-hidden">
         <!-- Background Elements -->
         <div class="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
         <div class="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse"
@@ -93,8 +94,7 @@
         <!-- Alert System -->
         <div class="fixed top-4 right-4 z-50 space-y-2" style="max-width: 320px;">
             <template x-for="alert in $store.app.alerts" :key="alert.id">
-                <div x-show="alert.show"
-                    class="alert-container p-4 rounded-xl shadow-lg max-w-sm glass-effect"
+                <div x-show="alert.show" class="alert-container p-4 rounded-xl shadow-lg max-w-sm glass-effect"
                     :class="{
                         'border-green-300 text-green-800': alert.type === 'success',
                         'border-red-300 text-red-800': alert.type === 'error',
@@ -119,8 +119,7 @@
                             </div>
                             <p class="text-sm font-medium" x-text="alert.message"></p>
                         </div>
-                        <button @click="$store.app.removeAlert(alert.id)"
-                            class="ml-4 inline-flex text-gray-400">
+                        <button @click="$store.app.removeAlert(alert.id)" class="ml-4 inline-flex text-gray-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12"></path>
@@ -133,8 +132,7 @@
 
         <!-- Form Container -->
         <div class="w-full sm:max-w-lg animate-fade-in" style="animation-delay: 0.3s;">
-            <div
-                class="glass-effect shadow-2xl rounded-2xl overflow-hidden border-white/20">
+            <div class="glass-effect shadow-2xl rounded-2xl overflow-hidden border-white/20">
                 <div class="px-8 py-8">
                     {{ $slot }}
                 </div>

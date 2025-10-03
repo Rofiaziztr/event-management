@@ -2,22 +2,26 @@
     <x-slot name="header">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
             <div>
-                <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center">
-                    <span class="mr-3 text-2xl">🎪</span>
+                <h2 class="font-bold text-2xl text-gray-800 leading-tight">
                     {{ __('Event Saya') }}
                 </h2>
                 <p class="text-gray-600 mt-1">Daftar event yang Anda ikuti</p>
             </div>
             <a href="{{ route('scan.index') }}"
-                class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h4.5v4.5h-4.5v-4.5z" />
+                class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 ease-in-out transform hover:scale-105">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="5" height="5" rx="1" fill="currentColor" opacity="0.3" />
+                    <rect x="16" y="3" width="5" height="5" rx="1" fill="currentColor"
+                        opacity="0.3" />
+                    <rect x="3" y="16" width="5" height="5" rx="1" fill="currentColor"
+                        opacity="0.3" />
+                    <rect x="16" y="16" width="5" height="5" rx="1" fill="currentColor"
+                        opacity="0.3" />
+                    <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor"
+                        stroke-width="1.5" fill="none" />
+                    <circle cx="12" cy="12" r="1" fill="currentColor" />
                 </svg>
-                Scan Presensi
+                Scan QR Code
             </a>
         </div>
     </x-slot>
@@ -307,7 +311,17 @@
                                 </div>
 
                                 <div class="mt-5 pt-4 border-t border-gray-200">
-                                    @if (in_array($event->id, $attendedEventIds ?? []))
+                                    @php
+                                        $hasAttended = in_array($event->id, $attendedEventIds ?? []);
+                                        $eventStatus = $event->status;
+                                        $isEventFinished = $eventStatus === 'Selesai';
+                                        $isEventOngoing = $eventStatus === 'Berlangsung';
+                                        $isEventScheduled = $eventStatus === 'Terjadwal';
+                                        $isEventCancelled = $eventStatus === 'Dibatalkan';
+                                    @endphp
+
+                                    @if ($hasAttended)
+                                        <!-- Sudah hadir -->
                                         <div class="flex items-center text-green-600">
                                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -316,7 +330,28 @@
                                             </svg>
                                             <span class="text-sm font-medium">Anda sudah hadir</span>
                                         </div>
-                                    @else
+                                    @elseif ($isEventCancelled)
+                                        <!-- Event dibatalkan -->
+                                        <div class="flex items-center text-gray-500">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            </svg>
+                                            <span class="text-sm font-medium">Event dibatalkan</span>
+                                        </div>
+                                    @elseif ($isEventFinished && !$hasAttended)
+                                        <!-- Event selesai tapi tidak hadir -->
+                                        <div class="flex items-center text-red-600">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            <span class="text-sm font-medium">Tidak hadir</span>
+                                        </div>
+                                    @elseif ($isEventOngoing && !$hasAttended)
+                                        <!-- Event sedang berlangsung tapi belum presensi -->
                                         <div class="flex items-center text-yellow-600">
                                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
@@ -324,6 +359,26 @@
                                                     clip-rule="evenodd" />
                                             </svg>
                                             <span class="text-sm font-medium">Belum melakukan presensi</span>
+                                        </div>
+                                    @elseif ($isEventScheduled && !$hasAttended)
+                                        <!-- Event belum dimulai -->
+                                        <div class="flex items-center text-blue-600">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-sm font-medium">Event belum dimulai</span>
+                                        </div>
+                                    @else
+                                        <!-- Fallback untuk kondisi lain -->
+                                        <div class="flex items-center text-gray-500">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-sm font-medium">Status tidak diketahui</span>
                                         </div>
                                     @endif
                                 </div>

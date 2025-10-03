@@ -9,8 +9,7 @@
         <a href="/" class="inline-flex flex-col items-center space-y-3">
             <div class="relative">
                 <!-- Main Logo Container -->
-                <div
-                    class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30">
+                <div class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30">
                     <x-application-logo class="w-16 h-16 text-white drop-shadow-lg" />
                 </div>
                 <!-- Decorative Elements -->
@@ -20,7 +19,6 @@
             </div>
             <div class="text-center">
                 <h1 class="text-2xl font-bold text-black drop-shadow-lg">{{ config('app.name', 'EventFlow') }}</h1>
-                <p class="text-black/80 text-sm font-medium">Sistem Manajemen Event</p>
             </div>
         </a>
     </div>
@@ -33,10 +31,10 @@
     <form method="POST" action="{{ route('login') }}" class="space-y-6" x-data="enhancedForm({ validateOnSubmit: true, showLoader: true })" @submit="submitForm()">
         @csrf
 
-        <!-- Email Address -->
+        <!-- Email or Username -->
         <div>
-            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
+            <label for="login" class="block text-sm font-semibold text-gray-700 mb-2">
+                Email atau NIP
             </label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -46,14 +44,14 @@
                         </path>
                     </svg>
                 </div>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                <input id="login" type="text" name="login" value="{{ old('login') }}" required autofocus
                     autocomplete="username"
                     class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                    placeholder="nama@email.com" @focus="clearError('email')">
+                    placeholder="nama@email.com atau 123456789" @focus="clearError('login')">
             </div>
-            @if ($errors->get('email'))
+            @if ($errors->get('login'))
                 <div class="mt-2">
-                    @foreach ($errors->get('email') as $error)
+                    @foreach ($errors->get('login') as $error)
                         <p class="text-red-600 text-sm flex items-center">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,8 +71,7 @@
             </label>
             <div class="relative" x-data="{ showPassword: false }">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
                         </path>
@@ -127,8 +124,7 @@
             </label>
 
             @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}"
-                    class="text-sm text-yellow-600 font-medium">
+                <a href="{{ route('password.request') }}" class="text-sm text-yellow-600 font-medium">
                     Lupa password?
                 </a>
             @endif
@@ -152,6 +148,32 @@
             </svg>
             <span x-text="loading ? 'Memproses...' : 'Masuk'">Masuk</span>
         </button>
+
+        <!-- Divider -->
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">atau</span>
+            </div>
+        </div>
+
+        <!-- Google Login Button -->
+        <a href="{{ route('google.login') }}"
+            class="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150">
+            <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                <path fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            </svg>
+            Masuk dengan Google
+        </a>
 
         <!-- Register Link -->
         <div class="text-center pt-4 border-t border-gray-200">

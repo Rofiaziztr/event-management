@@ -4,8 +4,7 @@
         <a href="/" class="inline-flex flex-col items-center space-y-3">
             <div class="relative">
                 <!-- Main Logo Container -->
-                <div
-                    class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30">
+                <div class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30">
                     <x-application-logo class="w-16 h-16 text-white drop-shadow-lg" />
                 </div>
                 <!-- Decorative Elements -->
@@ -14,10 +13,8 @@
                     style="animation-delay: 0.5s;"></div>
             </div>
             <div class="text-center">
-                <h1
-                    class="text-2xl font-bold text-black drop-shadow-lg">
+                <h1 class="text-2xl font-bold text-black drop-shadow-lg">
                     {{ config('app.name', 'EventFlow') }}</h1>
-                <p class="text-black/80 text-sm font-medium">Sistem Manajemen Event</p>
             </div>
         </a>
     </div>
@@ -96,8 +93,7 @@
         <div class="text-center pt-4 border-t border-gray-200">
             <p class="text-sm text-gray-600">
                 Ingat password Anda?
-                <a href="{{ route('login') }}"
-                    class="font-medium text-yellow-600">
+                <a href="{{ route('login') }}" class="font-medium text-yellow-600">
                     Kembali ke login
                 </a>
             </p>

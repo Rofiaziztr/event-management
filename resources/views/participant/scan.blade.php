@@ -3,9 +3,16 @@
         <div class="flex items-center space-x-3">
             <div class="bg-yellow-100 p-3 rounded-xl">
                 <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
-                    </path>
+                    <rect x="3" y="3" width="5" height="5" rx="1" fill="currentColor" opacity="0.3" />
+                    <rect x="16" y="3" width="5" height="5" rx="1" fill="currentColor"
+                        opacity="0.3" />
+                    <rect x="3" y="16" width="5" height="5" rx="1" fill="currentColor"
+                        opacity="0.3" />
+                    <rect x="16" y="16" width="5" height="5" rx="1" fill="currentColor"
+                        opacity="0.3" />
+                    <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor"
+                        stroke-width="1.5" fill="none" />
+                    <circle cx="12" cy="12" r="1" fill="currentColor" />
                 </svg>
             </div>
             <div>
@@ -41,25 +48,31 @@
                         <div class="p-6">
                             <!-- Scanner Container -->
                             <div class="relative mb-6">
-                                <div id="qr-reader" class="rounded-xl overflow-hidden shadow-lg bg-gray-100 relative" style="width: 100%; min-height: 400px;">
+                                <div id="qr-reader" class="rounded-xl overflow-hidden shadow-lg bg-gray-100 relative"
+                                    style="width: 100%; min-height: 400px;">
                                     <!-- Scanning overlay for better UX -->
                                     <div class="absolute inset-0 pointer-events-none z-10">
                                         <div class="w-full h-full flex items-center justify-center">
-                                            <div class="w-72 h-72 border-2 border-dashed border-yellow-400 rounded-lg opacity-70">
+                                            <div
+                                                class="w-72 h-72 border-2 border-dashed border-yellow-400 rounded-lg opacity-70">
                                                 <div class="w-full h-full flex items-center justify-center">
                                                     <div class="w-64 h-64 border-2 border-yellow-300 rounded-lg"></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-white text-sm font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">
+                                        <div
+                                            class="absolute top-4 left-1/2 transform -translate-x-1/2 text-white text-sm font-medium bg-black bg-opacity-50 px-3 py-1 rounded-full">
                                             Posisikan QR Code di area ini
                                         </div>
                                     </div>
                                     <!-- Fallback content while loading -->
-                                    <div class="flex items-center justify-center h-80 md:h-96 text-gray-500 absolute inset-0 z-20" id="scanner-loading">
+                                    <div class="flex items-center justify-center h-80 md:h-96 text-gray-500 absolute inset-0 z-20"
+                                        id="scanner-loading">
                                         <div class="text-center">
-                                            <svg class="w-12 h-12 mx-auto mb-4 animate-spin text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                            <svg class="w-12 h-12 mx-auto mb-4 animate-spin text-yellow-500"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                             </svg>
                                             <p class="text-sm font-medium">Memuat scanner kamera...</p>
                                             <p class="text-xs mt-1">Pastikan izinkan akses kamera di browser</p>
@@ -89,8 +102,10 @@
                             <!-- Scan Tips Card -->
                             <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                 <div class="flex items-start space-x-3">
-                                    <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <div>
                                         <h4 class="text-sm font-semibold text-blue-800 mb-2">Tips Scan QR Code:</h4>
@@ -199,7 +214,10 @@
 
                         const config = {
                             fps: 20,
-                            qrbox: { width: 250, height: 250 },
+                            qrbox: {
+                                width: 250,
+                                height: 250
+                            },
                             aspectRatio: 1.0,
                             showTorchButtonIfSupported: false,
                             showZoomSliderIfSupported: false,
@@ -212,8 +230,9 @@
                             }
                         };
 
-                        html5QrcodeScanner.start(
-                            { facingMode: "environment" },
+                        html5QrcodeScanner.start({
+                                facingMode: "environment"
+                            },
                             config,
                             onScanSuccess,
                             onScanFailure
@@ -226,7 +245,8 @@
                                 loadingElement.style.display = 'none';
                             }
 
-                            const overlayElement = document.querySelector('.absolute.inset-0.pointer-events-none');
+                            const overlayElement = document.querySelector(
+                                '.absolute.inset-0.pointer-events-none');
                             if (overlayElement) {
                                 overlayElement.style.opacity = '0.3';
                             }

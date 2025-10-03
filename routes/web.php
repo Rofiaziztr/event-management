@@ -11,12 +11,13 @@ use App\Http\Controllers\Admin\ParticipantController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 // Rute dasar
 Route::get('/', [WelcomeController::class, 'index']);
 
 // Middleware untuk otentikasi dan verifikasi
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Rute dashboard utama dengan logika role
     Route::get('/dashboard', function () {
         return auth()->user()->role === 'admin'

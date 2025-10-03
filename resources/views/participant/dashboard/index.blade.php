@@ -1,10 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0"
-            x-data="slideIn('down', 100)">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
             <div>
-                <h2 class="font-bold text-2xl text-gray-800 leading-tight flex items-center">
-                    <span class="mr-3 text-xl">👋</span>
+                <h2 class="font-bold text-2xl text-gray-800 leading-tight">
                     {{ __('Dashboard Peserta') }}
                 </h2>
                 <p class="text-gray-600 mt-1">Selamat datang, {{ auth()->user()->full_name }}</p>
@@ -58,11 +56,19 @@
                 </div>
             @else
                 <a href="{{ route('scan.index') }}"
-                    class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                    x-data="slideIn('right', 300)">
+                    class="inline-flex items-center px-6 py-3 bg-yellow-500 border border-transparent rounded-xl font-semibold text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 ease-in-out transform hover:scale-105">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 16h4.01"></path>
+                        <rect x="3" y="3" width="5" height="5" rx="1" fill="currentColor"
+                            opacity="0.3" />
+                        <rect x="16" y="3" width="5" height="5" rx="1" fill="currentColor"
+                            opacity="0.3" />
+                        <rect x="3" y="16" width="5" height="5" rx="1" fill="currentColor"
+                            opacity="0.3" />
+                        <rect x="16" y="16" width="5" height="5" rx="1" fill="currentColor"
+                            opacity="0.3" />
+                        <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor"
+                            stroke-width="1.5" fill="none" />
+                        <circle cx="12" cy="12" r="1" fill="currentColor" />
                     </svg>
                     Scan QR Code
                 </a>
@@ -70,27 +76,8 @@
         </div>
     </x-slot>
 
-    <div class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8"
-        x-data="{
-            counters: { registered: 0, attended: 0, upcoming: 0, completed: 0 },
-            animateCounters() {
-                this.animateCounter('registered', {{ $registeredEvents ?? 0 }});
-                this.animateCounter('attended', {{ $attendedEvents ?? 0 }});
-                this.animateCounter('upcoming', {{ $upcomingEvents ?? 0 }});
-                this.animateCounter('completed', {{ $completedEvents ?? 0 }});
-            },
-            animateCounter(key, target) {
-                const duration = 2000;
-                const increment = target / (duration / 16);
-                const timer = setInterval(() => {
-                    this.counters[key] += increment;
-                    if (this.counters[key] >= target) {
-                        this.counters[key] = target;
-                        clearInterval(timer);
-                    }
-                }, 16);
-            }
-        }" x-init="setTimeout(animateCounters, 500)">
+    <div
+        class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
         @push('styles')
             <style>
@@ -106,14 +93,6 @@
 
                 .animate-pulse-slow {
                     animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-                }
-
-                .animate-fade-in {
-                    animation: fadeIn 0.5s ease-in-out;
-                }
-
-                .animate-slide-up {
-                    animation: slideUp 0.3s ease-out;
                 }
 
                 .line-clamp-2 {
@@ -149,7 +128,7 @@
             <div class="max-w-7xl mt-10 mx-auto px-6 space-y-8 pb-8">
 
                 {{-- Statistics Cards --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 mr-4">
@@ -237,7 +216,7 @@
                 </div>
 
                 {{-- Upcoming Events List --}}
-                <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-slide-up">
+                <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
                     <div class="p-6 border-b border-gray-100">
                         <h3 class="text-2xl font-bold text-gray-900">Event Akan Datang</h3>
                         <p class="text-gray-500 mt-1">Jadwal event yang akan segera dimulai. Pastikan untuk hadir dan
@@ -308,7 +287,7 @@
                 </div>
 
                 {{-- Riwayat Event Anda --}}
-                <div class="bg-white rounded-2xl shadow-xl border border-yellow-200 animate-slide-up">
+                <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
                     <div class="p-6 border-b border-gray-100">
                         <div
                             class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
@@ -413,30 +392,7 @@
 
         @push('scripts')
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Animation observer
-                    const observerOptions = {
-                        threshold: 0.1,
-                        rootMargin: '0px 0px -50px 0px'
-                    };
-
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                entry.target.style.opacity = '1';
-                                entry.target.style.transform = 'translateY(0)';
-                            }
-                        });
-                    }, observerOptions);
-
-                    const animatedElements = document.querySelectorAll('.animate-slide-up');
-                    animatedElements.forEach(el => {
-                        el.style.opacity = '0';
-                        el.style.transform = 'translateY(20px)';
-                        el.style.transition = 'all 0.6s ease-out';
-                        observer.observe(el);
-                    });
-                });
+                // No additional JavaScript needed - Alpine.js handles animations
             </script>
         @endpush
 </x-app-layout>

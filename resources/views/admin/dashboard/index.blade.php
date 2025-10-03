@@ -18,27 +18,8 @@
         </div>
     </x-slot>
 
-    <div class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8"
-        x-data="{
-            counters: { events: 0, participants: 0, monthly: 0, rate: 0 },
-            animateCounters() {
-                this.animateCounter('events', {{ $totalEvents ?? 0 }});
-                this.animateCounter('participants', {{ $totalParticipants ?? 0 }});
-                this.animateCounter('monthly', {{ $thisMonthEvents ?? 0 }});
-                this.animateCounter('rate', {{ $attendanceRate ?? 0 }});
-            },
-            animateCounter(key, target) {
-                const duration = 2000;
-                const increment = target / (duration / 16);
-                const timer = setInterval(() => {
-                    this.counters[key] += increment;
-                    if (this.counters[key] >= target) {
-                        this.counters[key] = target;
-                        clearInterval(timer);
-                    }
-                }, 16);
-            }
-        }" x-init="setTimeout(animateCounters, 500)">
+    <div
+        class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
         <!-- Statistics Cards section has been removed as requested -->
 

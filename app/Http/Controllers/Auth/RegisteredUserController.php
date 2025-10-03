@@ -46,7 +46,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'nip' => $request->nip,
             'position' => $request->position,
-            'division' => $request->work_unit,
+            'division' => $request->division,
             // Role 'Peserta' akan otomatis terisi dari default di UserFactory atau migration
         ]);
 
