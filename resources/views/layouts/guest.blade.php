@@ -71,13 +71,12 @@
         }
 
         .input-focus {
-            transition: all 0.3s ease;
+            /* Focus effects without transitions for better performance */
         }
 
         .input-focus:focus {
             border-color: #f59e0b;
             box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -94,12 +93,7 @@
         <!-- Alert System -->
         <div class="fixed top-4 right-4 z-50 space-y-2" style="max-width: 320px;">
             <template x-for="alert in $store.app.alerts" :key="alert.id">
-                <div x-show="alert.show" x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform translate-x-full"
-                    x-transition:enter-end="opacity-100 transform translate-x-0"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 transform translate-x-0"
-                    x-transition:leave-end="opacity-0 transform translate-x-full"
+                <div x-show="alert.show"
                     class="alert-container p-4 rounded-xl shadow-lg max-w-sm glass-effect"
                     :class="{
                         'border-green-300 text-green-800': alert.type === 'success',
@@ -126,7 +120,7 @@
                             <p class="text-sm font-medium" x-text="alert.message"></p>
                         </div>
                         <button @click="$store.app.removeAlert(alert.id)"
-                            class="ml-4 inline-flex text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            class="ml-4 inline-flex text-gray-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12"></path>
@@ -140,7 +134,7 @@
         <!-- Form Container -->
         <div class="w-full sm:max-w-md animate-fade-in" style="animation-delay: 0.3s;">
             <div
-                class="glass-effect shadow-2xl rounded-2xl overflow-hidden border-white/20 hover:shadow-3xl transition-all duration-300 hover:scale-[1.02]">
+                class="glass-effect shadow-2xl rounded-2xl overflow-hidden border-white/20">
                 <div class="px-8 py-8">
                     {{ $slot }}
                 </div>
