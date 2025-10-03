@@ -6,18 +6,20 @@
 
     <!-- Logo Section -->
     <div class="text-center mb-8 animate-fade-in">
-        <a href="/" class="inline-flex flex-col items-center space-y-3 group">
+        <a href="/" class="inline-flex flex-col items-center space-y-3">
             <div class="relative">
                 <!-- Main Logo Container -->
-                <div class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30 group-hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                <div
+                    class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30">
                     <x-application-logo class="w-16 h-16 text-white drop-shadow-lg" />
                 </div>
                 <!-- Decorative Elements -->
                 <div class="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full animate-pulse"></div>
-                <div class="absolute -bottom-1 -left-1 w-3 h-3 bg-orange-400 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+                <div class="absolute -bottom-1 -left-1 w-3 h-3 bg-orange-400 rounded-full animate-pulse"
+                    style="animation-delay: 0.5s;"></div>
             </div>
             <div class="text-center">
-                <h1 class="text-2xl font-bold text-black drop-shadow-lg group-hover:text-yellow-900 transition-colors duration-300">{{ config('app.name', 'EventFlow') }}</h1>
+                <h1 class="text-2xl font-bold text-black drop-shadow-lg">{{ config('app.name', 'EventFlow') }}</h1>
                 <p class="text-black/80 text-sm font-medium">Sistem Manajemen Event</p>
             </div>
         </a>
@@ -47,7 +49,7 @@
                 <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
                     autocomplete="username"
                     class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                    placeholder="nama@email.com" @focus="clearError('email')" x-transition:focus>
+                    placeholder="nama@email.com" @focus="clearError('email')">
             </div>
             @if ($errors->get('email'))
                 <div class="mt-2">
@@ -71,7 +73,7 @@
             </label>
             <div class="relative" x-data="{ showPassword: false }">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 transition-colors duration-200" fill="none"
+                    <svg class="w-5 h-5 text-gray-400" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
@@ -83,7 +85,7 @@
                     class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     placeholder="Masukkan password Anda" @focus="clearError('password')">
                 <button type="button" @click="showPassword = !showPassword"
-                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400">
                     <svg x-show="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -117,16 +119,16 @@
 
         <!-- Remember Me -->
         <div class="flex items-center justify-between">
-            <label for="remember_me" class="flex items-center group cursor-pointer">
+            <label for="remember_me" class="flex items-center cursor-pointer">
                 <input id="remember_me" type="checkbox" name="remember"
                     class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-                <span class="ml-2 text-sm text-gray-700 group-hover:text-gray-900">Ingat
+                <span class="ml-2 text-sm text-gray-700">Ingat
                     saya</span>
             </label>
 
             @if (Route::has('password.request'))
                 <a href="{{ route('password.request') }}"
-                    class="text-sm text-yellow-600 hover:text-yellow-700 font-medium transition-all duration-200 hover:underline btn-animate">
+                    class="text-sm text-yellow-600 font-medium">
                     Lupa password?
                 </a>
             @endif
@@ -134,7 +136,7 @@
 
         <!-- Login Button -->
         <button type="submit" :disabled="loading" :class="loading ? 'opacity-75 cursor-not-allowed' : ''"
-            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-yellow-500 to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
             <svg x-show="!loading" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
@@ -155,7 +157,7 @@
         <div class="text-center pt-4 border-t border-gray-200">
             <p class="text-sm text-gray-600">
                 Belum punya akun?
-                <a href="{{ route('register') }}" class="font-medium text-yellow-600 hover:text-yellow-700">
+                <a href="{{ route('register') }}" class="font-medium text-yellow-600">
                     Daftar sekarang
                 </a>
             </p>

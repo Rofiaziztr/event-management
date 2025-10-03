@@ -86,7 +86,8 @@
                             <button onclick="dismissAlert('presensi-alert')"
                                 class="ml-2 text-yellow-600 hover:text-yellow-800 flex-shrink-0">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
@@ -188,9 +189,12 @@
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span></div>
+                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span>
+                                    </div>
                                     <p class="text-sm font-semibold text-green-700 pl-6">
-                                        ✓ Sudah check-in pada {{ \Carbon\Carbon::parse($attendance->check_in_time)->format('d M Y, H:i') }} WIB
+                                        ✓ Sudah check-in pada
+                                        {{ \Carbon\Carbon::parse($attendance->check_in_time)->format('d M Y, H:i') }}
+                                        WIB
                                     </p>
                                 </div>
                             @elseif($dynamicStatus === 'Selesai')
@@ -200,7 +204,8 @@
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
-                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span></div>
+                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span>
+                                    </div>
                                     <p class="text-sm font-semibold text-red-700 pl-6">
                                         ✗ Tidak hadir
                                     </p>
@@ -212,7 +217,8 @@
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span></div>
+                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span>
+                                    </div>
                                     <p class="text-sm font-semibold text-blue-700 pl-6">
                                         Belum dimulai
                                     </p>
@@ -224,7 +230,8 @@
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span></div>
+                                        </svg><span class="text-sm font-medium text-gray-500">Status Kehadiran</span>
+                                    </div>
                                     <p class="text-sm font-semibold text-orange-700 pl-6">
                                         Belum check-in
                                     </p>
