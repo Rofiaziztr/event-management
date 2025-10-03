@@ -132,7 +132,7 @@
         </div>
 
         <!-- Form Container -->
-        <div class="w-full sm:max-w-md animate-fade-in" style="animation-delay: 0.3s;">
+        <div class="w-full sm:max-w-lg animate-fade-in" style="animation-delay: 0.3s;">
             <div
                 class="glass-effect shadow-2xl rounded-2xl overflow-hidden border-white/20">
                 <div class="px-8 py-8">
