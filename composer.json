@@ -17,6 +17,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
         "mkocansey/bladewind": "^3.1",
+        "spatie/laravel-google-calendar": "^3.8",
         "symfony/brevo-mailer": "^7.3",
         "symfony/http-client": "^7.3"
     },

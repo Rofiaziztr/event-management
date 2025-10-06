@@ -10,9 +10,11 @@ use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
 use App\Exports\EventReportExport; // <-- IMPORT KELAS BARU
 use App\Http\Controllers\Controller;
-use Endroid\QrCode\Writer\PngWriter;
+use App\Services\Calendar\GoogleCalendarSyncService;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
@@ -81,8 +83,8 @@ class EventController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $event = new Event($validated);
-        $event->creator_id = auth()->id();
+    $event = new Event($validated);
+    $event->creator_id = Auth::id();
         $event->save();
 
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
@@ -133,6 +135,39 @@ class EventController extends Controller
     {
         $event->delete();
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus.');
+    }
+
+    public function syncCalendar(Request $request, Event $event, GoogleCalendarSyncService $calendarSync)
+    {
+        $action = $request->validate([
+            'action' => 'required|string|in:sync,delete',
+        ])['action'];
+
+        if ($action === 'delete') {
+            $deleted = $calendarSync->delete($event);
+            $event->refresh();
+
+            if ($deleted && $event->google_calendar_sync_status === 'deleted') {
+                return back()->with('success', 'Event Google Calendar berhasil dihapus.');
+            }
+
+            $message = $event->google_calendar_last_error
+                ?: 'Gagal menghapus event dari Google Calendar. Periksa kredensial dan coba lagi.';
+
+            return back()->with('error', $message);
+        }
+
+        $synced = $calendarSync->sync($event);
+        $event->refresh();
+
+        if ($synced && $event->google_calendar_sync_status === 'synced') {
+            return back()->with('success', 'Event berhasil disinkronkan ke Google Calendar.');
+        }
+
+        $message = $event->google_calendar_last_error
+            ?: 'Sinkronisasi Google Calendar gagal. Silakan coba lagi atau cek konfigurasi.';
+
+        return back()->with('error', $message);
     }
 
     public function showQrCode(Event $event)

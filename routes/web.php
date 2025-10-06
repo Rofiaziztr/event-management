@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
         // Manajemen event
         Route::resource('events', EventController::class);
         Route::get('events/{event}/qrcode', [EventController::class, 'showQrCode'])->name('events.qrcode');
+    Route::post('events/{event}/calendar/sync', [EventController::class, 'syncCalendar'])->name('events.calendar.sync');
         // Rute Ekspor Baru yang Terpusat
         Route::get('events/{event}/export', [EventController::class, 'export'])->name('events.export');
 

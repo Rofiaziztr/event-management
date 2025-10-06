@@ -27,6 +27,12 @@ class Event extends Model
         'status',
         'code',
         'category_id',
+        'google_calendar_event_id',
+        'google_calendar_link',
+        'google_conference_link',
+        'google_calendar_synced_at',
+        'google_calendar_sync_status',
+        'google_calendar_last_error',
     ];
 
     /**
@@ -53,6 +59,7 @@ class Event extends Model
             'end_time' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'google_calendar_synced_at' => 'datetime',
         ];
     }
 
@@ -179,5 +186,29 @@ class Event extends Model
     {
         $now = now();
         return $now >= $this->start_time && $now <= $this->end_time;
+    }
+
+    public function getGoogleCalendarSyncStatusLabelAttribute(): string
+    {
+        return match ($this->google_calendar_sync_status) {
+            'synced' => 'Sinkron',
+            'deleted' => 'Dihapus',
+            'missing' => 'Tidak Ditemukan',
+            'failed' => 'Gagal Sinkron',
+            'disabled' => 'Dinonaktifkan',
+            default => 'Belum Pernah Sinkron',
+        };
+    }
+
+    public function getGoogleCalendarSyncBadgeColorAttribute(): string
+    {
+        return match ($this->google_calendar_sync_status) {
+            'synced' => 'bg-green-100 text-green-800',
+            'deleted' => 'bg-gray-100 text-gray-800',
+            'missing' => 'bg-yellow-100 text-yellow-800',
+            'failed' => 'bg-red-100 text-red-800',
+            'disabled' => 'bg-slate-100 text-slate-800',
+            default => 'bg-blue-100 text-blue-800',
+        };
     }
 }
