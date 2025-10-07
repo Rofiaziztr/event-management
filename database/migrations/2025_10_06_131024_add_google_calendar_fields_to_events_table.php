@@ -12,12 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->string('google_calendar_event_id')->nullable()->index();
-            $table->string('google_calendar_link')->nullable();
-            $table->string('google_conference_link')->nullable();
-            $table->timestamp('google_calendar_synced_at')->nullable();
-            $table->string('google_calendar_sync_status')->default('never');
-            $table->text('google_calendar_last_error')->nullable();
+            //
         });
     }
 
@@ -27,14 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->dropColumn([
-                'google_calendar_event_id',
-                'google_calendar_link',
-                'google_conference_link',
-                'google_calendar_synced_at',
-                'google_calendar_sync_status',
-                'google_calendar_last_error',
-            ]);
+            //
         });
     }
 };

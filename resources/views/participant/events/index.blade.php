@@ -176,32 +176,45 @@
             </div>
             <div class="bg-white shadow-xl border border-yellow-200 border-t-0 overflow-hidden">
                 <form method="GET" action="{{ route('participant.events.index') }}" class="p-6 space-y-4">
-                    <!-- Baris 1: Cari Nama Event (full width) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="lg:col-span-2 md:col-span-2">
                             <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Nama
                                 Event</label>
                             <input type="text" name="search" id="search" placeholder="Masukkan nama event..."
                                 value="{{ request('search') }}"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500" />
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
-                    </div>
-                    <!-- Baris 2: Kategori, Dari Tanggal, Sampai Tanggal (sejajar) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="lg:col-span-1 md:col-span-1">
+                        <div>
                             <label for="category_id"
                                 class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                            <select id="category_id" name="category_id"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
+                            <select name="category_id" id="category_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>
+                                    <option value="{{ $category->id }}"
+                                        {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
-
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select name="status" id="status"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                <option value="">Semua Status</option>
+                                <option value="Terjadwal" {{ request('status') == 'Terjadwal' ? 'selected' : '' }}>
+                                    Terjadwal</option>
+                                <option value="Berlangsung"
+                                    {{ request('status') == 'Berlangsung' ? 'selected' : '' }}>Berlangsung</option>
+                                <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai
+                                </option>
+                                <option value="Dibatalkan" {{ request('status') == 'Dibatalkan' ? 'selected' : '' }}>
+                                    Dibatalkan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="lg:col-span-1 md:col-span-1">
                             <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Dari
                                 Tanggal</label>
@@ -216,11 +229,8 @@
                                 placeholder="Pilih Tanggal" />
                         </div>
                     </div>
-
-                    <!-- Tombol Aksi -->
-                    <div class="mt-4 flex items-center justify-end space-x-2">
-                        <button type="button"
-                            onclick="window.location.href='{{ route('participant.events.index') }}'"
+                    <div class="flex items-center justify-end space-x-2">
+                        <button type="button" onclick="window.location.href='{{ route('participant.events.index') }}'"
                             class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-xl font-medium text-white hover:bg-gray-600">
                             <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">

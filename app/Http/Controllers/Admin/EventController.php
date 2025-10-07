@@ -10,11 +10,9 @@ use Endroid\QrCode\QrCode;
 use Illuminate\Http\Request;
 use App\Exports\EventReportExport; // <-- IMPORT KELAS BARU
 use App\Http\Controllers\Controller;
-use App\Services\Calendar\GoogleCalendarSyncService;
+use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Writer\PngWriter;
-use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
@@ -83,8 +81,8 @@ class EventController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-    $event = new Event($validated);
-    $event->creator_id = Auth::id();
+        $event = new Event($validated);
+        $event->creator_id = auth()->id();
         $event->save();
 
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
@@ -137,39 +135,6 @@ class EventController extends Controller
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus.');
     }
 
-    public function syncCalendar(Request $request, Event $event, GoogleCalendarSyncService $calendarSync)
-    {
-        $action = $request->validate([
-            'action' => 'required|string|in:sync,delete',
-        ])['action'];
-
-        if ($action === 'delete') {
-            $deleted = $calendarSync->delete($event);
-            $event->refresh();
-
-            if ($deleted && $event->google_calendar_sync_status === 'deleted') {
-                return back()->with('success', 'Event Google Calendar berhasil dihapus.');
-            }
-
-            $message = $event->google_calendar_last_error
-                ?: 'Gagal menghapus event dari Google Calendar. Periksa kredensial dan coba lagi.';
-
-            return back()->with('error', $message);
-        }
-
-        $synced = $calendarSync->sync($event);
-        $event->refresh();
-
-        if ($synced && $event->google_calendar_sync_status === 'synced') {
-            return back()->with('success', 'Event berhasil disinkronkan ke Google Calendar.');
-        }
-
-        $message = $event->google_calendar_last_error
-            ?: 'Sinkronisasi Google Calendar gagal. Silakan coba lagi atau cek konfigurasi.';
-
-        return back()->with('error', $message);
-    }
-
     public function showQrCode(Event $event)
     {
         $event->load('participants', 'attendances');
@@ -199,5 +164,76 @@ class EventController extends Controller
     {
         $fileName = 'Laporan Event - ' . Str::slug($event->title) . '.xlsx';
         return (new EventReportExport($event))->download($fileName);
+    }
+
+    /**
+     * Manual sync event to all participants' Google Calendars
+     */
+    public function syncCalendar(Event $event)
+    {
+        try {
+            $participants = $event->participants;
+            $totalParticipants = $participants->count();
+
+            \Illuminate\Support\Facades\Log::info('Admin manual calendar sync started', [
+                'event_id' => $event->id,
+                'admin_id' => \Illuminate\Support\Facades\Auth::id(),
+                'participant_count' => $totalParticipants
+            ]);
+
+            if ($totalParticipants === 0) {
+                $message = 'Tidak ada peserta yang terdaftar untuk event ini.';
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $message, 'type' => 'warning']);
+                }
+                return redirect()->back()->with('warning', $message);
+            }
+
+            // Get participants with Google Calendar access
+            $connectedParticipants = $participants->filter(function ($user) {
+                return $user->hasGoogleCalendarAccess();
+            });
+
+            if ($connectedParticipants->isEmpty()) {
+                $message = "Tidak ada peserta yang menghubungkan Google Calendar mereka. Dari {$totalParticipants} peserta, 0 memiliki akses Google Calendar.";
+                if (request()->ajax() || request()->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $message, 'type' => 'warning']);
+                }
+                return redirect()->back()->with('warning', $message);
+            }
+
+            // Dispatch background job for sync
+            \App\Jobs\SyncCalendarJob::dispatch($event, $connectedParticipants->toArray(), 'bulk');
+
+            $message = "Sinkronisasi calendar sedang diproses di background untuk {$connectedParticipants->count()} peserta yang terhubung. Anda akan menerima notifikasi saat selesai.";
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'type' => 'info',
+                    'stats' => [
+                        'total_participants' => $totalParticipants,
+                        'connected_participants' => $connectedParticipants->count(),
+                        'queued_for_sync' => $connectedParticipants->count()
+                    ]
+                ]);
+            }
+
+            return redirect()->back()->with('info', $message);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Manual calendar sync failed', [
+                'event_id' => $event->id,
+                'admin_id' => \Illuminate\Support\Facades\Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            $message = 'Terjadi error saat menyinkronkan: ' . $e->getMessage();
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message, 'type' => 'error']);
+            }
+            return redirect()->back()->with('error', $message);
+        }
     }
 }

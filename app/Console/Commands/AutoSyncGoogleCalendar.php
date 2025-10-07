@@ -4,14 +4,14 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class SyncGoogleCalendarEvents extends Command
+class AutoSyncGoogleCalendar extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:sync-google-calendar-events';
+    protected $signature = 'app:auto-sync-google-calendar';
 
     /**
      * The console command description.

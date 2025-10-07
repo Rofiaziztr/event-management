@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\ParticipantController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
-use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\GoogleCalendarAuthController;
 
 // Rute dasar
 Route::get('/', [WelcomeController::class, 'index']);
@@ -50,9 +50,10 @@ Route::middleware(['auth'])->group(function () {
         // Manajemen event
         Route::resource('events', EventController::class);
         Route::get('events/{event}/qrcode', [EventController::class, 'showQrCode'])->name('events.qrcode');
-    Route::post('events/{event}/calendar/sync', [EventController::class, 'syncCalendar'])->name('events.calendar.sync');
         // Rute Ekspor Baru yang Terpusat
         Route::get('events/{event}/export', [EventController::class, 'export'])->name('events.export');
+        // Manual calendar sync
+        Route::post('events/{event}/sync-calendar', [EventController::class, 'syncCalendar'])->name('events.sync-calendar');
 
 
         // Manajemen peserta
@@ -68,6 +69,8 @@ Route::middleware(['auth'])->group(function () {
             // Route::get('/export-filtered', 'exportFiltered')->name('export-filtered');
             Route::post('/{user}/manual', 'manualAttendance')->name('manual');
             Route::post('/bulk-attendance', 'bulkAttendance')->name('bulk-attendance');
+            // Individual calendar sync
+            Route::post('/{user}/sync-calendar', 'syncIndividualCalendar')->name('sync-calendar');
         });
 
         // General participant routes
@@ -97,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
         Route::controller(ParticipantEventController::class)->prefix('events')->name('events.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{event}', 'show')->name('show');
+            Route::post('/sync-calendar', 'syncCalendar')->name('sync-calendar');
         });
     });
 
@@ -104,6 +108,14 @@ Route::middleware(['auth'])->group(function () {
     Route::controller(ScanController::class)->middleware('role:participant')->group(function () {
         Route::get('/scan', 'index')->name('scan.index');
         Route::post('/scan', 'verify')->name('scan.verify');
+    });
+
+    // Google Calendar routes for participants
+    Route::middleware(['auth', 'role:participant'])->group(function () {
+        Route::get('/google-calendar/auth', [GoogleCalendarAuthController::class, 'redirectToGoogle'])->name('google-calendar.auth');
+        Route::get('/google-calendar/callback', [GoogleCalendarAuthController::class, 'handleGoogleCallback'])->name('google-calendar.callback');
+        Route::post('/google-calendar/revoke', [GoogleCalendarAuthController::class, 'revokeAccess'])->name('google-calendar.revoke');
+        Route::get('/google-calendar/status', [GoogleCalendarAuthController::class, 'status'])->name('google-calendar.status');
     });
 });
 

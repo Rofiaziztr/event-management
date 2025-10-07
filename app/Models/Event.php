@@ -27,12 +27,6 @@ class Event extends Model
         'status',
         'code',
         'category_id',
-        'google_calendar_event_id',
-        'google_calendar_link',
-        'google_conference_link',
-        'google_calendar_synced_at',
-        'google_calendar_sync_status',
-        'google_calendar_last_error',
     ];
 
     /**
@@ -59,7 +53,6 @@ class Event extends Model
             'end_time' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
-            'google_calendar_synced_at' => 'datetime',
         ];
     }
 
@@ -188,27 +181,34 @@ class Event extends Model
         return $now >= $this->start_time && $now <= $this->end_time;
     }
 
-    public function getGoogleCalendarSyncStatusLabelAttribute(): string
+    /**
+     * Check if event is synced to user's Google Calendar
+     */
+    public function isSyncedToUserCalendar(User $user)
     {
-        return match ($this->google_calendar_sync_status) {
-            'synced' => 'Sinkron',
-            'deleted' => 'Dihapus',
-            'missing' => 'Tidak Ditemukan',
-            'failed' => 'Gagal Sinkron',
-            'disabled' => 'Dinonaktifkan',
-            default => 'Belum Pernah Sinkron',
-        };
+        return EventCalendarSync::where('event_id', $this->id)
+            ->where('user_id', $user->id)
+            ->whereNotNull('google_event_id')
+            ->exists();
     }
 
-    public function getGoogleCalendarSyncBadgeColorAttribute(): string
+    /**
+     * Get sync status for user
+     */
+    public function getCalendarSyncStatus(User $user)
     {
-        return match ($this->google_calendar_sync_status) {
-            'synced' => 'bg-green-100 text-green-800',
-            'deleted' => 'bg-gray-100 text-gray-800',
-            'missing' => 'bg-yellow-100 text-yellow-800',
-            'failed' => 'bg-red-100 text-red-800',
-            'disabled' => 'bg-slate-100 text-slate-800',
-            default => 'bg-blue-100 text-blue-800',
-        };
+        $sync = EventCalendarSync::where('event_id', $this->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$sync) {
+            return 'not_synced';
+        }
+
+        if ($sync->google_event_id) {
+            return 'synced';
+        }
+
+        return 'failed';
     }
 }

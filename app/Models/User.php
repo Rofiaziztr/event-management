@@ -26,6 +26,10 @@ class User extends Authenticatable
         'institution',
         'phone_number',
         'google_id',
+        'google_access_token',
+        'google_refresh_token',
+        'google_token_expires_at',
+        'google_calendar_id',
     ];
 
     /**
@@ -48,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'google_token_expires_at' => 'datetime',
         ];
     }
 
@@ -78,8 +83,35 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function getIsActiveAttribute(): bool
+    public function hasGoogleCalendarAccess()
     {
-        return $this->participatedEvents()->exists() || $this->attendances()->exists();
+        return !empty($this->google_access_token) && !$this->isGoogleTokenExpired();
+    }
+
+    public function isEventSyncedToCalendar(Event $event)
+    {
+        return $this->eventCalendarSyncs()
+            ->where('event_id', $event->id)
+            ->where('sync_status', 'synced')
+            ->exists();
+    }
+
+    public function eventCalendarSyncs()
+    {
+        return $this->hasMany(EventCalendarSync::class);
+    }
+
+    public function isGoogleTokenExpired()
+    {
+        return $this->google_token_expires_at && $this->google_token_expires_at->isPast();
+    }
+
+    public function getGoogleAccessToken()
+    {
+        if ($this->isGoogleTokenExpired() && $this->google_refresh_token) {
+            // Token refresh logic will be handled in service
+            return null;
+        }
+        return $this->google_access_token;
     }
 }

@@ -44,7 +44,7 @@ class EventController extends Controller
         return view('participant.events.index', compact('events', 'attendedEventIds', 'categories'));
     }
 
-        public function show(Event $event)
+    public function show(Event $event)
     {
         // Pastikan user adalah peserta event ini
         if (!auth()->user()->participatedEvents()->where('event_id', $event->id)->exists()) {
@@ -53,10 +53,85 @@ class EventController extends Controller
 
         // Muat semua relasi yang dibutuhkan oleh view
         $event->load('creator', 'category', 'documents');
-        
+
         // Ambil data kehadiran user saat ini untuk event ini
         $attendance = $event->attendances()->where('user_id', auth()->id())->first();
-        
+
         return view('participant.events.show', compact('event', 'attendance'));
+    }
+
+    /**
+     * Manual sync user's events to Google Calendar
+     */
+    public function syncCalendar()
+    {
+        try {
+            $user = Auth::user();
+
+            $participatedEvents = $user->participatedEvents;
+            $totalEvents = $participatedEvents->count();
+
+            \Illuminate\Support\Facades\Log::info('Participant manual calendar sync started', [
+                'user_id' => $user->id,
+                'event_count' => $totalEvents
+            ]);
+
+            if ($totalEvents === 0) {
+                return redirect()->back()->with('warning', 'Anda belum terdaftar sebagai peserta di event manapun.');
+            }
+
+            $calendarService = app(\App\Services\GoogleCalendarService::class);
+
+            // Sync all events that user participates in
+            $successCount = 0;
+            $failedCount = 0;
+            $syncDetails = [];
+
+            foreach ($participatedEvents as $event) {
+                try {
+                    $result = $calendarService->syncEventToUserCalendar($event, $user);
+                    if ($result) {
+                        $successCount++;
+                        $syncDetails[] = "✓ {$event->title}";
+                    } else {
+                        $failedCount++;
+                        $syncDetails[] = "✗ {$event->title} (gagal)";
+                    }
+                } catch (\Exception $eventException) {
+                    $failedCount++;
+                    $syncDetails[] = "✗ {$event->title} (error: {$eventException->getMessage()})";
+                    \Illuminate\Support\Facades\Log::warning('Event sync failed in batch', [
+                        'user_id' => $user->id,
+                        'event_id' => $event->id,
+                        'error' => $eventException->getMessage()
+                    ]);
+                }
+            }
+
+            \Illuminate\Support\Facades\Log::info('Participant manual calendar sync completed', [
+                'user_id' => $user->id,
+                'total_events' => $totalEvents,
+                'successful_syncs' => $successCount,
+                'failed_syncs' => $failedCount
+            ]);
+
+            if ($successCount > 0) {
+                $message = "Berhasil mensinkronkan {$successCount} dari {$totalEvents} event ke Google Calendar Anda.";
+                if ($failedCount > 0) {
+                    $message .= " {$failedCount} event gagal disinkronkan.";
+                }
+                return redirect()->back()->with('success', $message);
+            } else {
+                return redirect()->back()->with('error', "Gagal menyinkronkan semua {$totalEvents} event ke Google Calendar. Pastikan koneksi Google Calendar Anda masih aktif dan coba lagi.");
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Participant manual calendar sync failed', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Terjadi error saat menyinkronkan: ' . $e->getMessage());
+        }
     }
 }

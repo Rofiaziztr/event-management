@@ -98,6 +98,9 @@ class DashboardController extends Controller
             ? round((($attendancesThisMonth - $attendancesLastMonth) / $attendancesLastMonth) * 100, 1)
             : ($attendancesThisMonth > 0 ? 100 : 0);
 
+        // Google Calendar Sync Statistics
+        $calendarSyncStats = $this->getCalendarSyncStats();
+
         return view('admin.dashboard.index', compact(
             'totalEvents',
             'totalParticipants',
@@ -117,9 +120,61 @@ class DashboardController extends Controller
             'eventStatusData',
             'eventGrowth',
             'attendanceGrowth',
+            'calendarSyncStats',
             'period',
             'categoryPeriod'
         ));
+    }
+
+    private function getCalendarSyncStats()
+    {
+        // Total participants
+        $totalParticipants = User::where('role', 'participant')->count();
+
+        // Participants with Google Calendar access
+        $connectedParticipants = User::where('role', 'participant')
+            ->whereNotNull('google_access_token')
+            ->where(function ($query) {
+                $query->whereNull('google_token_expires_at')
+                    ->orWhere('google_token_expires_at', '>', now());
+            })
+            ->count();
+
+        // Total events with sync records
+        $totalSyncedEvents = \App\Models\EventCalendarSync::distinct('event_id')->count('event_id');
+
+        // Successful syncs this month
+        $successfulSyncsThisMonth = \App\Models\EventCalendarSync::where('sync_status', 'synced')
+            ->where('synced_at', '>=', now()->startOfMonth())
+            ->count();
+
+        // Failed syncs this month
+        $failedSyncsThisMonth = \App\Models\EventCalendarSync::where('sync_status', 'failed')
+            ->where('last_sync_attempt', '>=', now()->startOfMonth())
+            ->count();
+
+        // Recent sync activity (last 7 days)
+        $recentSyncActivity = \App\Models\EventCalendarSync::where('last_sync_attempt', '>=', now()->subDays(7))
+            ->selectRaw('DATE(last_sync_attempt) as date, COUNT(*) as attempts, SUM(CASE WHEN sync_status = "synced" THEN 1 ELSE 0 END) as successes')
+            ->groupBy('date')
+            ->orderBy('date', 'desc')
+            ->get()
+            ->keyBy('date');
+
+        // Calculate adoption rate
+        $adoptionRate = $totalParticipants > 0
+            ? round(($connectedParticipants / $totalParticipants) * 100, 1)
+            : 0;
+
+        return [
+            'total_participants' => $totalParticipants,
+            'connected_participants' => $connectedParticipants,
+            'adoption_rate' => $adoptionRate,
+            'total_synced_events' => $totalSyncedEvents,
+            'successful_syncs_this_month' => $successfulSyncsThisMonth,
+            'failed_syncs_this_month' => $failedSyncsThisMonth,
+            'recent_activity' => $recentSyncActivity
+        ];
     }
 
     private function getCategoryAttendanceStats($period)

@@ -1,6 +1,68 @@
 # 🚀 Google OAuth Setup Guide - UPDATED
 
-## ❌ Error "Missing required parameter: client_id" - SOLVED!
+## ❌ Error "Missing required paramet### **Step 7: Test Login**
+
+1. Jalankan aplikasi: `php artisan serve`
+2. Buka `http://localhost:8000/login`
+3. Klik **"Masuk dengan Google"**
+4. Pilih akun Google → **"Continue"**
+5. Akan redirect kembali dan login otomatis! ✅
+
+---
+
+## 🔗 Google Calendar Integration Setup
+
+### **Per-User Calendar Authorization**
+
+Sistem ini mendukung sinkronisasi event ke Google Calendar masing-masing peserta. Setiap peserta dapat menghubungkan calendar mereka sendiri.
+
+#### **Step 1: Setup untuk Peserta**
+
+1. Login sebagai peserta
+2. Buka Dashboard Peserta (`/participant/dashboard`)
+3. Cari section **"Google Calendar Integration"**
+4. Klik **"Hubungkan Calendar"**
+5. Berikan izin akses ke Google Calendar
+6. Event akan otomatis muncul di calendar peserta
+
+#### **Step 2: Verifikasi Sinkronisasi**
+
+1. Buat event baru sebagai admin
+2. Event akan otomatis sync ke calendar semua peserta yang sudah authorize
+3. Peserta dapat melihat event di Google Calendar mereka
+
+#### **Step 3: Sync Existing Events**
+
+Jika ada event yang sudah ada sebelum setup calendar:
+
+```bash
+# Sync untuk semua users
+php artisan app:sync-existing-events-to-calendars
+
+# Sync untuk user tertentu
+php artisan app:sync-existing-events-to-calendars --user=123
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### **Error: redirect_uri_mismatch**
+
+-   Pastikan `GOOGLE_REDIRECT_URI` di `.env` SAMA PERSIS dengan yang didaftarkan di Google Console
+-   Pastikan menggunakan `http://localhost:8000` (bukan `http://127.0.0.1:8000`)
+
+### **Error: invalid_client**
+
+-   Pastikan `GOOGLE_CLIENT_ID` benar
+-   Pastikan `GOOGLE_CLIENT_SECRET` benar
+
+### **Calendar Tidak Sync**
+
+-   Pastikan user sudah authorize calendar access
+-   Cek log file untuk error messages
+-   Pastikan Google Calendar API enabled di Google Console
+-   Verifikasi scopes: `https://www.googleapis.com/auth/calendar.events`ent_id" - SOLVED!
 
 Error ini terjadi karena `GOOGLE_CLIENT_ID` belum dikonfigurasi di file `.env`. Ikuti panduan lengkap di bawah ini.
 
@@ -40,13 +102,19 @@ Error ini terjadi karena `GOOGLE_CLIENT_ID` belum dikonfigurasi di file `.env`. 
     - Application type: **"Web application"**
     - Name: **"Event Management Web App"**
 
-5. **Authorized redirect URIs** - Tambahkan:
+5. **Authorized redirect URIs** - Tambahkan untuk login OAuth:
 
     ```
     http://localhost:8000/auth/google/callback
     ```
 
-    ⚠️ **PENTING**: Pastikan URL sesuai dengan `APP_URL` di `.env` (saat ini `http://localhost:8000`)
+    **DAN** untuk Google Calendar OAuth:
+
+    ```
+    http://localhost:8000/google-calendar/callback
+    ```
+
+    ⚠️ **PENTING**: Pastikan KEDUA redirect URI didaftarkan di Google Console
 
 6. Klik **"Create"**
 

@@ -39,9 +39,9 @@ class CheckRole
             ]);
             // Redirect berdasarkan role user
             if (Auth::user()->role === 'admin') {
-                return redirect()->route('admin.events.index')->with('error', 'Akses ditolak. Hanya peserta yang diizinkan.');
+                return redirect()->route('admin.events.index')->with('error', 'Akses ditolak. Halaman ini hanya untuk peserta.');
             }
-            return redirect()->route('participant.events.index')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk fitur ini.');
+            return redirect()->route('participant.dashboard')->with('error', 'Akses ditolak. Halaman ini hanya untuk admin.');
         }
 
         Log::info('CheckRole middleware: Access granted', [

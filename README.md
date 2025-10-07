@@ -15,7 +15,6 @@ Sistem Manajemen Event adalah platform komprehensif yang memungkinkan administra
     -   Mengatur jadwal dan lokasi dengan Flatpickr
     -   Mengelola kategori event
     -   Generate QR Code otomatis untuk setiap event
-    -   Sinkronisasi otomatis dengan Google Calendar
     -   Visualisasi data menggunakan Chart.js
 -   Manajemen Peserta
     -   Mengundang peserta internal dan eksternal via email
@@ -49,7 +48,6 @@ Sistem Manajemen Event adalah platform komprehensif yang memungkinkan administra
     -   Maatwebsite Excel untuk export data
     -   Laravel Mail untuk notifikasi
     -   Endroid QR Code untuk generate QR Code
-    -   Spatie Laravel Google Calendar untuk integrasi kalender
     -   Flatpickr untuk date/time picker
     -   Pest PHP untuk testing
 
@@ -106,37 +104,6 @@ Jalankan test suite dengan perintah:
 ```bash
 php artisan test
 ```
-
-## Integrasi Google Calendar
-
-Integrasi kalender diaktifkan menggunakan package `spatie/laravel-google-calendar`. Ikuti langkah berikut agar sinkronisasi berjalan mulus:
-
-1. **Aktifkan Google Calendar API** dan buat Service Account dari Google Cloud Console. Berikan akses "Editor" ke kalender target melalui alamat email Service Account.
-2. **Unduh file kredensial JSON** dan simpan di `storage/app/google-calendar/service-account-credentials.json` (atau sesuaikan lewat variabel `GOOGLE_CALENDAR_CREDENTIALS_JSON`).
-3. **Konfigurasi environment** dengan variabel berikut:
-
-    ```env
-    GOOGLE_CALENDAR_SYNC_ENABLED=true
-    GOOGLE_CALENDAR_ID=primary_or_calendar_id
-    GOOGLE_CALENDAR_CREDENTIALS_JSON="storage/app/google-calendar/service-account-credentials.json"
-    GOOGLE_CALENDAR_SEND_UPDATES=all
-    GOOGLE_CALENDAR_TIMEZONE=Asia/Jakarta
-    ```
-
-    Opsional: atur pengingat (`GOOGLE_CALENDAR_REMINDER_EMAIL_MINUTES`, `GOOGLE_CALENDAR_REMINDER_POPUP_MINUTES`) atau buat link Google Meet otomatis (`GOOGLE_CALENDAR_CREATE_CONFERENCE=true`).
-
-4. **Uji koneksi** dengan membuat sebuah event baru di dashboard admin. Event akan otomatis tersinkron ketika kredensial valid.
-5. **Sinkronisasi manual** tersedia melalui tombol pada halaman detail event atau lewat perintah artisan berikut:
-
-    ```bash
-    php artisan events:sync-google         # sinkron semua event
-    php artisan events:sync-google 123     # sinkron event id 123
-    php artisan events:sync-google EVT-001 --delete   # hapus dari Calendar
-    ```
-
-Gunakan log aplikasi atau tampilan detail event untuk memantau status sinkronisasi, tautan Google Calendar, dan catatan error.
-
-> Panduan langkah demi langkah tersedia di [`docs/google-calendar.md`](docs/google-calendar.md).
 
 ## Kontribusi
 

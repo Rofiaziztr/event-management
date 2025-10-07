@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Attendance;
+use App\Models\EventParticipant;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -173,7 +174,21 @@ class ParticipantController extends Controller
     public function destroy(Event $event, User $user)
     {
         Attendance::where('event_id', $event->id)->where('user_id', $user->id)->delete();
-        $event->participants()->detach($user->id);
+
+        // Delete EventParticipant record and manually trigger observer
+        $eventParticipant = EventParticipant::where('event_id', $event->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($eventParticipant) {
+            // Manually trigger observer deleted method
+            $observer = app(\App\Observers\EventParticipantObserver::class);
+            $observer->deleted($eventParticipant);
+
+            // Then delete the record
+            EventParticipant::where('event_id', $event->id)->where('user_id', $user->id)->delete();
+        }
+
         return back()->with('success', 'Peserta berhasil dihapus.');
     }
 
@@ -232,5 +247,45 @@ class ParticipantController extends Controller
         ]);
 
         return back()->with('success', 'Peserta berhasil dihadirkan secara manual.');
+    }
+
+    public function syncIndividualCalendar(Request $request, Event $event, User $user)
+    {
+        // Check if user is participant of this event
+        if (!$event->participants()->where('user_id', $user->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User bukan peserta event ini.'
+            ], 400);
+        }
+
+        // Check if user has Google Calendar access
+        if (!$user->hasGoogleCalendarAccess()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peserta belum menghubungkan Google Calendar.'
+            ], 400);
+        }
+
+        try {
+            // Dispatch background job for individual sync
+            \App\Jobs\SyncCalendarJob::dispatch($event, $user, 'individual');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sinkronisasi calendar untuk ' . $user->full_name . ' sedang diproses di background.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Individual calendar sync job dispatch failed', [
+                'event_id' => $event->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi error saat memulai sinkronisasi calendar'
+            ], 500);
+        }
     }
 }

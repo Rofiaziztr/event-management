@@ -215,6 +215,133 @@
                     </div>
                 </div>
 
+                {{-- Google Calendar Integration --}}
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">Google Calendar Integration</h3>
+                            <p class="text-gray-500 mt-1">Hubungkan akun Google Calendar Anda untuk mendapatkan
+                                notifikasi event otomatis</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            @if (auth()->user()->hasGoogleCalendarAccess())
+                                <div class="flex items-center space-x-2 text-green-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm font-medium">Terhubung</span>
+                                </div>
+                                <div x-data="{ isSyncing: false, syncStatus: null, syncMessage: '' }" class="inline">
+                                    @php
+                                        $hasSyncedEvents = \App\Models\EventCalendarSync::where(
+                                            'user_id',
+                                            auth()->id(),
+                                        )->exists();
+                                    @endphp
+                                    <form method="POST" action="{{ route('participant.events.sync-calendar') }}"
+                                        class="inline" @submit="isSyncing = true; syncStatus = null; syncMessage = ''"
+                                        x-bind:disabled="isSyncing">
+                                        @csrf
+                                        <button type="submit" x-bind:disabled="isSyncing"
+                                            class="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors flex items-center relative"
+                                            x-bind:class="{
+                                                'bg-green-600 hover:bg-green-700': !isSyncing &&
+                                                    syncStatus !== 'error',
+                                                'bg-red-600 hover:bg-red-700': syncStatus === 'error',
+                                                'bg-green-600': syncStatus === 'success',
+                                                'opacity-50 cursor-not-allowed': isSyncing
+                                            }">
+                                            <!-- Loading spinner -->
+                                            <svg x-show="isSyncing" x-cloak class="w-4 h-4 mr-2 animate-spin"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+
+                                            <!-- Success icon -->
+                                            <svg x-show="syncStatus === 'success' && !isSyncing" x-cloak
+                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+
+                                            <!-- Error icon -->
+                                            <svg x-show="syncStatus === 'error' && !isSyncing" x-cloak
+                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+
+                                            <!-- Default sync icon -->
+                                            <svg x-show="!isSyncing && syncStatus !== 'success' && syncStatus !== 'error'"
+                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+
+                                            <span
+                                                x-text="isSyncing ? 'Menyinkronkan...' : (syncStatus === 'success' ? 'Berhasil!' : (syncStatus === 'error' ? 'Gagal' : '{{ $hasSyncedEvents ? 'Sync Ulang' : 'Sync Events' }}'))"></span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Status message tooltip -->
+                                    <div x-show="syncMessage && !isSyncing" x-text="syncMessage" x-transition
+                                        class="absolute bottom-full mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 whitespace-nowrap max-w-xs">
+                                    </div>
+                                </div>
+                                <a href="{{ route('google-calendar.revoke') }}"
+                                    class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors inline-block">
+                                    Putuskan
+                                </a>
+                            @else
+                                <a href="{{ route('google-calendar.auth') }}"
+                                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M6.62 10.025c-.209 0-.405-.066-.585-.196a.774.774 0 01-.272-.504c0-.212.09-.39.272-.534a.973.973 0 01.585-.196c.211 0 .406.066.586.196a.774.774 0 01.272.504c0 .212-.09.39-.272.534a.973.973 0 01-.586.196z" />
+                                        <path
+                                            d="M10.616 10.025c-.209 0-.405-.066-.585-.196a.774.774 0 01-.272-.504c0-.212.09-.39.272-.534a.973.973 0 01.585-.196c.211 0 .406.066.586.196a.774.774 0 01.272.504c0 .212-.09.39-.272.534a.973.973 0 01-.586.196z" />
+                                        <path
+                                            d="M14.612 10.025c-.209 0-.405-.066-.585-.196a.774.774 0 01-.272-.504c0-.212.09-.39.272-.534a.973.973 0 01.585-.196c.211 0 .406.066.586.196a.774.774 0 01.272.504c0 .212-.09.39-.272.534a.973.973 0 01-.586.196z" />
+                                        <path fill-rule="evenodd"
+                                            d="M4 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm0 5v10h12V7H4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Hubungkan Calendar
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                    @if (!auth()->user()->hasGoogleCalendarAccess())
+                        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-blue-800">Manfaat menghubungkan Google
+                                        Calendar:</h4>
+                                    <ul class="mt-2 text-sm text-blue-700 list-disc list-inside space-y-1">
+                                        <li>Event akan otomatis muncul di calendar Anda</li>
+                                        <li>Notifikasi reminder sebelum event dimulai</li>
+                                        <li>Sinkronisasi dengan perangkat lain</li>
+                                        <li>Tidak perlu manual menandai di calendar</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
                 {{-- Upcoming Events List --}}
                 <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
                     <div class="p-6 border-b border-gray-100">
@@ -392,7 +519,37 @@
 
         @push('scripts')
             <script>
-                // No additional JavaScript needed - Alpine.js handles animations
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Check for sync status from session flash messages
+                    @if (session('success'))
+                        // If there's a success message containing sync info, show success status
+                        if (document.querySelector('[x-data*="isSyncing"]')) {
+                            const successMessage = "{{ session('success') }}";
+                            if (successMessage.includes('sinkronkan')) {
+                                // Set success status for sync button
+                                const syncContainer = document.querySelector('[x-data*="isSyncing"]');
+                                if (syncContainer && syncContainer._x_dataStack) {
+                                    syncContainer._x_dataStack[0].syncStatus = 'success';
+                                    syncContainer._x_dataStack[0].syncMessage = successMessage;
+                                }
+                            }
+                        }
+                    @endif
+
+                    @if (session('error'))
+                        // If there's an error message related to sync, show error status
+                        if (document.querySelector('[x-data*="isSyncing"]')) {
+                            const errorMessage = "{{ session('error') }}";
+                            if (errorMessage.includes('sinkronkan') || errorMessage.includes('Google Calendar')) {
+                                const syncContainer = document.querySelector('[x-data*="isSyncing"]');
+                                if (syncContainer && syncContainer._x_dataStack) {
+                                    syncContainer._x_dataStack[0].syncStatus = 'error';
+                                    syncContainer._x_dataStack[0].syncMessage = errorMessage;
+                                }
+                            }
+                        }
+                    @endif
+                });
             </script>
         @endpush
 </x-app-layout>

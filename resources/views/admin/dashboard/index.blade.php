@@ -152,6 +152,27 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Google Calendar Sync Statistics --}}
+            <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 mr-4">
+                        <div class="stats-icon stats-icon-blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Calendar Sync</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $calendarSyncStats['adoption_rate'] }}%</p>
+                        <p class="text-xs text-blue-600 mt-1">{{ $calendarSyncStats['connected_participants'] }} dari
+                            {{ $calendarSyncStats['total_participants'] }} peserta</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- Main Dashboard Content --}}

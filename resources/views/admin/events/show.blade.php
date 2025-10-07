@@ -327,7 +327,85 @@
                     Edit
                 </a>
 
-                {{-- Tombol Hapus --}}
+                {{-- Tombol Sync Calendar --}}
+                <div class="inline-block" x-data="{
+                    showTooltip: false,
+                    isSyncing: false,
+                    async syncCalendar() {
+                        this.isSyncing = true;
+                
+                        try {
+                            const response = await fetch('{{ route('admin.events.sync-calendar', $event) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({})
+                            });
+                
+                            const data = await response.json();
+                
+                            if (data.success) {
+                                window.showSuccess(data.message, 7000, {
+                                    title: 'Sinkronisasi Berhasil',
+                                    icon: '📅'
+                                });
+                            } else {
+                                if (data.type === 'warning') {
+                                    window.showWarning(data.message, 6000, {
+                                        title: 'Peringatan Sinkronisasi',
+                                        icon: '⚠️'
+                                    });
+                                } else {
+                                    window.showError(data.message, 6000, {
+                                        title: 'Sinkronisasi Gagal',
+                                        icon: '❌'
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            window.showError('Terjadi error saat menyinkronkan. Silakan coba lagi.', 6000, {
+                                title: 'Error Sinkronisasi',
+                                icon: '❌'
+                            });
+                            console.error('Sync error:', error);
+                        } finally {
+                            this.isSyncing = false;
+                        }
+                    }
+                }" @mouseover="showTooltip = true"
+                    @mouseleave="showTooltip = false">
+                    <button type="button" @click="syncCalendar()" x-bind:disabled="isSyncing"
+                        class="inline-flex items-center px-3 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl text-sm md:font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <!-- Loading spinner -->
+                        <svg x-show="isSyncing" x-cloak class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 animate-spin"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+
+                        <!-- Default sync icon -->
+                        <svg x-show="!isSyncing" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+
+                        <span x-text="isSyncing ? 'Menyinkronkan...' : 'Sync Calendar'">
+                        </span>
+                    </button>
+
+                    <!-- Enhanced tooltip with sync stats -->
+                    <div x-show="showTooltip" x-transition
+                        class="absolute bottom-full mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 max-w-sm">
+                        <div>Sinkronkan event ini ke Google Calendar semua peserta yang terhubung</div>
+                        <div
+                            class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800">
+                        </div>
+                    </div>
+                </div> {{-- Tombol Hapus --}}
                 <form action="{{ route('admin.events.destroy', $event) }}" method="POST" class="inline"
                     onsubmit="return confirm('Yakin ingin menghapus event ini? Data terkait akan hilang permanen.')">
                     @csrf

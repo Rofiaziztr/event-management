@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Carbon\Carbon;
 use App\Models\Event;
+use App\Models\EventParticipant;
 use App\Observers\EventObserver;
+use App\Observers\EventParticipantObserver;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::observe(EventObserver::class);
+        EventParticipant::observe(EventParticipantObserver::class);
 
         Mail::extend('brevo', function () {
             return (new BrevoTransportFactory)->create(

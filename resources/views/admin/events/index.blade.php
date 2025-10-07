@@ -73,64 +73,98 @@
             </div>
         @endif
 
-        <!-- Statistik -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-            <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 mr-4">
-                        <div class="stats-icon stats-icon-yellow">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Event</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+        @if (session('error'))
+            <div class="animate-fade-in">
+                <div class="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-red-800 font-medium">{{ session('error') }}</p>
                     </div>
                 </div>
             </div>
+        @endif
 
-            <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 mr-4">
-                        <div class="stats-icon stats-icon-green">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 0 1 0 1.953l-7.108 4.062A1.125 1.125 0 0 1 3 16.81V8.688ZM12.75 8.688c0-.864.933-1.405 1.683-.977l7.108 4.062a1.125 1.125 0 0 1 0 1.953l-7.108 4.062a1.125 1.125 0 0 1-1.683-.977V8.688Z" />
-                            </svg>
+        {{-- Stats Cards --}}
+        <div class="animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-yellow">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5" />
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Sedang Berlangsung</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $stats['berlangsung'] }}</p>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Event</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 mr-4">
-                        <div class="stats-icon stats-icon-blue">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 9v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
-                            </svg>
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-cyan-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-cyan">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Sedang Berlangsung</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['berlangsung'] }}</p>
                         </div>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Bulan Ini</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $stats['bulan_ini'] }}</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-green-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-green">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Selesai</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['selesai'] ?? 0 }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-100 card-hover">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="stats-icon stats-icon-blue">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.75 3v2.25M10.5 3v2.25M14.25 3v2.25M18 3v2.25M4.5 7.5h15M4.5 12h15m-7.5 4.5h.008v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Event Bulan Ini</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ $stats['bulan_ini'] }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filter -->
+        {{-- Filter --}}
         <div class="animate-fade-in">
             <div class="flex items-center bg-yellow-500 rounded-t-xl px-4 py-4">
                 <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,47 +174,46 @@
                 <h3 class="text-lg font-semibold text-white">Filter & Pencarian Event</h3>
             </div>
             <div class="bg-white shadow-xl border border-yellow-200 border-t-0 overflow-hidden">
-
                 <form method="GET" action="{{ route('admin.events.index') }}" class="p-6 space-y-4">
-                    <!-- Baris 1: Cari Nama Event (full width) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="lg:col-span-2 md:col-span-2">
                             <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Nama
                                 Event</label>
                             <input type="text" name="search" id="search" placeholder="Masukkan nama event..."
                                 value="{{ request('search') }}"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500" />
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
-                    </div>
-
-                    <!-- Baris 2: Kategori, Status, Dari Tanggal, Sampai Tanggal (sejajar) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="lg:col-span-1 md:col-span-1">
+                        <div>
                             <label for="category_id"
                                 class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
-                            <select id="category_id" name="category_id"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
+                            <select name="category_id" id="category_id"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>
+                                    <option value="{{ $category->id }}"
+                                        {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
-
-                        <div class="lg:col-span-1 md:col-span-1">
+                        <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select id="status" name="status"
-                                class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
+                            <select name="status" id="status"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                                 <option value="">Semua Status</option>
-                                <option value="Terjadwal" @selected(request('status') == 'Terjadwal')>Terjadwal</option>
-                                <option value="Berlangsung" @selected(request('status') == 'Berlangsung')>Berlangsung</option>
-                                <option value="Dibatalkan" @selected(request('status') == 'Dibatalkan')>Dibatalkan</option>
-                                <option value="Selesai" @selected(request('status') == 'Selesai')>Selesai</option>
+                                <option value="Terjadwal" {{ request('status') == 'Terjadwal' ? 'selected' : '' }}>
+                                    Terjadwal</option>
+                                <option value="Berlangsung"
+                                    {{ request('status') == 'Berlangsung' ? 'selected' : '' }}>Berlangsung</option>
+                                <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai
+                                </option>
+                                <option value="Dibatalkan" {{ request('status') == 'Dibatalkan' ? 'selected' : '' }}>
+                                    Dibatalkan</option>
                             </select>
                         </div>
-
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="lg:col-span-1 md:col-span-1">
                             <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Dari
                                 Tanggal</label>
@@ -195,9 +228,7 @@
                                 placeholder="Pilih Tanggal" />
                         </div>
                     </div>
-
-                    <!-- Tombol Aksi -->
-                    <div class="mt-4 flex items-center justify-end space-x-2">
+                    <div class="flex items-center justify-end space-x-2">
                         <button type="button" onclick="window.location.href='{{ route('admin.events.index') }}'"
                             class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-xl font-medium text-white hover:bg-gray-600">
                             <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -221,7 +252,7 @@
             </div>
         </div>
 
-        <!-- Daftar Event -->
+        {{-- Daftar Event --}}
         <div class="animate-fade-in">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse ($events as $event)
@@ -233,8 +264,27 @@
                                     <h3 class="font-semibold text-lg text-gray-900 mb-2 group-hover:text-yellow-600">
                                         {{ Str::limit($event->title, 50) }}
                                     </h3>
-                                    <x-bladewind::tag label="{{ $event->status }}"
-                                        color="{{ $event->status == 'Terjadwal' ? 'cyan' : ($event->status == 'Berlangsung' ? 'green' : ($event->status == 'Selesai' ? 'gray' : 'red')) }}" />
+                                    <div class="flex flex-col items-end space-y-1">
+                                        <x-bladewind::tag label="{{ $event->status }}"
+                                            color="{{ $event->status == 'Terjadwal' ? 'cyan' : ($event->status == 'Berlangsung' ? 'green' : ($event->status == 'Selesai' ? 'gray' : 'red')) }}" />
+                                        @php
+                                            $syncStats = \App\Models\EventCalendarSync::where('event_id', $event->id)
+                                                ->selectRaw('COUNT(*) as total, COUNT(google_event_id) as synced')
+                                                ->first();
+                                        @endphp
+                                        @if ($syncStats->total > 0)
+                                            <span
+                                                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                                {{ $syncStats->synced == $syncStats->total ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                                {{ $syncStats->synced }}/{{ $syncStats->total }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                                 @if ($event->category)
                                     <div class="mb-4">
@@ -282,14 +332,23 @@
                     </a>
                 @empty
                     <div class="md:col-span-3 text-center py-12">
-                        <x-bladewind::empty-state message="Tidak ada event yang ditemukan sesuai filter." />
+                        <div class="max-w-md mx-auto">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada event</h3>
+                            <p class="mt-1 text-sm text-gray-500">Belum ada event yang sesuai dengan filter yang
+                                dipilih.</p>
+                        </div>
                     </div>
                 @endforelse
             </div>
 
-            <!-- Pagination -->
+            {{-- Pagination --}}
             <div class="mt-6">
-                <x-yellow-pagination :paginator="$events" />
+                @include('custom.pagination', ['paginator' => $events])
             </div>
         </div>
     </div>

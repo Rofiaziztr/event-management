@@ -3,13 +3,17 @@
 namespace App\Observers;
 
 use App\Models\Event;
-use App\Services\Calendar\GoogleCalendarSyncService;
+use App\Services\GoogleCalendarService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class EventObserver
 {
-    public function __construct(protected GoogleCalendarSyncService $calendarSync)
+    protected $calendarService;
+
+    public function __construct(GoogleCalendarService $calendarService)
     {
+        $this->calendarService = $calendarService;
     }
 
     /**
@@ -25,9 +29,13 @@ class EventObserver
         $event->code = $code;
     }
 
+    /**
+     * Handle the Event "created" event.
+     */
     public function created(Event $event): void
     {
-        $this->calendarSync->sync($event);
+        // Sync to all participants' calendars
+        $this->calendarService->syncEventToAllParticipants($event);
     }
 
     /**
@@ -35,54 +43,25 @@ class EventObserver
      */
     public function updated(Event $event): void
     {
-        if ($event->status === 'Dibatalkan') {
-            $this->calendarSync->delete($event);
-
-            return;
-        }
-
-        if ($this->shouldSync($event)) {
-            $this->calendarSync->sync($event);
-        }
+        // Re-sync to all participants' calendars
+        $this->calendarService->syncEventToAllParticipants($event);
     }
 
     /**
-     * Handle the Event "deleted" event.
+     * Handle the Event "deleting" event.
      */
-    public function deleted(Event $event): void
+    public function deleting(Event $event): void
     {
-        $this->calendarSync->delete($event);
-    }
+        Log::info('EventObserver: Event deleting, removing from calendars', [
+            'event_id' => $event->id,
+            'title' => $event->title
+        ]);
 
-    /**
-     * Handle the Event "restored" event.
-     */
-    public function restored(Event $event): void
-    {
-        //
-    }
+        // Remove from all calendars BEFORE the event is deleted from database
+        $this->calendarService->removeEventFromAllCalendars($event);
 
-    /**
-     * Handle the Event "force deleted" event.
-     */
-    public function forceDeleted(Event $event): void
-    {
-        $this->calendarSync->delete($event);
-    }
-
-    protected function shouldSync(Event $event): bool
-    {
-        $dirty = array_keys($event->getChanges());
-
-        $syncable = [
-            'title',
-            'description',
-            'start_time',
-            'end_time',
-            'location',
-            'status',
-        ];
-
-        return (bool) array_intersect($dirty, $syncable);
+        Log::info('EventObserver: Finished removing event from calendars', [
+            'event_id' => $event->id
+        ]);
     }
 }
