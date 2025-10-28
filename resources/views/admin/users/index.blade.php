@@ -141,63 +141,77 @@
             </div>
         </div>
 
-        <!-- Filter -->
-        <div class="bg-yellow-500 rounded-t-xl p-4 animate-fade-in">
-            <div class="flex items-center">
+        {{-- Filter --}}
+        <div class="animate-fade-in">
+            <div class="flex items-center bg-yellow-500 rounded-t-xl px-4 py-4">
                 <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 <h3 class="text-lg font-semibold text-white">Filter & Pencarian Pengguna</h3>
             </div>
-        </div>
-        <div
-            class="bg-white rounded-b-xl shadow-xl border border-yellow-200 border-t-0 overflow-hidden animate-fade-in">
+            <div class="bg-white shadow-xl border border-yellow-200 border-t-0 overflow-hidden">
+                <form method="GET" class="p-6 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Cari Pengguna</label>
+                            <input type="text" name="search" placeholder="Nama atau email"
+                                value="{{ request('search') }}"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" />
+                        </div>
 
-            <form method="GET" class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari Pengguna</label>
-                        <input type="text" name="search" placeholder="Nama atau email"
-                            value="{{ request('search') }}"
-                            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500" />
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
+                            <select name="sort"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                <option value="full_name" {{ request('sort') === 'full_name' ? 'selected' : '' }}>Nama
+                                </option>
+                                <option value="email" {{ request('sort') === 'email' ? 'selected' : '' }}>Email
+                                </option>
+                                <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>
+                                    Tanggal Dibuat</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
-                        <select name="sort"
-                            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
-                            <option value="full_name" {{ request('sort') === 'full_name' ? 'selected' : '' }}>Nama
-                            </option>
-                            <option value="email" {{ request('sort') === 'email' ? 'selected' : '' }}>Email</option>
-                            <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>
-                                Tanggal Dibuat</option>
-                        </select>
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Arah Urutan</label>
+                            <select name="direction"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                <option value="asc" {{ request('direction') === 'asc' ? 'selected' : '' }}>A-Z
+                                    (Naik)
+                                </option>
+                                <option value="desc" {{ request('direction') === 'desc' ? 'selected' : '' }}>Z-A
+                                    (Turun)
+                                </option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Arah Urutan</label>
-                        <select name="direction"
-                            class="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-yellow-500 focus:border-yellow-500">
-                            <option value="asc" {{ request('direction') === 'asc' ? 'selected' : '' }}>A-Z (Naik)
-                            </option>
-                            <option value="desc" {{ request('direction') === 'desc' ? 'selected' : '' }}>Z-A (Turun)
-                            </option>
-                        </select>
+                        <div class="flex items-end">
+                            <div class="w-full flex items-center justify-end space-x-2">
+                                <button type="button"
+                                    onclick="window.location.href='{{ route('admin.users.index') }}'"
+                                    class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-xl font-medium text-white hover:bg-gray-600">
+                                    <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Clear Filter
+                                </button>
+                                <button type="submit"
+                                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-medium text-white hover:bg-indigo-700">
+                                    <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    Terapkan Filter
+                                </button>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="flex items-end space-x-2">
-                        <x-bladewind::button tag="a" href="{{ route('admin.events.index') }}" color="gray"
-                            size="small" class="flex-1" icon="x-circle">
-                            Clear Filter
-                        </x-bladewind::button>
-                        <x-bladewind::button can_submit="true" color="indigo" size="small" class="flex-1"
-                            icon="search">
-                            Terapkan Filter
-                        </x-bladewind::button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
 
         <!-- Daftar Pengguna -->

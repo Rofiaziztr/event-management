@@ -152,15 +152,43 @@ class GoogleCalendarService
             }
 
             if (count($existingEvents) >= 1) {
-                // Update the most recent existing event
+                // Always update the most recent existing event with correct data (including correct date/time)
                 $mostRecentEvent = $existingEvents[0];
-                $updatedEvent = $service->events->update('primary', $mostRecentEvent->getId(), $calendarEvent);
-                $sync->markSynced($updatedEvent->getId());
-                Log::info('Updated found event in user calendar', [
-                    'event_id' => $event->id,
-                    'user_id' => $user->id,
-                    'google_event_id' => $updatedEvent->getId()
-                ]);
+
+                // Check if the existing event has the correct date/time
+                $existingStart = $mostRecentEvent->getStart();
+                $correctStart = Carbon::parse($event->start_time)->toRfc3339String();
+
+                $needsUpdate = true;
+                if ($existingStart && $existingStart->getDateTime()) {
+                    // Compare dates (ignore seconds for flexibility)
+                    $existingDateTime = Carbon::parse($existingStart->getDateTime());
+                    $correctDateTime = Carbon::parse($event->start_time);
+
+                    // If dates are the same (within 1 minute), no need to update
+                    if (abs($existingDateTime->diffInMinutes($correctDateTime)) <= 1) {
+                        $needsUpdate = false;
+                        Log::info('Event date/time is already correct, skipping update', [
+                            'event_id' => $event->id,
+                            'user_id' => $user->id,
+                            'google_event_id' => $mostRecentEvent->getId()
+                        ]);
+                    }
+                }
+
+                if ($needsUpdate) {
+                    $updatedEvent = $service->events->update('primary', $mostRecentEvent->getId(), $calendarEvent);
+                    $sync->markSynced($updatedEvent->getId());
+                    Log::info('Updated event with correct date/time in user calendar', [
+                        'event_id' => $event->id,
+                        'user_id' => $user->id,
+                        'google_event_id' => $updatedEvent->getId(),
+                        'corrected_date' => $event->start_time
+                    ]);
+                } else {
+                    // Just update sync record without API call
+                    $sync->markSynced($mostRecentEvent->getId());
+                }
             } else {
                 // Create new event
                 $newEvent = $service->events->insert('primary', $calendarEvent);
@@ -469,6 +497,70 @@ class GoogleCalendarService
     }
 
     /**
+     * Validate if user has valid Google Calendar access by making a test API call
+     * If access is revoked, clear local tokens
+     */
+    public function validateGoogleCalendarAccess(User $user)
+    {
+        // First check if user has basic token requirements
+        if (!$user->hasGoogleCalendarAccess()) {
+            return false;
+        }
+
+        try {
+            $client = $this->getGoogleClientForUser($user);
+            $service = new \Google\Service\Calendar($client);
+
+            // Make a simple API call to test if token is still valid
+            // We'll try to get the calendar list (this is a lightweight call)
+            $calendarList = $service->calendarList->listCalendarList(['maxResults' => 1]);
+
+            // If we get here without exception, token is valid
+            Log::info('Google Calendar access validated successfully', ['user_id' => $user->id]);
+            return true;
+        } catch (\Google\Service\Exception $e) {
+            $code = $e->getCode();
+
+            // If it's an authentication error (401/403), access has been revoked
+            if ($code === 401 || $code === 403) {
+                Log::warning('Google Calendar access revoked, clearing local tokens', [
+                    'user_id' => $user->id,
+                    'error_code' => $code,
+                    'error' => $e->getMessage()
+                ]);
+
+                // Clear local tokens since access is revoked
+                $user->update([
+                    'google_access_token' => null,
+                    'google_refresh_token' => null,
+                    'google_token_expires_at' => null,
+                    'google_calendar_id' => null,
+                ]);
+
+                // Clean up sync records
+                EventCalendarSync::where('user_id', $user->id)->delete();
+
+                return false;
+            }
+
+            // For other errors, log but don't clear tokens (might be temporary)
+            Log::warning('Google Calendar API error during validation', [
+                'user_id' => $user->id,
+                'error_code' => $code,
+                'error' => $e->getMessage()
+            ]);
+
+            return false;
+        } catch (\Exception $e) {
+            Log::error('Unexpected error during Google Calendar access validation', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Get Google Client configured for specific user
      */
     protected function getGoogleClientForUser(User $user)
@@ -550,7 +642,7 @@ class GoogleCalendarService
     protected function findAllSimilarGoogleCalendarEvents(\Google\Service\Calendar $service, Event $event, User $user)
     {
         try {
-            // Search for events in a time range
+            // First, try to find events in the correct time range (±1 hour)
             $optParams = [
                 'timeMin' => Carbon::parse($event->start_time)->subHours(1)->toRfc3339String(),
                 'timeMax' => Carbon::parse($event->end_time)->addHours(1)->toRfc3339String(),
@@ -565,6 +657,34 @@ class GoogleCalendarService
             foreach ($googleEvents as $googleEvent) {
                 if ($googleEvent->getSummary() === $event->title) {
                     $similarEvents[] = $googleEvent;
+                }
+            }
+
+            // If no events found in correct time range, search broader (past 30 days and future 30 days)
+            // This helps find events that users have dragged to wrong dates
+            if (empty($similarEvents)) {
+                $optParams = [
+                    'timeMin' => Carbon::parse($event->start_time)->subDays(30)->toRfc3339String(),
+                    'timeMax' => Carbon::parse($event->end_time)->addDays(30)->toRfc3339String(),
+                    'singleEvents' => true,
+                    'orderBy' => 'startTime',
+                    'q' => $event->title, // Search by title in query
+                ];
+
+                $results = $service->events->listEvents('primary', $optParams);
+                $googleEvents = $results->getItems();
+
+                foreach ($googleEvents as $googleEvent) {
+                    if ($googleEvent->getSummary() === $event->title) {
+                        $similarEvents[] = $googleEvent;
+                        Log::info('Found event that was moved to different date, will correct it', [
+                            'event_id' => $event->id,
+                            'user_id' => $user->id,
+                            'google_event_id' => $googleEvent->getId(),
+                            'original_date' => $event->start_time,
+                            'current_date' => $googleEvent->getStart()->getDateTime()
+                        ]);
+                    }
                 }
             }
 
@@ -589,9 +709,6 @@ class GoogleCalendarService
 
         // Create comprehensive description with all event details
         $description = $event->description . "\n\n";
-
-        // Add event code for QR scanning
-        $description .= "Kode Event: {$event->code}\n";
 
         // Add organizer information
         if ($event->creator) {
@@ -623,8 +740,8 @@ class GoogleCalendarService
         $eventUrl = url("/participant/events/{$event->id}");
         $description .= "\nLihat Detail Lengkap: {$eventUrl}\n";
 
-        // Add QR code scanning instruction
-        $description .= "\nUntuk absensi, scan QR code di aplikasi atau gunakan kode: {$event->code}";
+        // Add QR code scanning instruction (without event code)
+        $description .= "\nUntuk absensi, scan QR code di aplikasi event.";
 
         $googleEvent->setDescription($description);
         $googleEvent->setLocation($event->location);

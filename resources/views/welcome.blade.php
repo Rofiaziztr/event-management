@@ -43,9 +43,19 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-15px) rotate(2deg); }
-            66% { transform: translateY(-5px) rotate(-2deg); }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            33% {
+                transform: translateY(-15px) rotate(2deg);
+            }
+
+            66% {
+                transform: translateY(-5px) rotate(-2deg);
+            }
         }
 
         .fade-in-up {
@@ -64,8 +74,15 @@
         }
 
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.6); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+            }
         }
     </style>
 </head>
@@ -78,14 +95,10 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <div class="flex items-center space-x-3">
-                            <div
-                                class="w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
-                            <span class="text-xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">EventFlow</span>
+                            <img src="{{ asset('images/logo_esdm.png') }}" alt="ESDM Logo"
+                                class="w-16 h-16 object-contain">
+                            <span
+                                class="text-xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">EventFlow</span>
                         </div>
                     </div>
                 </div>
@@ -140,7 +153,8 @@
                     </span>
                 </h1>
                 <p class="text-lg md:text-xl text-amber-50 mb-10 max-w-3xl mx-auto leading-relaxed fade-in-up">
-                    Platform manajemen event terpadu dengan sistem presensi QR code dan analisis mendalam untuk membantu organisasi mengelola acara dengan lebih baik.
+                    Platform manajemen event terpadu dengan sistem presensi QR code dan analisis mendalam untuk membantu
+                    organisasi mengelola acara dengan lebih baik.
                 </p>
 
                 {{-- CTA Buttons --}}
@@ -175,18 +189,21 @@
                 </div>
 
                 {{-- Stats Preview --}}
-                @if($totalEvents > 0 || $totalUsers > 0)
+                @if ($totalEvents > 0 || $totalUsers > 0)
                     <div class="grid grid-cols-3 gap-8 max-w-2xl mx-auto fade-in-up">
                         <div class="text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-white mb-1">{{ number_format($totalEvents) }}</div>
+                            <div class="text-2xl md:text-3xl font-bold text-white mb-1">
+                                {{ number_format($totalEvents) }}</div>
                             <div class="text-amber-100 text-sm">Event Terkelola</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-white mb-1">{{ number_format($totalUsers) }}</div>
+                            <div class="text-2xl md:text-3xl font-bold text-white mb-1">{{ number_format($totalUsers) }}
+                            </div>
                             <div class="text-amber-100 text-sm">Pengguna Aktif</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-2xl md:text-3xl font-bold text-white mb-1">{{ $averageAttendanceRate }}%</div>
+                            <div class="text-2xl md:text-3xl font-bold text-white mb-1">{{ $averageAttendanceRate }}%
+                            </div>
                             <div class="text-amber-100 text-sm">Tingkat Kehadiran</div>
                         </div>
                     </div>
@@ -209,7 +226,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {{-- Feature 1 --}}
-                <div class="feature-card bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border border-amber-100">
+                <div
+                    class="feature-card bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 border border-amber-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,11 +237,13 @@
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Manajemen Event</h3>
                     <p class="text-gray-600 leading-relaxed">
-                        Buat dan kelola event dengan mudah. Atur jadwal, lokasi, dan deskripsi dalam satu platform yang intuitif.
+                        Buat dan kelola event dengan mudah. Atur jadwal, lokasi, dan deskripsi dalam satu platform yang
+                        intuitif.
                     </p>
                 </div>
                 {{-- Feature 2 --}}
-                <div class="feature-card bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100">
+                <div
+                    class="feature-card bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,11 +253,13 @@
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Presensi QR Code</h3>
                     <p class="text-gray-600 leading-relaxed">
-                        Sistem presensi digital yang praktis. Peserta cukup scan QR code untuk konfirmasi kehadiran secara real-time.
+                        Sistem presensi digital yang praktis. Peserta cukup scan QR code untuk konfirmasi kehadiran
+                        secara real-time.
                     </p>
                 </div>
                 {{-- Feature 3 --}}
-                <div class="feature-card bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
+                <div
+                    class="feature-card bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,11 +269,13 @@
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Manajemen Peserta</h3>
                     <p class="text-gray-600 leading-relaxed">
-                        Kelola peserta internal dan eksternal. Undang peserta berdasarkan divisi dan pantau tingkat partisipasi.
+                        Kelola peserta internal dan eksternal. Undang peserta berdasarkan divisi dan pantau tingkat
+                        partisipasi.
                     </p>
                 </div>
                 {{-- Feature 4 --}}
-                <div class="feature-card bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-100">
+                <div
+                    class="feature-card bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,7 +289,8 @@
                     </p>
                 </div>
                 {{-- Feature 5 --}}
-                <div class="feature-card bg-gradient-to-br from-rose-50 to-red-50 rounded-2xl p-8 border border-rose-100">
+                <div
+                    class="feature-card bg-gradient-to-br from-rose-50 to-red-50 rounded-2xl p-8 border border-rose-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-rose-400 to-red-500 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +304,8 @@
                     </p>
                 </div>
                 {{-- Feature 6 --}}
-                <div class="feature-card bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-8 border border-cyan-100">
+                <div
+                    class="feature-card bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-8 border border-cyan-100">
                     <div
                         class="w-14 h-14 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center mb-6 shadow-lg">
                         <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,7 +323,7 @@
     </section>
 
     {{-- Upcoming Events Section --}}
-    @if($upcomingEvents->count() > 0)
+    @if ($upcomingEvents->count() > 0)
         <section class="py-20 yellow-accent">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12">
@@ -310,7 +336,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    @foreach($upcomingEvents as $event)
+                    @foreach ($upcomingEvents as $event)
                         <div class="bg-white rounded-xl p-6 shadow-md border border-amber-100 fade-in-up">
                             <div class="flex items-center justify-between mb-4">
                                 <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
@@ -337,7 +363,7 @@
     @endif
 
     {{-- Stats Section --}}
-    @if($totalEvents > 0)
+    @if ($totalEvents > 0)
         <section class="py-20 bg-gray-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12">
@@ -348,19 +374,23 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                     <div class="text-center fade-in-up">
-                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">{{ number_format($totalEvents) }}</div>
+                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">
+                            {{ number_format($totalEvents) }}</div>
                         <div class="text-gray-600">Event Terkelola</div>
                     </div>
                     <div class="text-center fade-in-up">
-                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">{{ number_format($totalUsers) }}</div>
+                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">
+                            {{ number_format($totalUsers) }}</div>
                         <div class="text-gray-600">Pengguna Terdaftar</div>
                     </div>
                     <div class="text-center fade-in-up">
-                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">{{ number_format($totalAttendances) }}</div>
+                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">
+                            {{ number_format($totalAttendances) }}</div>
                         <div class="text-gray-600">Total Presensi</div>
                     </div>
                     <div class="text-center fade-in-up">
-                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">{{ $averageAttendanceRate }}%</div>
+                        <div class="text-3xl md:text-4xl font-bold text-amber-600 mb-2">{{ $averageAttendanceRate }}%
+                        </div>
                         <div class="text-gray-600">Tingkat Kehadiran</div>
                     </div>
                 </div>
@@ -406,14 +436,10 @@
         <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
                 <div class="flex items-center space-x-3">
-                    <div
-                        class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center shadow">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <span class="text-lg font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">EventFlow</span>
+                    <img src="{{ asset('images/logo_esdm.png') }}" alt="ESDM Logo" class="w-16 h-16 object-contain">
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">EventFlow</span>
+
                 </div>
                 <p class="text-sm text-gray-500">
                     &copy; {{ date('Y') }} EventFlow. All rights reserved.

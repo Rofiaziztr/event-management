@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable
 {
@@ -86,6 +87,45 @@ class User extends Authenticatable
     public function hasGoogleCalendarAccess()
     {
         return !empty($this->google_access_token) && !$this->isGoogleTokenExpired();
+    }
+
+    /**
+     * Check if user has valid Google Calendar access with real API validation
+     * This will clear local tokens if access is revoked
+     */
+    public function hasValidGoogleCalendarAccess()
+    {
+        // Check if we have any Google tokens at all
+        if (empty($this->google_access_token) && empty($this->google_refresh_token)) {
+            return false;
+        }
+
+        // If token is expired but we have a refresh token, try to refresh first
+        if ($this->isGoogleTokenExpired() && $this->google_refresh_token) {
+            $calendarService = app(\App\Services\GoogleCalendarService::class);
+            if (!$calendarService->refreshUserToken($this)) {
+                return false; // Refresh failed
+            }
+        }
+
+        // If we still don't have a valid token after potential refresh, fail
+        if (!$this->hasGoogleCalendarAccess()) {
+            return false;
+        }
+
+        // Do real API validation, but don't fail if API is temporarily unavailable
+        $calendarService = app(\App\Services\GoogleCalendarService::class);
+        try {
+            return $calendarService->validateGoogleCalendarAccess($this);
+        } catch (\Exception $e) {
+            // If API validation fails due to network issues or other temporary problems,
+            // fall back to checking if we have valid tokens
+            Log::warning('API validation failed, falling back to token check', [
+                'user_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            return $this->hasGoogleCalendarAccess() && !$this->isGoogleTokenExpired();
+        }
     }
 
     public function isEventSyncedToCalendar(Event $event)

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\ParticipantController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Participant\EventController as ParticipantEventController;
 use App\Http\Controllers\Participant\DashboardController as ParticipantDashboardController;
@@ -92,6 +93,12 @@ Route::middleware(['auth'])->group(function () {
         // Manajemen pengguna
         Route::resource('users', UserController::class);
         Route::get('admin/users/export', [UserController::class, 'export'])->name('users.export');
+        Route::get('users/{user}/export-participant-detail', [UserController::class, 'exportParticipantDetail'])->name('users.export-participant-detail');
+
+        // Manajemen kategori
+        Route::resource('categories', CategoryController::class);
+        Route::patch('categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+        Route::delete('categories/{id}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.force-delete');
     });
 
     // Rute peserta
@@ -116,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/google-calendar/callback', [GoogleCalendarAuthController::class, 'handleGoogleCallback'])->name('google-calendar.callback');
         Route::post('/google-calendar/revoke', [GoogleCalendarAuthController::class, 'revokeAccess'])->name('google-calendar.revoke');
         Route::get('/google-calendar/status', [GoogleCalendarAuthController::class, 'status'])->name('google-calendar.status');
+        Route::post('/google-calendar/validate-access', [GoogleCalendarAuthController::class, 'validateAccess'])->name('google-calendar.validate-access');
     });
 });
 

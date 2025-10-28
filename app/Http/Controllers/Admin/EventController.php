@@ -191,7 +191,7 @@ class EventController extends Controller
 
             // Get participants with Google Calendar access
             $connectedParticipants = $participants->filter(function ($user) {
-                return $user->hasGoogleCalendarAccess();
+                return $user->hasValidGoogleCalendarAccess();
             });
 
             if ($connectedParticipants->isEmpty()) {
@@ -203,7 +203,7 @@ class EventController extends Controller
             }
 
             // Dispatch background job for sync
-            \App\Jobs\SyncCalendarJob::dispatch($event, $connectedParticipants->toArray(), 'bulk');
+            \App\Jobs\SyncCalendarJob::dispatch($event, $connectedParticipants, 'bulk');
 
             $message = "Sinkronisasi calendar sedang diproses di background untuk {$connectedParticipants->count()} peserta yang terhubung. Anda akan menerima notifikasi saat selesai.";
 

@@ -218,9 +218,9 @@ trait ExcelStylingTrait
     }
 
     /**
-     * Style untuk value di info section
+     * Style untuk value di info section (plain tanpa bold/background)
      */
-    protected function styleInfoValues(Worksheet $sheet, string $range): void
+    protected function stylePlainValues(Worksheet $sheet, string $range): void
     {
         $sheet->getStyle($range)->applyFromArray([
             'font' => [

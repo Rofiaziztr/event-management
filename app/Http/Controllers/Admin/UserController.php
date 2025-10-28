@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
 use App\Exports\UsersExport;
+use App\Exports\ParticipantDetailExport;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
@@ -27,13 +28,9 @@ class UserController extends Controller
 
         if ($request->filled('status')) {
             if ($request->status === 'active') {
-                $query->where(function ($q) {
-                    $q->whereHas('attendances')
-                        ->orWhereHas('participatedEvents');
-                });
+                $query->whereHas('attendances');
             } elseif ($request->status === 'inactive') {
-                $query->whereDoesntHave('attendances')
-                    ->whereDoesntHave('participatedEvents');
+                $query->whereDoesntHave('attendances');
             }
         }
 
@@ -179,5 +176,16 @@ class UserController extends Controller
         $filename = 'daftar_pengguna_' . now()->format('Ymd_His') . '.xlsx';
 
         return Excel::download(new UsersExport($filters), $filename);
+    }
+
+    public function exportParticipantDetail(User $user)
+    {
+        if ($user->role !== 'participant') {
+            abort(403, 'Hanya participant yang bisa diekspor detailnya.');
+        }
+
+        $filename = 'detail_peserta_' . $user->full_name . '_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new ParticipantDetailExport($user), $filename);
     }
 }

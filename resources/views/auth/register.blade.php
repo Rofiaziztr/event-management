@@ -3,18 +3,11 @@
     <div class="text-center mb-8 animate-fade-in">
         <a href="/" class="inline-flex flex-col items-center space-y-3">
             <div class="relative">
-                <!-- Main Logo Container -->
-                <div class="p-5 bg-white/20 rounded-3xl shadow-2xl backdrop-blur-sm border border-white/30">
-                    <x-application-logo class="w-16 h-16 text-white drop-shadow-lg" />
-                </div>
-                <!-- Decorative Elements -->
-                <div class="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 rounded-full animate-pulse"></div>
-                <div class="absolute -bottom-1 -left-1 w-3 h-3 bg-orange-400 rounded-full animate-pulse"
-                    style="animation-delay: 0.5s;"></div>
+                <img src="{{ asset('images/logo_esdm.png') }}" alt="ESDM Logo" class="w-24 h-24 object-contain">
             </div>
             <div class="text-center">
                 <h1 class="text-2xl font-bold text-black drop-shadow-lg">
-                    {{ config('app.name', 'EventFlow') }}</h1>
+                    {{ config('app.name', 'ESDM') }}</h1>
             </div>
         </a>
     </div>

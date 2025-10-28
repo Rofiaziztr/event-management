@@ -218,105 +218,158 @@
                 {{-- Google Calendar Integration --}}
                 <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-900">Google Calendar Integration</h3>
-                            <p class="text-gray-500 mt-1">Hubungkan akun Google Calendar Anda untuk mendapatkan
-                                notifikasi event otomatis</p>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Google Calendar</h3>
+                                    <p class="text-sm text-gray-500">Otomatis sinkronkan event ke kalender Google Anda
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                         <div class="flex items-center space-x-3">
-                            @if (auth()->user()->hasGoogleCalendarAccess())
-                                <div class="flex items-center space-x-2 text-green-600">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                            clip-rule="evenodd" />
+                            {{-- =================== START PERBAIKAN ERROR =================== --}}
+                            <div id="google-calendar-status" class="flex items-center space-x-2">
+                                {{-- Loading state initially --}}
+                                <div class="flex items-center space-x-2 text-gray-500">
+                                    <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                     </svg>
-                                    <span class="text-sm font-medium">Terhubung</span>
+                                    <span class="text-sm font-medium">Memeriksa status...</span>
                                 </div>
-                                <div x-data="{ isSyncing: false, syncStatus: null, syncMessage: '' }" class="inline">
-                                    @php
-                                        $hasSyncedEvents = \App\Models\EventCalendarSync::where(
-                                            'user_id',
-                                            auth()->id(),
-                                        )->exists();
-                                    @endphp
-                                    <form method="POST" action="{{ route('participant.events.sync-calendar') }}"
-                                        class="inline" @submit="isSyncing = true; syncStatus = null; syncMessage = ''"
-                                        x-bind:disabled="isSyncing">
-                                        @csrf
-                                        <button type="submit" x-bind:disabled="isSyncing"
-                                            class="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors flex items-center relative"
-                                            x-bind:class="{
-                                                'bg-green-600 hover:bg-green-700': !isSyncing &&
-                                                    syncStatus !== 'error',
-                                                'bg-red-600 hover:bg-red-700': syncStatus === 'error',
-                                                'bg-green-600': syncStatus === 'success',
-                                                'opacity-50 cursor-not-allowed': isSyncing
-                                            }">
-                                            <!-- Loading spinner -->
-                                            <svg x-show="isSyncing" x-cloak class="w-4 h-4 mr-2 animate-spin"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
+                            </div>
 
-                                            <!-- Success icon -->
-                                            <svg x-show="syncStatus === 'success' && !isSyncing" x-cloak
-                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-
-                                            <!-- Error icon -->
-                                            <svg x-show="syncStatus === 'error' && !isSyncing" x-cloak
-                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-
-                                            <!-- Default sync icon -->
-                                            <svg x-show="!isSyncing && syncStatus !== 'success' && syncStatus !== 'error'"
-                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-
-                                            <span
-                                                x-text="isSyncing ? 'Menyinkronkan...' : (syncStatus === 'success' ? 'Berhasil!' : (syncStatus === 'error' ? 'Gagal' : '{{ $hasSyncedEvents ? 'Sync Ulang' : 'Sync Events' }}'))"></span>
-                                        </button>
-                                    </form>
-
-                                    <!-- Status message tooltip -->
-                                    <div x-show="syncMessage && !isSyncing" x-text="syncMessage" x-transition
-                                        class="absolute bottom-full mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 whitespace-nowrap max-w-xs">
+                            {{-- Tombol Bantuan (ditampilkan untuk kedua kondisi) --}}
+                            <div x-data="{ helpDropdown: false }" class="relative inline-block">
+                                <button @click="helpDropdown = !helpDropdown" @click.away="helpDropdown = false"
+                                    class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Bantuan
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div x-show="helpDropdown" x-cloak @click.outside="helpDropdown = false"
+                                    @keydown.escape.window="helpDropdown = false"
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute right-0 z-50 mt-2 w-[28rem] origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                    <div class="p-4">
+                                        <div class="flex items-center mb-4">
+                                            <div class="flex-shrink-0">
+                                                <div
+                                                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <svg class="w-4 h-4 text-blue-600" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h4 class="text-sm font-medium text-gray-900">Panduan Google Calendar
+                                                </h4>
+                                                <p class="text-xs text-gray-500">Pelajari cara menghubungkan dan
+                                                    memutuskan akses</p>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                            <form method="POST"
+                                                action="{{ route('google-calendar.validate-access') }}">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                    </svg>
+                                                    <span>Periksa Status Koneksi</span>
+                                                </button>
+                                            </form>
+                                            <p class="text-xs text-gray-500 mt-2">Klik untuk memeriksa apakah koneksi
+                                                Google Calendar masih aktif</p>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h5 class="text-sm font-medium text-green-700 mb-2 flex items-center">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Menghubungkan Google Calendar
+                                            </h5>
+                                            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                                <p class="text-sm text-green-800 mb-2">Klik tombol "Hubungkan Google
+                                                    Calendar" di atas, lalu ikuti langkah-langkah:</p>
+                                                <div class="text-xs text-green-700 space-y-1">
+                                                    <p>1. Pilih akun Google Anda</p>
+                                                    <p>2. Berikan izin akses ke Calendar</p>
+                                                    <p>3. Event akan otomatis tersimpan di kalender Anda</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <h5 class="text-sm font-medium text-red-700 mb-2 flex items-center">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                                Memutuskan Akses Google Calendar
+                                            </h5>
+                                            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                                <p class="text-sm text-red-800 mb-2">Untuk memutuskan akses, ikuti
+                                                    langkah-langkah di Google Account:</p>
+                                                <div class="text-xs text-red-700 space-y-1">
+                                                    <p>1. Buka <strong>myaccount.google.com</strong></p>
+                                                    <p>2. Pilih menu <strong>"Keamanan"</strong></p>
+                                                    <p>3. Cari <strong>"Aplikasi pihak ketiga"</strong></p>
+                                                    <p>4. Cari dan klik <strong>"Event Management"</strong></p>
+                                                    <p>5. Klik <strong>"Hapus akses"</strong></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pt-3 border-t border-gray-200">
+                                            <div class="flex space-x-2">
+                                                <a href="https://myaccount.google.com/permissions?continue=https://calendar.google.com"
+                                                    target="_blank"
+                                                    class="flex-1 bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center">
+                                                    Buka Google Account
+                                                </a>
+                                                <button @click="helpDropdown = false"
+                                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                                    Tutup
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <a href="{{ route('google-calendar.revoke') }}"
-                                    class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors inline-block">
-                                    Putuskan
-                                </a>
-                            @else
-                                <a href="{{ route('google-calendar.auth') }}"
-                                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                    <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M6.62 10.025c-.209 0-.405-.066-.585-.196a.774.774 0 01-.272-.504c0-.212.09-.39.272-.534a.973.973 0 01.585-.196c.211 0 .406.066.586.196a.774.774 0 01.272.504c0 .212-.09.39-.272.534a.973.973 0 01-.586.196z" />
-                                        <path
-                                            d="M10.616 10.025c-.209 0-.405-.066-.585-.196a.774.774 0 01-.272-.504c0-.212.09-.39.272-.534a.973.973 0 01.585-.196c.211 0 .406.066.586.196a.774.774 0 01.272.504c0 .212-.09.39-.272.534a.973.973 0 01-.586.196z" />
-                                        <path
-                                            d="M14.612 10.025c-.209 0-.405-.066-.585-.196a.774.774 0 01-.272-.504c0-.212.09-.39.272-.534a.973.973 0 01.585-.196c.211 0 .406.066.586.196a.774.774 0 01.272.504c0 .212-.09.39-.272.534a.973.973 0 01-.586.196z" />
-                                        <path fill-rule="evenodd"
-                                            d="M4 2a1 1 0 011 1v1h10V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm0 5v10h12V7H4z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Hubungkan Calendar
-                                </a>
-                            @endif
+                            </div>
                         </div>
                     </div>
+                    {{-- Bagian ini hanya ditampilkan jika user belum terhubung --}}
                     @if (!auth()->user()->hasGoogleCalendarAccess())
                         <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <div class="flex">
@@ -328,18 +381,38 @@
                                     </svg>
                                 </div>
                                 <div class="ml-3">
-                                    <h4 class="text-sm font-medium text-blue-800">Manfaat menghubungkan Google
-                                        Calendar:</h4>
-                                    <ul class="mt-2 text-sm text-blue-700 list-disc list-inside space-y-1">
-                                        <li>Event akan otomatis muncul di calendar Anda</li>
-                                        <li>Notifikasi reminder sebelum event dimulai</li>
-                                        <li>Sinkronisasi dengan perangkat lain</li>
-                                        <li>Tidak perlu manual menandai di calendar</li>
-                                    </ul>
+                                    <h4 class="text-sm font-medium text-blue-800">Apa manfaatnya?</h4>
+                                    <div class="mt-2 text-sm text-blue-700 space-y-1">
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Event otomatis tersimpan di Google Calendar
+                                        </p>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Notifikasi reminder tepat waktu
+                                        </p>
+                                        <p class="flex items-center">
+                                            <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Sinkron dengan semua perangkat
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     @endif
+                    {{-- =================== END PERBAIKAN ERROR =================== --}}
                 </div>
 
                 {{-- Upcoming Events List --}}
@@ -421,10 +494,9 @@
                             <div>
                                 <h3 class="text-2xl font-bold text-gray-900">Riwayat Event Anda
                                     ({{ $totalHistoryEvents }})</h3>
-                                <p class="text-gray-500 mt-1">Event yang pernah Anda ikuti atau diundang, dengan status
-                                    kehadiran. Gunakan pencarian untuk menemukan event spesifik berdasarkan judul,
-                                    lokasi,
-                                    atau kategori.</p>
+                                <p class="text-gray-500 mt-1">Riwayat event yang telah berlangsung dengan status
+                                    kehadiran Anda. Gunakan pencarian untuk menemukan event spesifik berdasarkan judul,
+                                    lokasi, atau kategori.</p>
                             </div>
                             <form method="GET" action="{{ route('participant.dashboard') }}"
                                 class="flex space-x-3">
@@ -463,11 +535,11 @@
                                             {{ $historyEvents->firstItem() + $index }}
                                         </div>
                                         <div
-                                            class="p-3 {{ $event->start_time->isFuture() ? 'bg-gray-100' : ($event->attendances->isNotEmpty() ? 'bg-green-100' : 'bg-red-100') }} rounded-xl">
-                                            <svg class="w-6 h-6 {{ $event->start_time->isFuture() ? 'text-gray-600' : ($event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600') }}"
+                                            class="p-3 {{ $event->attendances->isNotEmpty() ? 'bg-green-100' : 'bg-red-100' }} rounded-xl">
+                                            <svg class="w-6 h-6 {{ $event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600' }}"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="{{ $event->start_time->isFuture() ? 'M8 7V3m8 4V3m-9 8h10' : ($event->attendances->isNotEmpty() ? 'M9 12l2 2 4-4' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2') }}m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    d="{{ $event->attendances->isNotEmpty() ? 'M9 12l2 2 4-4' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2' }}m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -482,8 +554,8 @@
                                                     </span>
                                                 @endif
                                                 <span
-                                                    class="text-sm {{ $event->start_time->isFuture() ? 'text-gray-600' : ($event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600') }} font-medium">
-                                                    {{ $event->start_time->isFuture() ? 'Belum Berlangsung' : ($event->attendances->isNotEmpty() ? 'Hadir' : 'Tidak Hadir') }}
+                                                    class="text-sm {{ $event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600' }} font-medium">
+                                                    {{ $event->attendances->isNotEmpty() ? 'Hadir' : 'Tidak Hadir' }}
                                                 </span>
                                             </div>
                                         </div>
@@ -504,7 +576,8 @@
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Riwayat Event</h3>
-                                <p class="text-gray-500">Riwayat akan muncul setelah Anda diundang ke event.</p>
+                                <p class="text-gray-500">Riwayat akan muncul setelah event yang Anda ikuti telah
+                                    berlangsung.</p>
                             </div>
                         @endforelse
                     </div>
@@ -520,6 +593,9 @@
         @push('scripts')
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Check Google Calendar status on page load
+                    checkGoogleCalendarStatus();
+
                     // Check for sync status from session flash messages
                     @if (session('success'))
                         // If there's a success message containing sync info, show success status
@@ -550,6 +626,132 @@
                         }
                     @endif
                 });
+
+                // Function to check Google Calendar connection status
+                async function checkGoogleCalendarStatus() {
+                    const statusContainer = document.getElementById('google-calendar-status');
+                    if (!statusContainer) return;
+
+                    try {
+                        // Make AJAX call to validate access
+                        const response = await fetch('{{ route('google-calendar.validate-access') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({})
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // User has valid access - show connected state with sync button
+                            statusContainer.innerHTML = `
+                                <div class="flex items-center space-x-2 text-green-600">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="text-sm font-medium">Terhubung</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <a href="https://calendar.google.com/calendar/u/0/r"
+                                        target="_blank"
+                                        class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        Buka Calendar
+                                    </a>
+                                    <div x-data="{ isSyncing: false, syncStatus: null, syncMessage: '' }" class="inline">
+                                    @php
+                                        $hasSyncedEvents = \App\Models\EventCalendarSync::where('user_id', auth()->id())->exists();
+                                    @endphp
+                                    <form method="POST" action="{{ route('participant.events.sync-calendar') }}"
+                                        class="inline" @submit="isSyncing = true; syncStatus = null; syncMessage = ''"
+                                        x-bind:disabled="isSyncing">
+                                        @csrf
+                                        <button type="submit" x-bind:disabled="isSyncing"
+                                            class="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors flex items-center relative"
+                                            x-bind:class="{
+                                                'bg-green-600 hover:bg-green-700': !isSyncing && syncStatus !== 'error' && syncStatus !== 'success',
+                                                'bg-red-600 hover:bg-red-700': syncStatus === 'error' && !isSyncing,
+                                                'bg-green-600': syncStatus === 'success' && !isSyncing,
+                                                'bg-green-600 opacity-75 cursor-not-allowed': isSyncing
+                                            }">
+                                            <svg x-show="isSyncing" x-cloak class="w-4 h-4 mr-2 animate-spin"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <svg x-show="syncStatus === 'success' && !isSyncing" x-cloak
+                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <svg x-show="syncStatus === 'error' && !isSyncing" x-cloak
+                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <svg x-show="!isSyncing && syncStatus !== 'success' && syncStatus !== 'error'"
+                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span
+                                                x-text="isSyncing ? 'Menyinkronkan...' : (syncStatus === 'success' ? 'Berhasil!' : (syncStatus === 'error' ? 'Gagal' : '{{ $hasSyncedEvents ? 'Sync Ulang' : 'Sync Events' }}'))"></span>
+                                        </button>
+                                    </form>
+                                    <div x-show="syncMessage && !isSyncing" x-text="syncMessage" x-transition
+                                        class="absolute bottom-full mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 whitespace-nowrap max-w-xs">
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // User doesn't have valid access - show connect button
+                            statusContainer.innerHTML = `
+                                <a href="{{ route('google-calendar.auth') }}"
+                                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span>Hubungkan Google Calendar</span>
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            `;
+                        }
+                    } catch (error) {
+                        console.error('Error checking Google Calendar status:', error);
+                        // On error, show connect button as fallback
+                        statusContainer.innerHTML = `
+                            <a href="{{ route('google-calendar.auth') }}"
+                                class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>Hubungkan Google Calendar</span>
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        `;
+                    }
+                }
             </script>
         @endpush
 </x-app-layout>

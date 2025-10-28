@@ -33,6 +33,11 @@ class EventController extends Controller
             $query->whereDate('end_time', '<=', $request->end_date);
         }
 
+        // Filter berdasarkan status event
+        if ($request->has('status') && $request->status != '') {
+            $query->byStatus($request->status);
+        }
+
         $events = $query->latest()->paginate(10)->withQueryString();
 
         // Ambil ID semua event yang sudah dihadiri oleh user
