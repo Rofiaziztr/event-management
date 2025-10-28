@@ -30,7 +30,14 @@ class SyncCalendarJob implements ShouldQueue
     public function __construct(Event $event, $users, string $syncType = 'bulk')
     {
         $this->event = $event;
-        $this->users = is_array($users) ? $users : [$users];
+        // Ensure users is always an array of User objects
+        if ($users instanceof \Illuminate\Database\Eloquent\Collection) {
+            $this->users = $users->all();
+        } elseif (is_array($users)) {
+            $this->users = $users;
+        } else {
+            $this->users = [$users];
+        }
         $this->syncType = $syncType;
     }
 
@@ -51,7 +58,7 @@ class SyncCalendarJob implements ShouldQueue
         $connectedUsers = 0;
 
         foreach ($this->users as $user) {
-            if (!$user->hasGoogleCalendarAccess()) {
+            if (!$user->hasValidGoogleCalendarAccess()) {
                 Log::info("SyncCalendarJob: Skipping user without calendar access", [
                     'user_id' => $user->id,
                     'user_name' => $user->full_name

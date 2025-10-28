@@ -328,78 +328,29 @@
                 </a>
 
                 {{-- Tombol Sync Calendar --}}
-                <div class="inline-block" x-data="{
-                    showTooltip: false,
-                    isSyncing: false,
-                    async syncCalendar() {
-                        this.isSyncing = true;
-                
-                        try {
-                            const response = await fetch('{{ route('admin.events.sync-calendar', $event) }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({})
-                            });
-                
-                            const data = await response.json();
-                
-                            if (data.success) {
-                                window.showSuccess(data.message, 7000, {
-                                    title: 'Sinkronisasi Berhasil',
-                                    icon: '📅'
-                                });
-                            } else {
-                                if (data.type === 'warning') {
-                                    window.showWarning(data.message, 6000, {
-                                        title: 'Peringatan Sinkronisasi',
-                                        icon: '⚠️'
-                                    });
-                                } else {
-                                    window.showError(data.message, 6000, {
-                                        title: 'Sinkronisasi Gagal',
-                                        icon: '❌'
-                                    });
-                                }
-                            }
-                        } catch (error) {
-                            window.showError('Terjadi error saat menyinkronkan. Silakan coba lagi.', 6000, {
-                                title: 'Error Sinkronisasi',
-                                icon: '❌'
-                            });
-                            console.error('Sync error:', error);
-                        } finally {
-                            this.isSyncing = false;
-                        }
-                    }
-                }" @mouseover="showTooltip = true"
-                    @mouseleave="showTooltip = false">
-                    <button type="button" @click="syncCalendar()" x-bind:disabled="isSyncing"
-                        class="inline-flex items-center px-3 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl text-sm md:font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <div class="inline-block">
+                    <button type="button" id="sync-calendar-btn"
+                        class="inline-flex items-center px-3 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl text-sm md:font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                         <!-- Loading spinner -->
-                        <svg x-show="isSyncing" x-cloak class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 animate-spin"
+                        <svg id="sync-spinner" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 animate-spin hidden"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
 
                         <!-- Default sync icon -->
-                        <svg x-show="!isSyncing" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" fill="none"
+                        <svg id="sync-icon" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
 
-                        <span x-text="isSyncing ? 'Menyinkronkan...' : 'Sync Calendar'">
-                        </span>
+                        <span id="sync-text">Sync Calendar</span>
                     </button>
 
                     <!-- Enhanced tooltip with sync stats -->
-                    <div x-show="showTooltip" x-transition
-                        class="absolute bottom-full mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 max-w-sm">
+                    <div id="sync-tooltip"
+                        class="absolute bottom-full mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 max-w-sm hidden">
                         <div>Sinkronkan event ini ke Google Calendar semua peserta yang terhubung</div>
                         <div
                             class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800">
@@ -426,6 +377,111 @@
 
     @push('scripts')
         <script>
+            // Sync Calendar functionality - Robust implementation
+            let isSyncing = false;
+
+            async function syncCalendar() {
+                if (isSyncing) {
+                    console.log('Sync already in progress, ignoring...');
+                    return;
+                }
+
+                const btn = document.getElementById('sync-calendar-btn');
+                const spinner = document.getElementById('sync-spinner');
+                const icon = document.getElementById('sync-icon');
+                const text = document.getElementById('sync-text');
+
+                if (!btn || !spinner || !icon || !text) {
+                    console.error('Required DOM elements not found');
+                    showNotification('error', 'Terjadi kesalahan pada interface. Silakan refresh halaman.');
+                    return;
+                }
+
+                // Set loading state
+                isSyncing = true;
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                spinner.classList.remove('hidden');
+                icon.classList.add('hidden');
+                text.textContent = 'Menyinkronkan...';
+
+                console.log('Starting calendar sync...');
+
+                try {
+                    // Get CSRF token
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                    if (!csrfToken) {
+                        throw new Error('CSRF token not found');
+                    }
+
+                    const response = await fetch('{{ route('admin.events.sync-calendar', $event) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({})
+                    });
+
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('Response data:', data);
+
+                    if (data.success) {
+                        showNotification('success', data.message);
+                    } else {
+                        const notificationType = data.type === 'warning' ? 'warning' : 'error';
+                        showNotification(notificationType, data.message || 'Sinkronisasi gagal');
+                    }
+                } catch (error) {
+                    console.error('Sync error:', error);
+                    showNotification('error', 'Terjadi error saat menyinkronkan: ' + error.message);
+                } finally {
+                    // Reset loading state
+                    isSyncing = false;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    spinner.classList.add('hidden');
+                    icon.classList.remove('hidden');
+                    text.textContent = 'Sync Calendar';
+
+                    console.log('Sync process completed');
+                }
+            }
+
+            // Add event listener to sync button
+            document.addEventListener('DOMContentLoaded', function() {
+                const syncBtn = document.getElementById('sync-calendar-btn');
+                if (syncBtn) {
+                    syncBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        syncCalendar();
+                    });
+                    console.log('Sync calendar button event listener attached');
+                } else {
+                    console.error('Sync calendar button not found');
+                }
+
+                // Tooltip functionality
+                const tooltip = document.getElementById('sync-tooltip');
+                if (syncBtn && tooltip) {
+                    syncBtn.addEventListener('mouseenter', function() {
+                        tooltip.classList.remove('hidden');
+                    });
+                    syncBtn.addEventListener('mouseleave', function() {
+                        tooltip.classList.add('hidden');
+                    });
+                }
+            });
+
             function submitBulkInvite(method) {
                 document.getElementById('invite_method_input').value = method;
                 if (method === 'all') {
@@ -433,6 +489,100 @@
                     if (divisionSelect) divisionSelect.value = '';
                 }
                 document.getElementById('bulk-invite-form').submit();
+            }
+
+            // Notification helper function
+            function showNotification(type, message) {
+                // Try to use Alpine store for alert if available
+                if (window.Alpine && Alpine.store('app')) {
+                    Alpine.store('app').addAlert(type, message);
+                } else {
+                    // Fallback: create notification container and show message
+                    let notificationsContainer = document.getElementById('notifications-container');
+                    if (!notificationsContainer) {
+                        notificationsContainer = document.createElement('div');
+                        notificationsContainer.id = 'notifications-container';
+                        notificationsContainer.className = 'fixed top-4 right-4 z-50 flex flex-col items-end space-y-3';
+                        document.body.appendChild(notificationsContainer);
+                    }
+
+                    const div = document.createElement('div');
+                    let bgColor;
+                    if (type === 'error') {
+                        bgColor = 'bg-red-500';
+                    } else if (type === 'warning') {
+                        bgColor = 'bg-orange-500';
+                    } else {
+                        bgColor = 'bg-gradient-to-r from-yellow-500 to-yellow-600';
+                    }
+
+                    // Add animation styles
+                    const animationStyles = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                .slide-in-right {
+                    animation: slideInRight 0.5s ease-out forwards;
+                }
+                .slide-out-right {
+                    animation: slideOutRight 0.5s ease-in forwards;
+                }
+            `;
+
+                    // Add styles if not already present
+                    if (!document.getElementById('notification-animations')) {
+                        const styleElement = document.createElement('style');
+                        styleElement.id = 'notification-animations';
+                        styleElement.innerHTML = animationStyles;
+                        document.head.appendChild(styleElement);
+                    }
+
+                    div.className = `px-6 py-4 rounded-lg shadow-lg text-white z-50 ${bgColor} slide-in-right`;
+                    div.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        ${type === 'error' ? '<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' :
+                           type === 'warning' ? '<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' :
+                           '<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
+                        <span>${message}</span>
+                    </div>
+                    <button onclick="closeNotification(this.parentElement.parentElement)" class="ml-4 w-5 h-5 flex items-center justify-center rounded-full bg-white bg-opacity-25 hover:bg-opacity-40 text-white transition-all">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+                    notificationsContainer.appendChild(div);
+
+                    // Auto dismiss after 5 seconds
+                    setTimeout(() => closeNotification(div), 5000);
+                }
+            }
+
+            // Function to close notifications
+            function closeNotification(element) {
+                if (!element) return;
+
+                element.classList.remove('slide-in-right');
+                element.classList.add('slide-out-right');
+
+                setTimeout(() => {
+                    if (element && element.parentNode) {
+                        element.parentNode.removeChild(element);
+
+                        const container = document.getElementById('notifications-container');
+                        if (container && container.children.length === 0) {
+                            container.parentNode.removeChild(container);
+                        }
+                    }
+                }, 500);
             }
         </script>
     @endpush

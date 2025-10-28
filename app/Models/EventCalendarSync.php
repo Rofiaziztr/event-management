@@ -32,7 +32,7 @@ class EventCalendarSync extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function markSynced(string $googleEventId = null)
+    public function markSynced(?string $googleEventId = null)
     {
         $this->update([
             'google_event_id' => $googleEventId,
@@ -43,7 +43,7 @@ class EventCalendarSync extends Model
         ]);
     }
 
-    public function markFailed(string $error = null)
+    public function markFailed(?string $error = null)
     {
         $this->update([
             'last_sync_attempt' => now(),

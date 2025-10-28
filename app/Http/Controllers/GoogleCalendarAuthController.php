@@ -107,12 +107,14 @@ class GoogleCalendarAuthController extends Controller
     }
     /**
      * Redirect to Google Account permissions page for revoking access
+     * Note: This method now provides guidance rather than direct API revocation
+     * since Google doesn't allow programmatic revocation of OAuth access
      */
     public function revokeAccess()
     {
         $user = Auth::user();
 
-        // If user has access, redirect to Google permissions page
+        // If user has access, clear our local tokens first
         if ($user->hasGoogleCalendarAccess()) {
             // Clear our local tokens first
             $user->update([
@@ -125,12 +127,13 @@ class GoogleCalendarAuthController extends Controller
             // Clean up sync records
             EventCalendarSync::where('user_id', $user->id)->delete();
 
-            Log::info('Local tokens cleared, redirecting to Google permissions for full revoke', [
+            Log::info('Local tokens cleared, user guided to manual revoke process', [
                 'user_id' => $user->id
             ]);
 
-            // Redirect to Google Account permissions page
-            return redirect('https://myaccount.google.com/permissions?continue=https://calendar.google.com');
+            // Redirect back with success message about local cleanup
+            return redirect()->route('participant.dashboard')
+                ->with('success', 'Token lokal telah dibersihkan. Silakan ikuti panduan untuk mencabut akses Google Calendar secara manual.');
         }
 
         // If no access, just redirect back
@@ -150,5 +153,53 @@ class GoogleCalendarAuthController extends Controller
             'calendar_id' => $user->google_calendar_id,
             'token_expires_at' => $user->google_token_expires_at,
         ]);
+    }
+
+    /**
+     * Validate Google Calendar access and refresh status
+     */
+    public function validateAccess(Request $request)
+    {
+        $user = Auth::user();
+
+        try {
+            $hasValidAccess = $user->hasValidGoogleCalendarAccess();
+
+            if ($request->expectsJson() || $request->ajax()) {
+                // Return JSON for AJAX requests
+                return response()->json([
+                    'success' => $hasValidAccess,
+                    'message' => $hasValidAccess
+                        ? 'Koneksi Google Calendar Anda masih aktif dan valid.'
+                        : 'Koneksi Google Calendar telah diputus atau tidak valid.',
+                    'has_access' => $hasValidAccess
+                ]);
+            } else {
+                // Return redirects for regular requests
+                if ($hasValidAccess) {
+                    return redirect()->route('participant.dashboard')
+                        ->with('success', 'Koneksi Google Calendar Anda masih aktif dan valid.');
+                } else {
+                    return redirect()->route('participant.dashboard')
+                        ->with('info', 'Koneksi Google Calendar telah diputus atau tidak valid. Silakan hubungkan kembali jika diperlukan.');
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error validating Google Calendar access', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat memeriksa status koneksi Google Calendar.',
+                    'error' => $e->getMessage()
+                ], 500);
+            } else {
+                return redirect()->route('participant.dashboard')
+                    ->with('error', 'Terjadi kesalahan saat memeriksa status koneksi Google Calendar.');
+            }
+        }
     }
 }

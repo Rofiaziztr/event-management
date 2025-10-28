@@ -61,7 +61,7 @@
     @endpush
 
     <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
-        <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <div class="max-w-full mx-auto px-16 py-8 space-y-8">
 
             {{-- Alert Reminder Presensi - Fixed Position --}}
             @if ($dynamicStatus === 'Berlangsung' && !$attendance)
@@ -96,7 +96,7 @@
             @endif
 
             {{-- Konten Utama: Detail, Notulensi, dan Lampiran --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 animate-fade-in">
                 {{-- Kolom Kiri (Main) --}}
                 <div class="lg:col-span-2 space-y-6">
                     {{-- Deskripsi Acara --}}

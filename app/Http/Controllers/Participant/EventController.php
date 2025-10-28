@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
+    /**
+     * Check if the request expects a JSON response
+     */
+    private function isAjaxRequest(Request $request): bool
+    {
+        return $request->expectsJson() || $request->ajax();
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -31,6 +39,11 @@ class EventController extends Controller
 
         if ($request->has('end_date') && $request->end_date != '') {
             $query->whereDate('end_time', '<=', $request->end_date);
+        }
+
+        // Filter berdasarkan status event
+        if ($request->has('status') && $request->status != '') {
+            $query->byStatus($request->status);
         }
 
         $events = $query->latest()->paginate(10)->withQueryString();
@@ -63,7 +76,7 @@ class EventController extends Controller
     /**
      * Manual sync user's events to Google Calendar
      */
-    public function syncCalendar()
+    public function syncCalendar(Request $request)
     {
         try {
             $user = Auth::user();
@@ -77,7 +90,14 @@ class EventController extends Controller
             ]);
 
             if ($totalEvents === 0) {
-                return redirect()->back()->with('warning', 'Anda belum terdaftar sebagai peserta di event manapun.');
+                $message = 'Anda belum terdaftar sebagai peserta di event manapun.';
+                if ($this->isAjaxRequest($request)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ]);
+                }
+                return redirect()->back()->with('warning', $message);
             }
 
             $calendarService = app(\App\Services\GoogleCalendarService::class);
@@ -120,9 +140,30 @@ class EventController extends Controller
                 if ($failedCount > 0) {
                     $message .= " {$failedCount} event gagal disinkronkan.";
                 }
+                
+                if ($this->isAjaxRequest($request)) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $message,
+                        'synced_count' => $successCount,
+                        'failed_count' => $failedCount,
+                        'total_count' => $totalEvents
+                    ]);
+                }
                 return redirect()->back()->with('success', $message);
             } else {
-                return redirect()->back()->with('error', "Gagal menyinkronkan semua {$totalEvents} event ke Google Calendar. Pastikan koneksi Google Calendar Anda masih aktif dan coba lagi.");
+                $message = "Gagal menyinkronkan semua {$totalEvents} event ke Google Calendar. Pastikan koneksi Google Calendar Anda masih aktif dan coba lagi.";
+                
+                if ($this->isAjaxRequest($request)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message,
+                        'synced_count' => 0,
+                        'failed_count' => $failedCount,
+                        'total_count' => $totalEvents
+                    ]);
+                }
+                return redirect()->back()->with('error', $message);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Participant manual calendar sync failed', [
@@ -131,7 +172,26 @@ class EventController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return redirect()->back()->with('error', 'Terjadi error saat menyinkronkan: ' . $e->getMessage());
+            $userMessage = 'Terjadi kesalahan saat menyinkronkan event ke Google Calendar. Silakan coba lagi nanti.';
+            $debugMessage = config('app.debug') ? $e->getMessage() : null;
+            
+            if ($this->isAjaxRequest($request)) {
+                $jsonResponse = [
+                    'success' => false,
+                    'message' => $userMessage
+                ];
+                
+                // Only include detailed error in debug mode
+                if ($debugMessage) {
+                    $jsonResponse['debug_error'] = $debugMessage;
+                }
+                
+                return response()->json($jsonResponse, 500);
+            }
+            
+            // For non-AJAX, show more details if in debug mode
+            $redirectMessage = $debugMessage ? "{$userMessage} Detail: {$debugMessage}" : $userMessage;
+            return redirect()->back()->with('error', $redirectMessage);
         }
     }
 }

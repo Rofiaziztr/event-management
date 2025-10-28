@@ -48,7 +48,9 @@ class UsersExport implements FromArray, WithTitle, WithEvents
 
         // Calculate statistics for header
         $totalUsers = $users->count();
-        $activeUsers = $users->where('is_active', true)->count();
+        $activeUsers = $users->filter(function ($user) {
+            return $user->attendances()->exists();
+        })->count();
         $totalEvents = \App\Models\Event::count();
         $totalParticipations = \App\Models\EventParticipant::count();
 
@@ -119,6 +121,10 @@ class UsersExport implements FromArray, WithTitle, WithEvents
                 ? $attendanceRate . "%"
                 : "-";
 
+            // Determine user status based on attendances (not just participations)
+            $hasAttendances = $user->attendances()->exists();
+            $status = $hasAttendances ? 'Aktif' : 'Tidak Aktif';
+
             $data[] = [
                 $index + 1,
                 "'" . ($user->nip ?? '-'), // Prevent scientific notation
@@ -131,7 +137,7 @@ class UsersExport implements FromArray, WithTitle, WithEvents
                 $eventsNotAttended,
                 $attendanceDisplay,
                 $user->created_at->format('d/m/Y'),
-                $user->is_active ? 'Aktif' : 'Tidak Aktif'
+                $status
             ];
         }
 
@@ -205,13 +211,13 @@ class UsersExport implements FromArray, WithTitle, WithEvents
             $sheet->mergeCells("A{$infoExportRow}:{$highestCol}{$infoExportRow}");
             $this->styleSectionHeader($sheet, "A{$infoExportRow}:{$highestCol}{$infoExportRow}", self::COLORS['GRAY_200']);
 
-            // Style info section content
+            // Style info section content - ALL cells plain (no bold, no background)
             $infoEndRow = ($filterRow ?: $daftarPenggunaRow ?: $tableHeaderRow) - 2;
             for ($row = $infoExportRow + 1; $row <= $infoEndRow; $row++) {
                 $cellValue = $sheet->getCell("A{$row}")->getValue();
                 if (!empty($cellValue)) {
-                    $this->styleInfoLabels($sheet, "A{$row}");
-                    $this->styleInfoValues($sheet, "B{$row}");
+                    // Apply plain styling for ALL cells in info section (both labels and values)
+                    $this->stylePlainValues($sheet, "A{$row}:B{$row}");
                 }
             }
         }
@@ -221,13 +227,13 @@ class UsersExport implements FromArray, WithTitle, WithEvents
             $sheet->mergeCells("A{$filterRow}:{$highestCol}{$filterRow}");
             $this->styleSectionHeader($sheet, "A{$filterRow}:{$highestCol}{$filterRow}", self::COLORS['GRAY_200']);
 
-            // Style filter section content
+            // Style filter section content - ALL cells plain (no bold, no background)
             $filterEndRow = ($daftarPenggunaRow ?: $tableHeaderRow) - 2;
             for ($row = $filterRow + 1; $row <= $filterEndRow; $row++) {
                 $cellValue = $sheet->getCell("A{$row}")->getValue();
                 if (!empty($cellValue)) {
-                    $this->styleInfoLabels($sheet, "A{$row}");
-                    $this->styleInfoValues($sheet, "B{$row}");
+                    // Apply plain styling for ALL cells in filter section (both labels and values)
+                    $this->stylePlainValues($sheet, "A{$row}:B{$row}");
                 }
             }
         }
@@ -257,8 +263,10 @@ class UsersExport implements FromArray, WithTitle, WithEvents
                 $this->formatDate($sheet, "K" . ($tableHeaderRow + 1) . ":K{$highestRow}");
             }
 
-            // Set freeze panes
-            $this->setFreezePanes($sheet, "A" . ($tableHeaderRow + 1));
+            // Set freeze panes - at first data row (after header)
+            if ($tableHeaderRow) {
+                $this->setFreezePanes($sheet, "A" . ($tableHeaderRow + 1));
+            }
 
             // Set auto filter
             $this->setAutoFilter($sheet, "A{$tableHeaderRow}:{$highestCol}{$highestRow}");
@@ -286,57 +294,33 @@ class UsersExport implements FromArray, WithTitle, WithEvents
 
         // Add subtle background to alternate sections for better visual separation
         if ($infoExportRow && $tableHeaderRow) {
-            // Light background for info section
+            // Light background for info section, but exclude section headers
+            $sectionsToExclude = [$infoExportRow, $filterRow, $daftarPenggunaRow];
             $infoSectionEnd = $tableHeaderRow - 1;
-            $sheet->getStyle("A" . ($infoExportRow + 1) . ":{$highestCol}{$infoSectionEnd}")
-                ->getFill()
-                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                ->getStartColor()->setRGB('FAFAFA'); // Very light gray
+
+            for ($row = $infoExportRow + 1; $row <= $infoSectionEnd; $row++) {
+                if (!in_array($row, $sectionsToExclude)) {
+                    $sheet->getStyle("A{$row}:{$highestCol}{$row}")
+                        ->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setRGB('FAFAFA'); // Very light gray
+                }
+            }
         }
 
-        // PERBAIKAN KHUSUS: Pastikan semua label di kolom A bold
+        // PERBAIKAN KHUSUS: Pastikan semua label di kolom A tidak bold di info sections
         for ($row = 1; $row <= $highestRow; $row++) {
             $cellValue = $sheet->getCell("A{$row}")->getValue();
 
-            // PERBAIKAN KHUSUS: Pastikan DAFTAR PENGGUNA mendapat background abu-abu
-            if ($cellValue === 'DAFTAR PENGGUNA') {
-                $sheet->getStyle("A{$row}:{$highestCol}{$row}")->applyFromArray([
-                    'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => self::COLORS['GRAY_200']]
-                    ],
+            // Pastikan nilai di kolom B tidak bold
+            if ($sheet->getCell("B{$row}")->getValue()) {
+                $sheet->getStyle("B{$row}")->applyFromArray([
                     'font' => [
-                        'bold' => true,
-                        'size' => 12,
-                        'name' => 'Segoe UI'
-                    ],
-                    'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
-                    ]
-                ]);
-            }
-
-            // Bold untuk semua label info (yang tidak kosong dan bukan header section)
-            if (!empty($cellValue) && !in_array($cellValue, ['LAPORAN PENGGUNA SISTEM', '📋 INFORMASI EKSPOR', '🔍 FILTER YANG DITERAPKAN', '👥 DAFTAR PENGGUNA', 'No'])) {
-                $sheet->getStyle("A{$row}")->applyFromArray([
-                    'font' => [
-                        'bold' => true,
+                        'bold' => false,
                         'size' => 10,
                         'name' => 'Segoe UI'
                     ]
                 ]);
-
-                // Pastikan nilai di kolom B tidak bold
-                if ($sheet->getCell("B{$row}")->getValue()) {
-                    $sheet->getStyle("B{$row}")->applyFromArray([
-                        'font' => [
-                            'bold' => false,
-                            'size' => 10,
-                            'name' => 'Segoe UI'
-                        ]
-                    ]);
-                }
             }
         }
     }

@@ -107,17 +107,17 @@
                         @endif
                     </td>
                     <td class="px-3 py-2">
-                        <div class="flex items-center space-x-2">
+                        <div class="participant-actions">
                             @php $attendance = $participant->attendances->where('event_id', $event->id)->first(); @endphp
                             @if (!$attendance)
                                 <form action="{{ route('admin.events.participants.manual', [$event, $participant]) }}"
                                     method="POST" class="inline" onclick="event.stopPropagation();">
                                     @csrf
                                     <button type="submit"
-                                        class="inline-flex items-center px-3 py-1.5 
+                                        class="inline-flex items-center px-2.5 py-1.5 
                                         {{ $event->status === 'Selesai' ? 'bg-orange-500 text-white' : 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white' }}
                                         text-xs md:text-sm font-medium rounded-md hover:shadow-md transition-all duration-200 shadow-sm">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor"
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -140,36 +140,26 @@
                                 @if ($hasFailedSync)
                                     <button type="button"
                                         onclick="retrySyncIndividualParticipant({{ $participant->id }}, '{{ $participant->full_name }}', event)"
-                                        class="inline-flex items-center px-3 py-1.5 bg-orange-100 text-orange-700 text-xs md:text-sm font-medium rounded-md hover:bg-orange-200 transition-colors duration-150 shadow-sm">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor"
+                                        class="inline-flex items-center px-2.5 py-1.5 bg-orange-100 text-orange-700 text-xs md:text-sm font-medium rounded-md hover:bg-orange-200 transition-colors duration-150 shadow-sm">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
-                                        Retry Sync
+                                        Retry
                                     </button>
                                 @else
                                     <button type="button"
                                         onclick="syncIndividualParticipant({{ $participant->id }}, '{{ $participant->full_name }}', event)"
-                                        class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs md:text-sm font-medium rounded-md hover:bg-blue-200 transition-colors duration-150 shadow-sm">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor"
+                                        class="inline-flex items-center px-2.5 py-1.5 bg-blue-100 text-blue-700 text-xs md:text-sm font-medium rounded-md hover:bg-blue-200 transition-colors duration-150 shadow-sm">
+                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        Sync Calendar
+                                        Sync
                                     </button>
                                 @endif
-                            @elseif ($participant->hasGoogleCalendarAccess() && $participant->isEventSyncedToCalendar($event))
-                                <span
-                                    class="inline-flex items-center px-3 py-1.5 text-xs md:text-sm text-green-600 font-medium">
-                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    Sudah Sync
-                                </span>
                             @endif
 
                             <form action="{{ route('admin.events.participants.destroy', [$event, $participant]) }}"
@@ -178,8 +168,8 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 text-xs md:text-sm font-medium rounded-md hover:bg-red-200 transition-colors duration-150 shadow-sm">
-                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor"
+                                    class="inline-flex items-center px-2.5 py-1.5 bg-red-100 text-red-700 text-xs md:text-sm font-medium rounded-md hover:bg-red-200 transition-colors duration-150 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -208,6 +198,35 @@
         </tbody>
     </table>
 </div>
+
+@push('styles')
+    <style>
+        /* Improved actions column layout */
+        .participant-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .participant-actions button {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* Better responsive design for actions */
+        @media (max-width: 640px) {
+            .participant-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .participant-actions button {
+                justify-content: center;
+            }
+        }
+    </style>
+@endpush
 
 <script>
     function toggleRowCheckbox(row, userId) {
@@ -282,15 +301,15 @@
 
         try {
             const response = await fetch(
-            `{{ route('admin.events.show', $event) }}/${participantId}/sync-calendar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({})
-            });
+                `{{ route('admin.events.show', $event) }}/${participantId}/sync-calendar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
 
             const data = await response.json();
 
@@ -300,17 +319,10 @@
                     icon: '📅'
                 });
 
-                // Update button to show success state
-                button.innerHTML = `
-                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    Sudah Sync
-                `;
-                button.className =
-                    'inline-flex items-center px-3 py-1.5 text-xs md:text-sm text-green-600 font-medium';
+                // Remove the sync button since status is shown in Calendar column
+                button.remove();
 
-                // Update status badge
+                // Update status badge in Calendar column
                 const statusCell = button.closest('tr').querySelector('td:nth-child(6)');
                 if (statusCell) {
                     statusCell.innerHTML = `
@@ -363,17 +375,17 @@
 
         try {
             const response = await fetch(
-            `{{ route('admin.events.show', $event) }}/${participantId}/sync-calendar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    retry: true
-                })
-            });
+                `{{ route('admin.events.show', $event) }}/${participantId}/sync-calendar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        retry: true
+                    })
+                });
 
             const data = await response.json();
 
@@ -383,17 +395,10 @@
                     icon: '🔄'
                 });
 
-                // Update button to show success state
-                button.innerHTML = `
-                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    Sudah Sync
-                `;
-                button.className =
-                    'inline-flex items-center px-3 py-1.5 text-xs md:text-sm text-green-600 font-medium';
+                // Remove the retry button since status is shown in Calendar column
+                button.remove();
 
-                // Update status badge
+                // Update status badge in Calendar column
                 const statusCell = button.closest('tr').querySelector('td:nth-child(6)');
                 if (statusCell) {
                     statusCell.innerHTML = `

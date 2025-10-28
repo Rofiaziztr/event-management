@@ -178,7 +178,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
             $overviewEndRow = ($ringkasanRow ? $ringkasanRow - 2 : $overviewRow + 5);
             $this->styleInfoSection($sheet, "A" . ($overviewRow + 1) . ":B{$overviewEndRow}");
             $this->styleInfoLabels($sheet, "A" . ($overviewRow + 1) . ":A{$overviewEndRow}");
-            $this->styleInfoValues($sheet, "B" . ($overviewRow + 1) . ":B{$overviewEndRow}");
+            $this->stylePlainValues($sheet, "B" . ($overviewRow + 1) . ":B{$overviewEndRow}");
 
             // Ensure consistent white background for overview section
             $sheet->getStyle("A" . ($overviewRow + 1) . ":B{$overviewEndRow}")->applyFromArray([
@@ -198,7 +198,7 @@ class EventSummarySheet implements FromArray, WithTitle, WithEvents
             $ringkasanEndRow = ($divisiRow ? $divisiRow - 2 : ($institusiRow ? $institusiRow - 2 : $ringkasanRow + 6));
             $this->styleInfoSection($sheet, "A" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}");
             $this->styleInfoLabels($sheet, "A" . ($ringkasanRow + 1) . ":A{$ringkasanEndRow}");
-            $this->styleInfoValues($sheet, "B" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}");
+            $this->stylePlainValues($sheet, "B" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}");
 
             // Ensure consistent white background for ringkasan section
             $sheet->getStyle("A" . ($ringkasanRow + 1) . ":B{$ringkasanEndRow}")->applyFromArray([

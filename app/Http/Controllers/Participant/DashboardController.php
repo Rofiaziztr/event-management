@@ -65,7 +65,8 @@ class DashboardController extends Controller
             ->with(['category', 'attendances' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             }])
-            ->where('status', '!=', 'Dibatalkan');
+            ->where('status', '!=', 'Dibatalkan')
+            ->where('start_time', '<=', now()); // Only show past events for history
 
         if ($search) {
             $query->where(function ($q) use ($search) {
