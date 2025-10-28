@@ -627,6 +627,12 @@
                     @endif
                 });
 
+                // Pre-calculate values for use in JS templates
+                const syncCalendarUrl = '{{ route('participant.events.sync-calendar') }}';
+                const googleCalendarAuthUrl = '{{ route('google-calendar.auth') }}';
+                const csrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+                const hasSyncedEvents = {{ \App\Models\EventCalendarSync::where('user_id', auth()->id())->exists() ? 'true' : 'false' }};
+
                 // Function to check Google Calendar connection status
                 async function checkGoogleCalendarStatus() {
                     const statusContainer = document.getElementById('google-calendar-status');
@@ -638,7 +644,7 @@
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                                'X-CSRF-TOKEN': csrfToken,
                                 'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
@@ -647,8 +653,10 @@
 
                         const data = await response.json();
 
-                        if (data.success) {
+                        // Check both 'success' and 'has_access' for backward compatibility
+                        if (data.success || data.has_access) {
                             // User has valid access - show connected state with sync button
+                            const syncButtonHtml = createSyncButtonHTML();
                             statusContainer.innerHTML = `
                                 <div class="flex items-center space-x-2 text-green-600">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -668,58 +676,16 @@
                                         </svg>
                                         Buka Calendar
                                     </a>
-                                    <div x-data="{ isSyncing: false, syncStatus: null, syncMessage: '' }" class="inline">
-                                    @php
-                                        $hasSyncedEvents = \App\Models\EventCalendarSync::where('user_id', auth()->id())->exists();
-                                    @endphp
-                                    <form method="POST" action="{{ route('participant.events.sync-calendar') }}"
-                                        class="inline" @submit="isSyncing = true; syncStatus = null; syncMessage = ''"
-                                        x-bind:disabled="isSyncing">
-                                        @csrf
-                                        <button type="submit" x-bind:disabled="isSyncing"
-                                            class="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors flex items-center relative"
-                                            x-bind:class="{
-                                                'bg-green-600 hover:bg-green-700': !isSyncing && syncStatus !== 'error' && syncStatus !== 'success',
-                                                'bg-red-600 hover:bg-red-700': syncStatus === 'error' && !isSyncing,
-                                                'bg-green-600': syncStatus === 'success' && !isSyncing,
-                                                'bg-green-600 opacity-75 cursor-not-allowed': isSyncing
-                                            }">
-                                            <svg x-show="isSyncing" x-cloak class="w-4 h-4 mr-2 animate-spin"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            <svg x-show="syncStatus === 'success' && !isSyncing" x-cloak
-                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <svg x-show="syncStatus === 'error' && !isSyncing" x-cloak
-                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <svg x-show="!isSyncing && syncStatus !== 'success' && syncStatus !== 'error'"
-                                                class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            <span
-                                                x-text="isSyncing ? 'Menyinkronkan...' : (syncStatus === 'success' ? 'Berhasil!' : (syncStatus === 'error' ? 'Gagal' : '{{ $hasSyncedEvents ? 'Sync Ulang' : 'Sync Events' }}'))"></span>
-                                        </button>
-                                    </form>
-                                    <div x-show="syncMessage && !isSyncing" x-text="syncMessage" x-transition
-                                        class="absolute bottom-full mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 whitespace-nowrap max-w-xs">
-                                    </div>
+                                    ${syncButtonHtml}
                                 </div>
                             `;
+                            
+                            // Initialize Alpine.js on the newly added sync button
+                            initializeSyncButton();
                         } else {
                             // User doesn't have valid access - show connect button
                             statusContainer.innerHTML = `
-                                <a href="{{ route('google-calendar.auth') }}"
+                                <a href="${googleCalendarAuthUrl}"
                                     class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -737,7 +703,7 @@
                         console.error('Error checking Google Calendar status:', error);
                         // On error, show connect button as fallback
                         statusContainer.innerHTML = `
-                            <a href="{{ route('google-calendar.auth') }}"
+                            <a href="${googleCalendarAuthUrl}"
                                 class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -751,6 +717,101 @@
                             </a>
                         `;
                     }
+                }
+
+                // Create sync button HTML without Blade directives
+                function createSyncButtonHTML() {
+                    const buttonText = hasSyncedEvents ? 'Sync Ulang' : 'Sync Events';
+                    return `
+                        <form method="POST" action="${syncCalendarUrl}" class="inline" id="sync-calendar-form">
+                            <input type="hidden" name="_token" value="${csrfToken}">
+                            <button type="submit" id="sync-button"
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center">
+                                <svg class="w-4 h-4 mr-2 sync-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span class="button-text">${buttonText}</span>
+                            </button>
+                        </form>
+                    `;
+                }
+
+                // Initialize sync button behavior
+                function initializeSyncButton() {
+                    const form = document.getElementById('sync-calendar-form');
+                    const button = document.getElementById('sync-button');
+                    
+                    if (!form || !button) return;
+
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Disable button and show loading state
+                        button.disabled = true;
+                        button.classList.add('opacity-75', 'cursor-not-allowed');
+                        const buttonText = button.querySelector('.button-text');
+                        const syncIcon = button.querySelector('.sync-icon');
+                        
+                        if (buttonText) buttonText.textContent = 'Menyinkronkan...';
+                        if (syncIcon) syncIcon.classList.add('animate-spin');
+
+                        // Submit the form
+                        fetch(syncCalendarUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: new FormData(form)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Re-enable button
+                            button.disabled = false;
+                            button.classList.remove('opacity-75', 'cursor-not-allowed');
+                            if (syncIcon) syncIcon.classList.remove('animate-spin');
+                            
+                            if (data.success) {
+                                // Show success state
+                                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                                button.classList.add('bg-green-600');
+                                if (buttonText) buttonText.textContent = 'Berhasil!';
+                                
+                                // Reset after 3 seconds
+                                setTimeout(() => {
+                                    button.classList.remove('bg-green-600');
+                                    button.classList.add('bg-green-600', 'hover:bg-green-700');
+                                    if (buttonText) buttonText.textContent = 'Sync Ulang';
+                                }, 3000);
+                            } else {
+                                // Show error state
+                                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                                button.classList.add('bg-red-600', 'hover:bg-red-700');
+                                if (buttonText) buttonText.textContent = 'Gagal';
+                                
+                                // Reset after 3 seconds
+                                setTimeout(() => {
+                                    button.classList.remove('bg-red-600', 'hover:bg-red-700');
+                                    button.classList.add('bg-green-600', 'hover:bg-green-700');
+                                    if (buttonText) buttonText.textContent = hasSyncedEvents ? 'Sync Ulang' : 'Sync Events';
+                                }, 3000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Sync error:', error);
+                            button.disabled = false;
+                            button.classList.remove('opacity-75', 'cursor-not-allowed');
+                            if (syncIcon) syncIcon.classList.remove('animate-spin');
+                            if (buttonText) buttonText.textContent = 'Gagal';
+                            
+                            // Reset after 3 seconds
+                            setTimeout(() => {
+                                if (buttonText) buttonText.textContent = hasSyncedEvents ? 'Sync Ulang' : 'Sync Events';
+                            }, 3000);
+                        });
+                    });
                 }
             </script>
         @endpush
