@@ -68,7 +68,7 @@ class EventController extends Controller
     /**
      * Manual sync user's events to Google Calendar
      */
-    public function syncCalendar()
+    public function syncCalendar(Request $request)
     {
         try {
             $user = Auth::user();
@@ -82,7 +82,14 @@ class EventController extends Controller
             ]);
 
             if ($totalEvents === 0) {
-                return redirect()->back()->with('warning', 'Anda belum terdaftar sebagai peserta di event manapun.');
+                $message = 'Anda belum terdaftar sebagai peserta di event manapun.';
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message
+                    ]);
+                }
+                return redirect()->back()->with('warning', $message);
             }
 
             $calendarService = app(\App\Services\GoogleCalendarService::class);
@@ -125,9 +132,30 @@ class EventController extends Controller
                 if ($failedCount > 0) {
                     $message .= " {$failedCount} event gagal disinkronkan.";
                 }
+                
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $message,
+                        'synced_count' => $successCount,
+                        'failed_count' => $failedCount,
+                        'total_count' => $totalEvents
+                    ]);
+                }
                 return redirect()->back()->with('success', $message);
             } else {
-                return redirect()->back()->with('error', "Gagal menyinkronkan semua {$totalEvents} event ke Google Calendar. Pastikan koneksi Google Calendar Anda masih aktif dan coba lagi.");
+                $message = "Gagal menyinkronkan semua {$totalEvents} event ke Google Calendar. Pastikan koneksi Google Calendar Anda masih aktif dan coba lagi.";
+                
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message,
+                        'synced_count' => 0,
+                        'failed_count' => $failedCount,
+                        'total_count' => $totalEvents
+                    ]);
+                }
+                return redirect()->back()->with('error', $message);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Participant manual calendar sync failed', [
@@ -136,7 +164,16 @@ class EventController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return redirect()->back()->with('error', 'Terjadi error saat menyinkronkan: ' . $e->getMessage());
+            $message = 'Terjadi error saat menyinkronkan: ' . $e->getMessage();
+            
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', $message);
         }
     }
 }
