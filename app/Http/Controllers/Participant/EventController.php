@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
+    /**
+     * Check if the request expects a JSON response
+     */
+    private function isAjaxRequest(Request $request): bool
+    {
+        return $request->expectsJson() || $request->ajax();
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -83,7 +91,7 @@ class EventController extends Controller
 
             if ($totalEvents === 0) {
                 $message = 'Anda belum terdaftar sebagai peserta di event manapun.';
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->isAjaxRequest($request)) {
                     return response()->json([
                         'success' => false,
                         'message' => $message
@@ -133,7 +141,7 @@ class EventController extends Controller
                     $message .= " {$failedCount} event gagal disinkronkan.";
                 }
                 
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->isAjaxRequest($request)) {
                     return response()->json([
                         'success' => true,
                         'message' => $message,
@@ -146,7 +154,7 @@ class EventController extends Controller
             } else {
                 $message = "Gagal menyinkronkan semua {$totalEvents} event ke Google Calendar. Pastikan koneksi Google Calendar Anda masih aktif dan coba lagi.";
                 
-                if ($request->expectsJson() || $request->ajax()) {
+                if ($this->isAjaxRequest($request)) {
                     return response()->json([
                         'success' => false,
                         'message' => $message,
@@ -164,16 +172,26 @@ class EventController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            $message = 'Terjadi error saat menyinkronkan: ' . $e->getMessage();
+            $userMessage = 'Terjadi kesalahan saat menyinkronkan event ke Google Calendar. Silakan coba lagi nanti.';
+            $debugMessage = config('app.debug') ? $e->getMessage() : null;
             
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
+            if ($this->isAjaxRequest($request)) {
+                $jsonResponse = [
                     'success' => false,
-                    'message' => $message,
-                    'error' => $e->getMessage()
-                ], 500);
+                    'message' => $userMessage
+                ];
+                
+                // Only include detailed error in debug mode
+                if ($debugMessage) {
+                    $jsonResponse['debug_error'] = $debugMessage;
+                }
+                
+                return response()->json($jsonResponse, 500);
             }
-            return redirect()->back()->with('error', $message);
+            
+            // For non-AJAX, show more details if in debug mode
+            $redirectMessage = $debugMessage ? "{$userMessage} Detail: {$debugMessage}" : $userMessage;
+            return redirect()->back()->with('error', $redirectMessage);
         }
     }
 }
