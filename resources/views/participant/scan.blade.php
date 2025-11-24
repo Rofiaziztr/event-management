@@ -118,6 +118,8 @@
             <form action="{{ route('scan.verify') }}" method="POST" id="scan-form" class="hidden">
                 @csrf
                 <input type="hidden" name="event_code" id="event_code">
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
             </form>
         </div>
     </div>
@@ -129,6 +131,28 @@
                 const resultsElement = document.getElementById('qr-reader-results');
                 let html5QrcodeScanner = null;
                 let isInitialized = false;
+
+                // Get user location immediately
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            document.getElementById('latitude').value = lat;
+                            document.getElementById('longitude').value = lng;
+                            console.log('Location acquired:', lat, lng);
+                        },
+                        function(error) {
+                            console.warn('Location access denied or error:', error.message);
+                        }, {
+                            enableHighAccuracy: true,
+                            timeout: 5000,
+                            maximumAge: 0
+                        }
+                    );
+                } else {
+                    console.warn('Geolocation is not supported by this browser.');
+                }
 
                 function onScanSuccess(decodedText, decodedResult) {
                     console.log('QR Code detected:', decodedText);

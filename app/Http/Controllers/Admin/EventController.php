@@ -36,7 +36,9 @@ class EventController extends Controller
             $query->where('start_time', '>=', $start_date);
         }
         if ($end_date) {
-            $query->where('end_time', '<=', $end_date);
+            // Set end_date ke akhir hari (23:59:59) untuk include semua event di tanggal tersebut
+            $endDateTime = \Carbon\Carbon::createFromFormat('Y-m-d', $end_date)->endOfDay();
+            $query->where('end_time', '<=', $endDateTime);
         }
         if ($status) {
             $now = now();
@@ -167,7 +169,7 @@ class EventController extends Controller
     }
 
     /**
-     * Manual sync event to all participants' Google Calendars
+     * Full refresh sync - syncs event to all participants AND cleans orphaned events
      */
     public function syncCalendar(Event $event)
     {
@@ -175,7 +177,7 @@ class EventController extends Controller
             $participants = $event->participants;
             $totalParticipants = $participants->count();
 
-            \Illuminate\Support\Facades\Log::info('Admin manual calendar sync started', [
+            \Illuminate\Support\Facades\Log::info('Admin full refresh sync started', [
                 'event_id' => $event->id,
                 'admin_id' => \Illuminate\Support\Facades\Auth::id(),
                 'participant_count' => $totalParticipants
@@ -189,47 +191,69 @@ class EventController extends Controller
                 return redirect()->back()->with('warning', $message);
             }
 
-            // Get participants with Google Calendar access
-            $connectedParticipants = $participants->filter(function ($user) {
-                return $user->hasValidGoogleCalendarAccess();
-            });
+            // Get ALL users with Google Calendar access (not just participants)
+            // This allows cleanup of orphaned events even for non-participants
+            $allUsersWithGoogleAccess = \App\Models\User::whereNotNull('google_access_token')->get();
 
-            if ($connectedParticipants->isEmpty()) {
-                $message = "Tidak ada peserta yang menghubungkan Google Calendar mereka. Dari {$totalParticipants} peserta, 0 memiliki akses Google Calendar.";
+            if ($allUsersWithGoogleAccess->isEmpty()) {
+                $message = "Tidak ada user yang menghubungkan Google Calendar mereka.";
                 if (request()->ajax() || request()->wantsJson()) {
                     return response()->json(['success' => false, 'message' => $message, 'type' => 'warning']);
                 }
                 return redirect()->back()->with('warning', $message);
             }
 
-            // Dispatch background job for sync
-            \App\Jobs\SyncCalendarJob::dispatch($event, $connectedParticipants, 'bulk');
+            // Get participants with Google Calendar access (for sync)
+            $connectedParticipants = $participants->filter(function ($user) {
+                return $user->hasValidGoogleCalendarAccess();
+            });
 
-            $message = "Sinkronisasi calendar sedang diproses di background untuk {$connectedParticipants->count()} peserta yang terhubung. Anda akan menerima notifikasi saat selesai.";
+            // Dispatch background job for FULL REFRESH SYNC
+            // This includes:
+            // 1. Sync event to all connected participants
+            // 2. Clean orphaned events from ALL users with Google access
+            \App\Jobs\SyncCalendarJob::dispatch($event, $connectedParticipants, 'full_refresh');
+
+            $message = "Refresh penuh sedang diproses: Sinkronisasi event ke {$connectedParticipants->count()} peserta & pembersihan event orphan untuk {$allUsersWithGoogleAccess->count()} user dengan akses Google Calendar.";
+
+            // Log request type for debugging
+            \Illuminate\Support\Facades\Log::info('SyncCalendar request check', [
+                'is_ajax' => request()->ajax(),
+                'wants_json' => request()->wantsJson(),
+                'headers' => request()->headers->all(),
+                'event_id' => $event->id
+            ]);
 
             if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
+                $response_data = [
                     'success' => true,
                     'message' => $message,
                     'type' => 'info',
                     'stats' => [
+                        'synced_count' => $connectedParticipants->count(),
+                        'cleaned_count' => $allUsersWithGoogleAccess->count(),
                         'total_participants' => $totalParticipants,
                         'connected_participants' => $connectedParticipants->count(),
-                        'queued_for_sync' => $connectedParticipants->count()
+                        'users_for_cleanup' => $allUsersWithGoogleAccess->count(),
+                        'queued_for_sync' => $connectedParticipants->count(),
+                        'queued_for_cleanup' => $allUsersWithGoogleAccess->count()
                     ]
-                ]);
+                ];
+                \Illuminate\Support\Facades\Log::info('Returning JSON response', ['response' => $response_data]);
+                return response()->json($response_data);
             }
 
+            \Illuminate\Support\Facades\Log::info('Returning redirect response');
             return redirect()->back()->with('info', $message);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Manual calendar sync failed', [
+            \Illuminate\Support\Facades\Log::error('Full refresh sync failed', [
                 'event_id' => $event->id,
                 'admin_id' => \Illuminate\Support\Facades\Auth::id(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
 
-            $message = 'Terjadi error saat menyinkronkan: ' . $e->getMessage();
+            $message = 'Terjadi error saat refresh: ' . $e->getMessage();
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $message, 'type' => 'error']);
             }

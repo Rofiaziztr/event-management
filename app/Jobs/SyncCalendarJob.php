@@ -57,6 +57,7 @@ class SyncCalendarJob implements ShouldQueue
         $failedSyncs = 0;
         $connectedUsers = 0;
 
+        // Phase 1: Sync event to all participants
         foreach ($this->users as $user) {
             if (!$user->hasValidGoogleCalendarAccess()) {
                 Log::info("SyncCalendarJob: Skipping user without calendar access", [
@@ -98,6 +99,43 @@ class SyncCalendarJob implements ShouldQueue
                     'error' => $e->getMessage()
                 ]);
             }
+        }
+
+        // Phase 2: If full_refresh mode, cleanup orphaned events for ALL users with Google access
+        if ($this->syncType === 'full_refresh') {
+            Log::info("SyncCalendarJob: Starting orphaned event cleanup phase", [
+                'event_id' => $this->event->id
+            ]);
+
+            $allUsersWithGoogleAccess = User::whereNotNull('google_access_token')->get();
+            $cleanupCount = 0;
+
+            foreach ($allUsersWithGoogleAccess as $user) {
+                try {
+                    Log::info("SyncCalendarJob: Cleaning orphaned events for user", [
+                        'event_id' => $this->event->id,
+                        'user_id' => $user->id
+                    ]);
+
+                    if ($calendarService->cleanupOrphanedEvents($user)) {
+                        $cleanupCount++;
+                        Log::info("SyncCalendarJob: Successfully cleaned orphaned events for user", [
+                            'user_id' => $user->id
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning("SyncCalendarJob: Error cleaning orphaned events for user", [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage()
+                    ]);
+                    // Continue with other users
+                }
+            }
+
+            Log::info("SyncCalendarJob: Orphaned event cleanup phase completed", [
+                'event_id' => $this->event->id,
+                'users_cleaned' => $cleanupCount
+            ]);
         }
 
         Log::info("SyncCalendarJob: Completed {$this->syncType} calendar sync", [

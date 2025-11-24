@@ -327,34 +327,35 @@
                     Edit
                 </a>
 
-                {{-- Tombol Sync Calendar --}}
-                <div class="inline-block">
-                    <button type="button" id="sync-calendar-btn"
-                        class="inline-flex items-center px-3 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl text-sm md:font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                {{-- Tombol Sinkronisasi Google Calendar dengan Alpine.js --}}
+                <div x-data="syncButton()" class="inline-block relative">
+                    <button @click="syncCalendar()" :disabled="syncing"
+                        class="inline-flex items-center px-3 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-sm md:font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                        @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+
                         <!-- Loading spinner -->
-                        <svg id="sync-spinner" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2 animate-spin hidden"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg x-show="syncing" class="w-4 h-4 md:w-5 md:h-5 mr-2 animate-spin" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
 
                         <!-- Default sync icon -->
-                        <svg id="sync-icon" class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2" fill="none"
+                        <svg x-show="!syncing" class="w-4 h-4 md:w-5 md:h-5 mr-2" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
 
-                        <span id="sync-text">Sync Calendar</span>
+                        <span x-text="syncing ? 'Memproses...' : 'Sinkronisasi Google Calendar'"
+                            class="whitespace-nowrap"></span>
                     </button>
 
-                    <!-- Enhanced tooltip with sync stats -->
-                    <div id="sync-tooltip"
-                        class="absolute bottom-full mb-2 px-4 py-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg z-50 max-w-sm hidden">
-                        <div>Sinkronkan event ini ke Google Calendar semua peserta yang terhubung</div>
-                        <div
-                            class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800">
-                        </div>
+                    <!-- Tooltip -->
+                    <div x-show="showTooltip"
+                        class="absolute bottom-full mb-2 px-4 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg z-50 max-w-xs whitespace-normal">
+                        <div>Sinkronisasi penuh: Segarkan event ke Google Calendar semua peserta dan bersihkan event
+                            orphan dari semua akun</div>
                     </div>
                 </div> {{-- Tombol Hapus --}}
                 <form action="{{ route('admin.events.destroy', $event) }}" method="POST" class="inline"
@@ -377,111 +378,6 @@
 
     @push('scripts')
         <script>
-            // Sync Calendar functionality - Robust implementation
-            let isSyncing = false;
-
-            async function syncCalendar() {
-                if (isSyncing) {
-                    console.log('Sync already in progress, ignoring...');
-                    return;
-                }
-
-                const btn = document.getElementById('sync-calendar-btn');
-                const spinner = document.getElementById('sync-spinner');
-                const icon = document.getElementById('sync-icon');
-                const text = document.getElementById('sync-text');
-
-                if (!btn || !spinner || !icon || !text) {
-                    console.error('Required DOM elements not found');
-                    showNotification('error', 'Terjadi kesalahan pada interface. Silakan refresh halaman.');
-                    return;
-                }
-
-                // Set loading state
-                isSyncing = true;
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                spinner.classList.remove('hidden');
-                icon.classList.add('hidden');
-                text.textContent = 'Menyinkronkan...';
-
-                console.log('Starting calendar sync...');
-
-                try {
-                    // Get CSRF token
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-                    if (!csrfToken) {
-                        throw new Error('CSRF token not found');
-                    }
-
-                    const response = await fetch('{{ route('admin.events.sync-calendar', $event) }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: JSON.stringify({})
-                    });
-
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-                    console.log('Response data:', data);
-
-                    if (data.success) {
-                        showNotification('success', data.message);
-                    } else {
-                        const notificationType = data.type === 'warning' ? 'warning' : 'error';
-                        showNotification(notificationType, data.message || 'Sinkronisasi gagal');
-                    }
-                } catch (error) {
-                    console.error('Sync error:', error);
-                    showNotification('error', 'Terjadi error saat menyinkronkan: ' + error.message);
-                } finally {
-                    // Reset loading state
-                    isSyncing = false;
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    spinner.classList.add('hidden');
-                    icon.classList.remove('hidden');
-                    text.textContent = 'Sync Calendar';
-
-                    console.log('Sync process completed');
-                }
-            }
-
-            // Add event listener to sync button
-            document.addEventListener('DOMContentLoaded', function() {
-                const syncBtn = document.getElementById('sync-calendar-btn');
-                if (syncBtn) {
-                    syncBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        syncCalendar();
-                    });
-                    console.log('Sync calendar button event listener attached');
-                } else {
-                    console.error('Sync calendar button not found');
-                }
-
-                // Tooltip functionality
-                const tooltip = document.getElementById('sync-tooltip');
-                if (syncBtn && tooltip) {
-                    syncBtn.addEventListener('mouseenter', function() {
-                        tooltip.classList.remove('hidden');
-                    });
-                    syncBtn.addEventListener('mouseleave', function() {
-                        tooltip.classList.add('hidden');
-                    });
-                }
-            });
-
             function submitBulkInvite(method) {
                 document.getElementById('invite_method_input').value = method;
                 if (method === 'all') {
@@ -493,96 +389,149 @@
 
             // Notification helper function
             function showNotification(type, message) {
-                // Try to use Alpine store for alert if available
-                if (window.Alpine && Alpine.store('app')) {
-                    Alpine.store('app').addAlert(type, message);
-                } else {
-                    // Fallback: create notification container and show message
-                    let notificationsContainer = document.getElementById('notifications-container');
-                    if (!notificationsContainer) {
-                        notificationsContainer = document.createElement('div');
-                        notificationsContainer.id = 'notifications-container';
-                        notificationsContainer.className = 'fixed top-4 right-4 z-50 flex flex-col items-end space-y-3';
-                        document.body.appendChild(notificationsContainer);
+                console.log('[Notification] Type:', type, 'Message:', message);
+
+                // Create notification container if not exists
+                let notificationsContainer = document.getElementById('notifications-container');
+                if (!notificationsContainer) {
+                    console.log('[Notification] Creating container');
+                    notificationsContainer = document.createElement('div');
+                    notificationsContainer.id = 'notifications-container';
+                    // Use inline styles untuk ensure visibility
+                    notificationsContainer.style.cssText =
+                        'position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; align-items: flex-end;';
+                    document.body.appendChild(notificationsContainer);
+                    console.log('[Notification] Container added to body');
+                }
+
+                // Create notification div
+                const div = document.createElement('div');
+                let bgColor = '#ef4444'; // red
+                if (type === 'error') bgColor = '#ef4444';
+                else if (type === 'warning') bgColor = '#f97316';
+                else if (type === 'success') bgColor = '#22c55e';
+                else if (type === 'info') bgColor = '#3b82f6';
+
+                // Use inline styles untuk ensure visibility
+                div.style.cssText = `
+                    background-color: ${bgColor};
+                    color: white;
+                    padding: 20px 24px;
+                    border-radius: 8px;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                    min-width: 300px;
+                    animation: slideIn 0.3s ease-out;
+                `;
+
+                div.innerHTML = `
+                    <span style="flex: 1;">${message}</span>
+                    <button style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 0; line-height: 1;" onclick="this.parentElement.remove()">✕</button>
+                `;
+
+                notificationsContainer.appendChild(div);
+                console.log('[Notification] Appended to container. Container HTML:', notificationsContainer.innerHTML);
+                console.log('[Notification] Div computed style:', window.getComputedStyle(div));
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (div.parentNode) {
+                        div.parentNode.removeChild(div);
+                        console.log('[Notification] Auto-removed');
                     }
-
-                    const div = document.createElement('div');
-                    let bgColor;
-                    if (type === 'error') {
-                        bgColor = 'bg-red-500';
-                    } else if (type === 'warning') {
-                        bgColor = 'bg-orange-500';
-                    } else {
-                        bgColor = 'bg-gradient-to-r from-yellow-500 to-yellow-600';
-                    }
-
-                    // Add animation styles
-                    const animationStyles = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                .slide-in-right {
-                    animation: slideInRight 0.5s ease-out forwards;
-                }
-                .slide-out-right {
-                    animation: slideOutRight 0.5s ease-in forwards;
-                }
-            `;
-
-                    // Add styles if not already present
-                    if (!document.getElementById('notification-animations')) {
-                        const styleElement = document.createElement('style');
-                        styleElement.id = 'notification-animations';
-                        styleElement.innerHTML = animationStyles;
-                        document.head.appendChild(styleElement);
-                    }
-
-                    div.className = `px-6 py-4 rounded-lg shadow-lg text-white z-50 ${bgColor} slide-in-right`;
-                    div.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        ${type === 'error' ? '<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' :
-                           type === 'warning' ? '<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' :
-                           '<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
-                        <span>${message}</span>
-                    </div>
-                    <button onclick="closeNotification(this.parentElement.parentElement)" class="ml-4 w-5 h-5 flex items-center justify-center rounded-full bg-white bg-opacity-25 hover:bg-opacity-40 text-white transition-all">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-            `;
-
-                    notificationsContainer.appendChild(div);
-
-                    // Auto dismiss after 5 seconds
-                    setTimeout(() => closeNotification(div), 5000);
-                }
+                }, 5000);
             }
 
-            // Function to close notifications
-            function closeNotification(element) {
-                if (!element) return;
-
-                element.classList.remove('slide-in-right');
-                element.classList.add('slide-out-right');
-
-                setTimeout(() => {
-                    if (element && element.parentNode) {
-                        element.parentNode.removeChild(element);
-
-                        const container = document.getElementById('notifications-container');
-                        if (container && container.children.length === 0) {
-                            container.parentNode.removeChild(container);
+            // Add animation keyframes
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(400px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
                         }
                     }
-                }, 500);
+                `;
+                document.head.appendChild(style);
+                console.log('[Notification] Animation styles added');
+            }
+
+            function syncButton() {
+                return {
+                    syncing: false,
+                    showTooltip: false,
+
+                    async syncCalendar() {
+                        console.log('[SyncButton] Click handler triggered');
+
+                        if (this.syncing) {
+                            console.log('[SyncButton] Already syncing, ignoring click');
+                            return;
+                        }
+
+                        this.syncing = true;
+                        console.log('[SyncButton] Starting sync...');
+
+                        try {
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                            const url = '{{ route('admin.events.sync-calendar', $event) }}';
+
+                            console.log('[SyncButton] CSRF Token:', csrfToken ? 'OK' : 'MISSING');
+                            console.log('[SyncButton] URL:', url);
+                            console.log('[SyncButton] Sending fetch request...');
+
+                            const response = await fetch(url, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken,
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify({})
+                            });
+
+                            console.log('[SyncButton] Response Status:', response.status);
+
+                            if (!response.ok) {
+                                throw new Error('HTTP ' + response.status);
+                            }
+
+                            const data = await response.json();
+                            console.log('[SyncButton] Response Data:', data);
+
+                            if (data.success) {
+                                let msg = 'Refresh penuh dimulai: ';
+                                if (data.stats) {
+                                    msg += data.stats.synced_count + ' peserta akan disinkronkan';
+                                    if (data.stats.cleaned_count) msg += ', ' + data.stats.cleaned_count +
+                                        ' user akan dibersihkan';
+                                }
+                                console.log('[SyncButton] Calling showNotification with success');
+                                showNotification('success', msg);
+                            } else {
+                                console.log('[SyncButton] Response not successful');
+                                showNotification('warning', data.message || 'Sinkronisasi gagal');
+                            }
+                        } catch (error) {
+                            console.error('[SyncButton] Error caught:', error);
+                            showNotification('error', 'Error: ' + error.message);
+                        } finally {
+                            this.syncing = false;
+                            console.log('[SyncButton] Sync ended');
+                        }
+                    }
+                };
             }
         </script>
     @endpush

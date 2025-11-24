@@ -108,14 +108,14 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-cyan-100 card-hover">
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-orange-100 card-hover">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 mr-4">
-                            <div class="stats-icon stats-icon-cyan">
+                            <div class="stats-icon stats-icon-orange">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5 animate-pulse">
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        d="M5.25 5.653c0-.856.917-1.398 1.630-.628l11.591 8.347c.713.51.713 1.486 0 1.996L6.88 23.975c-.713.51-1.63-.036-1.63-.628V5.653Z" />
                                 </svg>
                             </div>
                         </div>

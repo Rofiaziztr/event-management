@@ -24,7 +24,11 @@ class ScanController extends Controller
     public function verify(Request $request)
     {
         // Validasi input
-        $request->validate(['event_code' => 'required|string']);
+        $request->validate([
+            'event_code' => 'required|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+        ]);
         $eventCode = $request->input('event_code');
         $user = Auth::user();
 
@@ -71,6 +75,8 @@ class ScanController extends Controller
             'event_id'      => $event->id,
             'user_id'       => $user->id,
             'check_in_time' => now(),
+            'latitude'      => $request->input('latitude'),
+            'longitude'     => $request->input('longitude'),
         ]);
 
         Log::info('Presensi berhasil: User ' . $user->id . ' untuk event ' . $event->id);

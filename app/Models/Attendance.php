@@ -19,6 +19,8 @@ class Attendance extends Model
         'event_id',
         'user_id',
         'check_in_time',
+        'latitude',
+        'longitude',
     ];
 
     /**

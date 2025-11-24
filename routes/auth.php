@@ -39,15 +39,20 @@ Route::middleware('guest')->group(function () {
     Route::get('auth/google', [SocialAuthController::class, 'redirectToGoogle'])
         ->name('google.login');
 
-    Route::get('auth/google/callback', function (\Illuminate\Http\Request $request) {
-        // Check if this is calendar auth
-        if ($request->has('state') && str_starts_with($request->state, 'calendar_auth_')) {
-            return app(\App\Http\Controllers\GoogleCalendarAuthController::class)->handleGoogleCallback($request);
-        }
-        // Otherwise handle as regular social auth
-        return app(\App\Http\Controllers\Auth\SocialAuthController::class)->handleGoogleCallback();
-    })->name('google.callback');
+    // Note: OAuth callback route is intentionally left outside "guest" middleware
+    // to allow processing for both authenticated users and guests (e.g., calendar auth)
 });
+
+// OAuth callback route is defined outside the guest group to allow callback
+// processing regardless of authentication state.
+Route::get('auth/google/callback', function (\Illuminate\Http\Request $request) {
+    // Check if this is calendar auth
+    if ($request->has('state') && str_starts_with($request->state, 'calendar_auth_')) {
+        return app(\App\Http\Controllers\GoogleCalendarAuthController::class)->handleGoogleCallback($request);
+    }
+    // Otherwise handle as regular social auth
+    return app(\App\Http\Controllers\Auth\SocialAuthController::class)->handleGoogleCallback();
+})->name('google.callback');
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)

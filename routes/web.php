@@ -79,9 +79,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/download-template', 'downloadTemplate')->name('download-template');
         });
 
-        // Multi-event comparison
-        Route::post('/events/export-comparison', [ParticipantController::class, 'exportComparison'])
-            ->name('events.export-comparison');
+        // Multi-event comparison (route removed) - previously used for multi-event exports
 
         // Manajemen dokumen
         Route::controller(DocumentController::class)->group(function () {

@@ -15,10 +15,14 @@ test('profile page is displayed', function () {
 test('profile information can be updated', function () {
     $user = User::factory()->create();
 
+    $this->actingAs($user)->get('/profile');
+    $token = session('_token');
+
     $response = $this
         ->actingAs($user)
         ->patch('/profile', [
-            'name' => 'Test User',
+            '_token' => $token,
+            'full_name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
@@ -28,7 +32,7 @@ test('profile information can be updated', function () {
 
     $user->refresh();
 
-    $this->assertSame('Test User', $user->name);
+    $this->assertSame('Test User', $user->full_name);
     $this->assertSame('test@example.com', $user->email);
     $this->assertNull($user->email_verified_at);
 });
@@ -36,10 +40,14 @@ test('profile information can be updated', function () {
 test('email verification status is unchanged when the email address is unchanged', function () {
     $user = User::factory()->create();
 
+    $this->actingAs($user)->get('/profile');
+    $token = session('_token');
+
     $response = $this
         ->actingAs($user)
         ->patch('/profile', [
-            'name' => 'Test User',
+            '_token' => $token,
+            'full_name' => 'Test User',
             'email' => $user->email,
         ]);
 
@@ -53,9 +61,13 @@ test('email verification status is unchanged when the email address is unchanged
 test('user can delete their account', function () {
     $user = User::factory()->create();
 
+    $this->actingAs($user)->get('/profile');
+    $token = session('_token');
+
     $response = $this
         ->actingAs($user)
         ->delete('/profile', [
+            '_token' => $token,
             'password' => 'password',
         ]);
 
@@ -70,10 +82,14 @@ test('user can delete their account', function () {
 test('correct password must be provided to delete account', function () {
     $user = User::factory()->create();
 
+    $this->actingAs($user)->get('/profile');
+    $token = session('_token');
+
     $response = $this
         ->actingAs($user)
         ->from('/profile')
         ->delete('/profile', [
+            '_token' => $token,
             'password' => 'wrong-password',
         ]);
 

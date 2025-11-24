@@ -30,7 +30,9 @@ class EventController extends Controller
         }
 
         if ($request->has('end_date') && $request->end_date != '') {
-            $query->whereDate('end_time', '<=', $request->end_date);
+            // Set end_date ke akhir hari (23:59:59) untuk include semua event di tanggal tersebut
+            $endDate = \Carbon\Carbon::createFromFormat('Y-m-d', $request->end_date)->endOfDay();
+            $query->where('end_time', '<=', $endDate);
         }
 
         // Filter berdasarkan status event

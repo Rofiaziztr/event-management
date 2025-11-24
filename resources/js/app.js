@@ -13,7 +13,7 @@ window.Alpine = Alpine;
 document.addEventListener("DOMContentLoaded", function () {
     // --- Date Picker Biasa (untuk create/edit) ---
     const regularPickers = document.querySelectorAll(
-        ".flatpickr:not(.flatpickr-all)"
+        ".flatpickr:not(.flatpickr-all):not(.flatpickr-date-only)"
     );
     regularPickers.forEach((input) => {
         if (input._flatpickr) input._flatpickr.destroy();
@@ -25,10 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
             locale: "id",
             allowInput: true,
             clickOpens: true,
-            minDate: new Date(), // Cegah masa lalu
-            onReady: (selectedDates, dateStr, instance) => {
-                instance.calendarContainer.style.zIndex = "9999";
-            },
+            minDate: new Date(),
+            disableMobile: true, // Force desktop mode on all devices
         });
     });
 
@@ -38,16 +36,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (input._flatpickr) input._flatpickr.destroy();
 
         flatpickr(input, {
-            enableTime: false, // 🔴 Matikan waktu
-            dateFormat: "Y-m-d", // Format YYYY-MM-DD
+            enableTime: false,
+            dateFormat: "Y-m-d",
             time_24hr: false,
             locale: "id",
             allowInput: true,
             clickOpens: true,
-            minDate: null, // 🔥 Bebas pilih masa lalu
-            onReady: (selectedDates, dateStr, instance) => {
-                instance.calendarContainer.style.zIndex = "9999";
-            },
+            minDate: null,
+            disableMobile: true, // Force desktop mode on all devices
         });
     });
 
@@ -63,24 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
             locale: "id",
             allowInput: true,
             clickOpens: true,
-            minDate: null, // 🔥 Izinkan semua tanggal
-            onReady: (selectedDates, dateStr, instance) => {
-                instance.calendarContainer.style.zIndex = "9999";
-            },
+            minDate: null,
+            disableMobile: true, // Force desktop mode on all devices
         });
     });
-
-    // Klik ikon kalender buka picker (untuk kedua jenis)
-    document
-        .querySelectorAll(".datepicker-icon, .pointer-events-none")
-        .forEach((icon) => {
-            icon.closest(".relative")?.addEventListener("click", function (e) {
-                const input = this.querySelector(".flatpickr, .flatpickr-all");
-                if (input && input._flatpickr) {
-                    input._flatpickr.open();
-                }
-            });
-        });
 });
 
 window.Alpine = Alpine;

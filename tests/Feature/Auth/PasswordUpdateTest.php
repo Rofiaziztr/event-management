@@ -5,11 +5,14 @@ use Illuminate\Support\Facades\Hash;
 
 test('password can be updated', function () {
     $user = User::factory()->create();
+    $this->actingAs($user)->get('/profile');
+    $token = session('_token');
 
     $response = $this
         ->actingAs($user)
         ->from('/profile')
         ->put('/password', [
+            '_token' => $token,
             'current_password' => 'password',
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
@@ -24,11 +27,14 @@ test('password can be updated', function () {
 
 test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
+    $this->actingAs($user)->get('/profile');
+    $token = session('_token');
 
     $response = $this
         ->actingAs($user)
         ->from('/profile')
         ->put('/password', [
+            '_token' => $token,
             'current_password' => 'wrong-password',
             'password' => 'new-password',
             'password_confirmation' => 'new-password',

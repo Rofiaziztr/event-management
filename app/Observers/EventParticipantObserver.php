@@ -60,23 +60,55 @@ class EventParticipantObserver
     }
 
     /**
-     * Handle the EventParticipant "deleted" event.
+     * Handle the EventParticipant "deleting" event (BEFORE deletion).
+     * FIX: Use deleting() instead of deleted() to access relationships before they're deleted
      */
-    public function deleted(EventParticipant $eventParticipant): void
+    public function deleting(EventParticipant $eventParticipant): void
     {
         // Remove event from participant's calendar when they are removed
+        // Use $eventParticipant->event and $eventParticipant->user which are still available here
+        if (!$eventParticipant->event || !$eventParticipant->user) {
+            Log::warning('EventParticipantObserver: Cannot remove from calendar - relationships not available', [
+                'event_id' => $eventParticipant->event_id,
+                'user_id' => $eventParticipant->user_id,
+                'event_exists' => $eventParticipant->event ? 'yes' : 'no',
+                'user_exists' => $eventParticipant->user ? 'yes' : 'no'
+            ]);
+            return;
+        }
+
         Log::info('EventParticipantObserver: Removing event from participant calendar', [
             'event_id' => $eventParticipant->event_id,
             'user_id' => $eventParticipant->user_id,
-            'event_title' => $eventParticipant->event->title ?? 'Unknown'
+            'event_title' => $eventParticipant->event->title,
+            'user_name' => $eventParticipant->user->full_name
         ]);
 
-        $this->calendarService->removeEventFromUserCalendar($eventParticipant->event, $eventParticipant->user);
+        try {
+            $this->calendarService->removeEventFromUserCalendar($eventParticipant->event, $eventParticipant->user);
 
-        Log::info('EventParticipantObserver: Finished removing event from participant calendar', [
-            'event_id' => $eventParticipant->event_id,
-            'user_id' => $eventParticipant->user_id
-        ]);
+            Log::info('EventParticipantObserver: Successfully removed event from participant calendar', [
+                'event_id' => $eventParticipant->event_id,
+                'user_id' => $eventParticipant->user_id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('EventParticipantObserver: Error removing event from calendar', [
+                'event_id' => $eventParticipant->event_id,
+                'user_id' => $eventParticipant->user_id,
+                'error' => $e->getMessage()
+            ]);
+            // Don't re-throw - let the deletion proceed even if calendar removal fails
+        }
+    }
+
+    /**
+     * Handle the EventParticipant "deleted" event (AFTER deletion).
+     * Kept for backward compatibility, but main work now done in deleting()
+     */
+    public function deleted(EventParticipant $eventParticipant): void
+    {
+        // Main work is done in deleting() hook
+        // This is kept as fallback/logging only
     }
 
     /**

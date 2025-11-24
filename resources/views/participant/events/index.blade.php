@@ -175,20 +175,20 @@
                 <h3 class="text-lg font-semibold text-white">Filter & Pencarian Event</h3>
             </div>
             <div class="bg-white shadow-xl border border-yellow-200 border-t-0 overflow-hidden">
-                <form method="GET" action="{{ route('participant.events.index') }}" class="p-6 space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="lg:col-span-2 md:col-span-2">
-                            <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Nama
+                <form method="GET" action="{{ route('participant.events.index') }}" class="p-4 sm:p-6 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cari Nama
                                 Event</label>
                             <input type="text" name="search" id="search" placeholder="Masukkan nama event..."
                                 value="{{ request('search') }}"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                         </div>
                         <div>
                             <label for="category_id"
-                                class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                                class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                             <select name="category_id" id="category_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}"
@@ -199,9 +199,9 @@
                             </select>
                         </div>
                         <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <select name="status" id="status"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
                                 <option value="">Semua Status</option>
                                 <option value="Terjadwal" {{ request('status') == 'Terjadwal' ? 'selected' : '' }}>
                                     Terjadwal</option>
@@ -214,25 +214,25 @@
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="lg:col-span-1 md:col-span-1">
-                            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Dari
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Dari
                                 Tanggal</label>
                             <x-date-picker-all-past name="start_date" id="start_date" :value="request('start_date')"
                                 placeholder="Pilih Tanggal" />
                         </div>
-
-                        <div class="lg:col-span-1 md:col-span-1">
-                            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Sampai
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Sampai
                                 Tanggal</label>
                             <x-date-picker-all-past name="end_date" id="end_date" :value="request('end_date')"
                                 placeholder="Pilih Tanggal" />
                         </div>
                     </div>
-                    <div class="flex items-center justify-end space-x-2">
-                        <button type="button" onclick="window.location.href='{{ route('participant.events.index') }}'"
-                            class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-xl font-medium text-white hover:bg-gray-600">
-                            <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    <div class="flex flex-col sm:flex-row items-center justify-end gap-2 sm:gap-3 pt-2">
+                        <button type="button"
+                            onclick="window.location.href='{{ route('participant.events.index') }}'"
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 sm:py-2 bg-gray-500 border border-transparent rounded-lg sm:rounded-xl font-medium text-white text-sm hover:bg-gray-600 transition-colors">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12" />
@@ -240,8 +240,8 @@
                             Clear Filter
                         </button>
                         <button type="submit"
-                            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-xl font-medium text-white hover:bg-indigo-700">
-                            <svg class="w-5 h-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 sm:py-2 bg-indigo-600 border border-transparent rounded-lg sm:rounded-xl font-medium text-white text-sm hover:bg-indigo-700 transition-colors">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

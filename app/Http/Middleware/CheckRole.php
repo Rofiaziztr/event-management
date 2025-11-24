@@ -26,6 +26,12 @@ class CheckRole
                 'role_required' => $role,
                 'session_id' => session()->getId()
             ]);
+
+            // Return JSON for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
             return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
         }
 
@@ -37,6 +43,12 @@ class CheckRole
                 'url' => $request->url(),
                 'user_id' => Auth::user()->id
             ]);
+
+            // Return JSON for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Forbidden'], 403);
+            }
+
             // Redirect berdasarkan role user
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.events.index')->with('error', 'Akses ditolak. Halaman ini hanya untuk peserta.');

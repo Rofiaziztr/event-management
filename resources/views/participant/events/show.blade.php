@@ -311,42 +311,107 @@
     </div>
 
     <script>
-        // Function to dismiss alert and save to localStorage
+        // Safe storage wrapper - detects and works around localStorage restrictions
+        const SafeStorage = {
+            data: {}, // In-memory fallback
+            isStorageAvailable: null, // Cache availability check
+
+            checkAvailable() {
+                if (this.isStorageAvailable !== null) {
+                    return this.isStorageAvailable;
+                }
+
+                try {
+                    const testKey = '__storage_test__';
+                    localStorage.setItem(testKey, 'test');
+                    localStorage.removeItem(testKey);
+                    this.isStorageAvailable = true;
+                    console.log('localStorage is available');
+                    return true;
+                } catch (e) {
+                    this.isStorageAvailable = false;
+                    console.log('localStorage is NOT available:', e.message);
+                    return false;
+                }
+            },
+
+            getItem(key) {
+                if (this.checkAvailable()) {
+                    try {
+                        return localStorage.getItem(key);
+                    } catch (e) {
+                        console.warn('localStorage.getItem failed, falling back to memory:', e.message);
+                        return this.data[key] || null;
+                    }
+                }
+                return this.data[key] || null;
+            },
+
+            setItem(key, value) {
+                if (this.checkAvailable()) {
+                    try {
+                        localStorage.setItem(key, value);
+                        return;
+                    } catch (e) {
+                        console.warn('localStorage.setItem failed, using memory fallback:', e.message);
+                    }
+                }
+                this.data[key] = value;
+            },
+
+            removeItem(key) {
+                if (this.checkAvailable()) {
+                    try {
+                        localStorage.removeItem(key);
+                    } catch (e) {
+                        console.warn('localStorage.removeItem failed:', e.message);
+                    }
+                }
+                delete this.data[key];
+            }
+        };
+
+        // Function to dismiss alert and save to storage
         function dismissAlert(alertId) {
             const alertElement = document.getElementById(alertId);
             if (alertElement) {
                 alertElement.style.display = 'none';
-                // Save dismissed state to localStorage with event ID
+                // Save dismissed state
                 const eventId = {{ $event->id }};
-                const dismissedAlerts = JSON.parse(localStorage.getItem('dismissedAlerts') || '{}');
-                dismissedAlerts['presensi_' + eventId] = Date.now(); // Save timestamp
-                localStorage.setItem('dismissedAlerts', JSON.stringify(dismissedAlerts));
+                try {
+                    const dismissedAlerts = JSON.parse(SafeStorage.getItem('dismissedAlerts') || '{}');
+                    dismissedAlerts['presensi_' + eventId] = Date.now();
+                    SafeStorage.setItem('dismissedAlerts', JSON.stringify(dismissedAlerts));
+                } catch (e) {
+                    console.warn('Could not save dismissed state:', e.message);
+                }
             }
         }
 
         // Check if alert was previously dismissed (within last 30 minutes)
         document.addEventListener('DOMContentLoaded', function() {
-            const eventId = {{ $event->id }};
-            const dismissedAlerts = JSON.parse(localStorage.getItem('dismissedAlerts') || '{}');
-            const alertKey = 'presensi_' + eventId;
+            try {
+                const eventId = {{ $event->id }};
+                const dismissedAlerts = JSON.parse(SafeStorage.getItem('dismissedAlerts') || '{}');
+                const alertKey = 'presensi_' + eventId;
 
-            if (dismissedAlerts[alertKey]) {
-                // Check if dismissed more than 30 minutes ago
-                const dismissedTime = dismissedAlerts[alertKey];
-                const currentTime = Date.now();
-                const minutesDiff = (currentTime - dismissedTime) / (1000 * 60);
+                if (dismissedAlerts[alertKey]) {
+                    const dismissedTime = dismissedAlerts[alertKey];
+                    const currentTime = Date.now();
+                    const minutesDiff = (currentTime - dismissedTime) / (1000 * 60);
 
-                // If dismissed more than 30 minutes ago, show alert again
-                if (minutesDiff > 30) {
-                    delete dismissedAlerts[alertKey];
-                    localStorage.setItem('dismissedAlerts', JSON.stringify(dismissedAlerts));
-                } else {
-                    // Still within 30 minutes, hide alert
-                    const alertElement = document.getElementById('presensi-alert');
-                    if (alertElement) {
-                        alertElement.style.display = 'none';
+                    if (minutesDiff > 30) {
+                        delete dismissedAlerts[alertKey];
+                        SafeStorage.setItem('dismissedAlerts', JSON.stringify(dismissedAlerts));
+                    } else {
+                        const alertElement = document.getElementById('presensi-alert');
+                        if (alertElement) {
+                            alertElement.style.display = 'none';
+                        }
                     }
                 }
+            } catch (e) {
+                console.warn('Error checking dismissed alerts:', e.message);
             }
         });
     </script>

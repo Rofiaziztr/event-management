@@ -214,9 +214,19 @@ class GoogleCalendarService
 
     /**
      * Remove event from user's Google Calendar
+     * Enhanced with better sync record cleanup
      */
     public function removeEventFromUserCalendar(Event $event, User $user)
     {
+        // FIX: Handle null event or user gracefully
+        if (!$event || !$user) {
+            Log::warning('removeEventFromUserCalendar called with null event or user', [
+                'event_id' => $event ? $event->id : 'NULL',
+                'user_id' => $user ? $user->id : 'NULL'
+            ]);
+            return false;
+        }
+
         if (!$user->hasGoogleCalendarAccess()) {
             Log::info('User does not have Google Calendar access, skipping delete', [
                 'user_id' => $user->id,
@@ -467,6 +477,9 @@ class GoogleCalendarService
     public function refreshUserToken(User $user)
     {
         if (!$user->google_refresh_token) {
+            Log::warning('Cannot refresh Google token - no refresh token available', [
+                'user_id' => $user->id
+            ]);
             return false;
         }
 
@@ -475,22 +488,73 @@ class GoogleCalendarService
             $client = new \Google_Client();
             $client->setClientId(config('services.google.client_id'));
             $client->setClientSecret(config('services.google.client_secret'));
-            $client->refreshToken($user->google_refresh_token);
 
-            $newToken = $client->getAccessToken();
+            // refreshToken() returns the token directly, doesn't set it on the client
+            $newToken = $client->refreshToken($user->google_refresh_token);
+
+            // Check if token refresh had an error (invalid_grant, etc.)
+            if (is_array($newToken) && isset($newToken['error'])) {
+                Log::error('Google token refresh returned error', [
+                    'user_id' => $user->id,
+                    'error' => $newToken['error'],
+                    'error_description' => $newToken['error_description'] ?? 'Unknown'
+                ]);
+
+                // If it's invalid_grant, the refresh token is no longer valid (expired or revoked)
+                // Clear tokens so user has to re-authenticate
+                if ($newToken['error'] === 'invalid_grant') {
+                    Log::info('Clearing invalid Google tokens for user', [
+                        'user_id' => $user->id,
+                        'reason' => 'Refresh token invalid or revoked by Google'
+                    ]);
+
+                    $user->update([
+                        'google_access_token' => null,
+                        'google_refresh_token' => null,
+                        'google_token_expires_at' => null,
+                        'google_calendar_id' => null,
+                    ]);
+
+                    EventCalendarSync::where('user_id', $user->id)->delete();
+                }
+
+                return false;
+            }
+
+            // Validate that token refresh returned valid data
+            if (!$newToken || empty($newToken['access_token']) || empty($newToken['expires_in'])) {
+                Log::error('Google token refresh returned invalid response', [
+                    'user_id' => $user->id,
+                    'token_response_type' => gettype($newToken),
+                    'token_keys' => is_array($newToken) ? implode(",", array_keys($newToken)) : 'N/A'
+                ]);
+                return false;
+            }
+
+            // Add 5-second buffer to token expiry to prevent race condition
+            // where token appears expired immediately after refresh
+            $expiresIn = (int) $newToken['expires_in'];
+            $bufferSeconds = 5;
+            $tokenExpiresAt = now()->addSeconds($expiresIn > $bufferSeconds ? $expiresIn - $bufferSeconds : $expiresIn);
 
             $user->update([
                 'google_access_token' => $newToken['access_token'],
-                'google_token_expires_at' => now()->addSeconds($newToken['expires_in']),
+                'google_token_expires_at' => $tokenExpiresAt,
                 'google_refresh_token' => $newToken['refresh_token'] ?? $user->google_refresh_token,
             ]);
 
-            Log::info('Refreshed Google token for user', ['user_id' => $user->id]);
+            Log::info('Successfully refreshed Google token for user', [
+                'user_id' => $user->id,
+                'expires_in' => $expiresIn,
+                'expires_at' => $tokenExpiresAt->toDateTimeString()
+            ]);
             return true;
         } catch (\Exception $e) {
             Log::error('Failed to refresh Google token', [
                 'user_id' => $user->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile() . ':' . $e->getLine()
             ]);
             return false;
         }
@@ -508,15 +572,94 @@ class GoogleCalendarService
         }
 
         try {
+            // NEW: First, validate JWT token directly without API call
+            // This is more reliable and doesn't depend on Google API availability
+            if ($this->validateTokenJWT($user)) {
+                Log::info('Google Calendar access validated successfully (JWT check)', ['user_id' => $user->id]);
+                return true;
+            }
+
+            // If JWT validation failed, try refresh if we have refresh token
+            if ($user->google_refresh_token) {
+                Log::info('JWT validation failed, attempting token refresh', ['user_id' => $user->id]);
+                if ($this->refreshUserToken($user)) {
+                    Log::info('Token refreshed successfully', ['user_id' => $user->id]);
+                    return true;
+                }
+            }
+
+            // If no refresh token or refresh failed, do API validation
+            // This is a fallback and might fail due to network issues
+            Log::info('Attempting API validation as fallback', ['user_id' => $user->id]);
+            return $this->validateAccessViaAPI($user);
+        } catch (\Exception $e) {
+            Log::error('Error during Google Calendar access validation', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Validate token using JWT decode (doesn't require API call)
+     * This is more reliable than API calls for checking token validity
+     */
+    private function validateTokenJWT(User $user)
+    {
+        try {
+            if (!$user->google_access_token) {
+                return false;
+            }
+
+            // Parse JWT token without verification (we trust it came from Google)
+            $parts = explode('.', $user->google_access_token);
+            if (count($parts) !== 3) {
+                Log::warning('Invalid JWT token format', ['user_id' => $user->id]);
+                return false;
+            }
+
+            // Decode the payload (second part)
+            $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+
+            if (!$payload || !isset($payload['exp'])) {
+                Log::warning('Invalid JWT payload', ['user_id' => $user->id]);
+                return false;
+            }
+
+            // Check if token is expired (add 60 second buffer)
+            $expiryTime = $payload['exp'] + 60;
+            if (time() > $expiryTime) {
+                Log::info('JWT token expired', ['user_id' => $user->id, 'expired_at' => date('Y-m-d H:i:s', $payload['exp'])]);
+                return false;
+            }
+
+            Log::info('JWT token is valid', ['user_id' => $user->id, 'expires_at' => date('Y-m-d H:i:s', $payload['exp'])]);
+            return true;
+        } catch (\Exception $e) {
+            Log::warning('JWT validation error', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Validate access via Google Calendar API call
+     * This is a fallback and might fail due to network/rate limiting issues
+     */
+    private function validateAccessViaAPI(User $user)
+    {
+        try {
             $client = $this->getGoogleClientForUser($user);
             $service = new \Google\Service\Calendar($client);
 
             // Make a simple API call to test if token is still valid
-            // We'll try to get the calendar list (this is a lightweight call)
             $calendarList = $service->calendarList->listCalendarList(['maxResults' => 1]);
 
             // If we get here without exception, token is valid
-            Log::info('Google Calendar access validated successfully', ['user_id' => $user->id]);
+            Log::info('Google Calendar access validated via API', ['user_id' => $user->id]);
             return true;
         } catch (\Google\Service\Exception $e) {
             $code = $e->getCode();
@@ -550,20 +693,25 @@ class GoogleCalendarService
                 'error' => $e->getMessage()
             ]);
 
-            return false;
+            // IMPORTANT: Return true for non-auth errors
+            // Don't fail validation for network/rate limiting issues
+            Log::info('Returning true for non-auth error (might be temporary API issue)', ['user_id' => $user->id]);
+            return true;
         } catch (\Exception $e) {
-            Log::error('Unexpected error during Google Calendar access validation', [
+            Log::error('Unexpected error during Google Calendar API validation', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage()
             ]);
-            return false;
+            // Return true for unexpected errors to avoid false negatives
+            return true;
         }
     }
 
     /**
      * Get Google Client configured for specific user
+     * Changed from protected to public for use by other services (e.g., SyncVerificationService)
      */
-    protected function getGoogleClientForUser(User $user)
+    public function getGoogleClientForUser(User $user)
     {
         $client = new \Google_Client();
         $client->setClientId(config('services.google.client_id'));
@@ -885,6 +1033,116 @@ class GoogleCalendarService
         } catch (\Exception $e) {
             Log::error('Failed to cleanup orphaned events', [
                 'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Get all events from user's Google Calendar
+     */
+    public function getUserGoogleCalendarEvents(User $user): array
+    {
+        if (!$user->hasGoogleCalendarAccess()) {
+            Log::warning('getUserGoogleCalendarEvents: User has no Google Calendar access', [
+                'user_id' => $user->id
+            ]);
+            return [];
+        }
+
+        // Refresh token if expired
+        if ($user->isGoogleTokenExpired()) {
+            if (!$this->refreshUserToken($user)) {
+                Log::error('getUserGoogleCalendarEvents: Token refresh failed', [
+                    'user_id' => $user->id
+                ]);
+                return [];
+            }
+        }
+
+        try {
+            $client = $this->getGoogleClientForUser($user);
+            $service = new \Google\Service\Calendar($client);
+
+            $optParams = [
+                'maxResults' => 250,
+                'orderBy' => 'updated',
+            ];
+
+            $results = $service->events->listEvents('primary', $optParams);
+            $events = $results->getItems();
+
+            Log::info('getUserGoogleCalendarEvents: Retrieved events', [
+                'user_id' => $user->id,
+                'event_count' => count($events)
+            ]);
+
+            return $events;
+        } catch (\Exception $e) {
+            Log::error('getUserGoogleCalendarEvents: Error retrieving events', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            return [];
+        }
+    }
+
+    /**
+     * Delete a specific Google Calendar event by ID
+     */
+    public function deleteGoogleCalendarEvent(User $user, string $googleEventId): bool
+    {
+        if (!$user->hasGoogleCalendarAccess()) {
+            Log::warning('deleteGoogleCalendarEvent: User has no Google Calendar access', [
+                'user_id' => $user->id,
+                'google_event_id' => $googleEventId
+            ]);
+            return false;
+        }
+
+        // Refresh token if expired
+        if ($user->isGoogleTokenExpired()) {
+            if (!$this->refreshUserToken($user)) {
+                Log::error('deleteGoogleCalendarEvent: Token refresh failed', [
+                    'user_id' => $user->id
+                ]);
+                return false;
+            }
+        }
+
+        try {
+            $client = $this->getGoogleClientForUser($user);
+            $service = new \Google\Service\Calendar($client);
+
+            $service->events->delete('primary', $googleEventId);
+
+            Log::info('deleteGoogleCalendarEvent: Event deleted', [
+                'user_id' => $user->id,
+                'google_event_id' => $googleEventId
+            ]);
+
+            return true;
+        } catch (\Google\Service\Exception $e) {
+            if ($e->getCode() === 404) {
+                // Event already deleted or doesn't exist
+                Log::info('deleteGoogleCalendarEvent: Event not found (already deleted)', [
+                    'user_id' => $user->id,
+                    'google_event_id' => $googleEventId
+                ]);
+                return true;
+            }
+
+            Log::error('deleteGoogleCalendarEvent: Error deleting event', [
+                'user_id' => $user->id,
+                'google_event_id' => $googleEventId,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        } catch (\Exception $e) {
+            Log::error('deleteGoogleCalendarEvent: Unexpected error', [
+                'user_id' => $user->id,
+                'google_event_id' => $googleEventId,
                 'error' => $e->getMessage()
             ]);
             return false;

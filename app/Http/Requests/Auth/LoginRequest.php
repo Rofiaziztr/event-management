@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class LoginRequest extends FormRequest
 {
@@ -37,6 +38,14 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Accept both 'email' and 'login' for compatibility with tests and forms
+        if (! $this->has('login') && $this->has('email')) {
+            $this->merge(['login' => $this->input('email')]);
+        }
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *
@@ -47,12 +56,17 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $login = $this->string('login');
+        // debug info
+        \Illuminate\Support\Facades\Log::debug('LoginRequest.authenticate: login value', ['login' => $login, 'input' => $this->all()]);
 
         // Determine if login is email or NIP
         $credentials = filter_var($login, FILTER_VALIDATE_EMAIL)
             ? ['email' => $login, 'password' => $this->string('password')]
             : ['nip' => $login, 'password' => $this->string('password')];
 
+        Log::info('Attempting authentication', ['credentials' => array_key_exists('email', $credentials) ? ['email'=>$credentials['email']] : ['nip'=>$credentials['nip']]]);
+        // temporarily throw to inspect value
+        // throw new \Exception('Attempting auth with: ' . json_encode($credentials));
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 

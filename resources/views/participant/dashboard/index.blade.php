@@ -7,7 +7,6 @@
                 </h2>
                 <p class="text-gray-600 mt-1">Selamat datang, {{ auth()->user()->full_name }}</p>
                 <p class="text-sm text-yellow-600 font-medium flex items-center">
-                    <span class="mr-1">🎪</span>
                     Peserta Event
                 </p>
             </div>
@@ -76,8 +75,7 @@
         </div>
     </x-slot>
 
-    <div
-        class="max-w-full md:max-w-7xl lg:max-w-[90%] xl:max-w-[95%] 2xl:max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <div class="w-full py-6 space-y-8">
 
         @push('styles')
             <style>
@@ -124,121 +122,126 @@
             </style>
         @endpush
 
-        <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 min-h-screen">
-            <div class="max-w-7xl mt-10 mx-auto px-6 space-y-8 pb-8">
+        <div class="bg-gradient-to-br from-yellow-50 via-white to-yellow-100 w-full">
+            <div class="w-full space-y-8 py-8">
 
                 {{-- Statistics Cards --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 mr-4">
-                                <div class="stats-icon stats-icon-blue">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                                    </svg>
+                <div class="px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="stats-icon stats-icon-blue">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                        </svg>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-500 font-medium">Total Undangan</p>
-                                <p class="text-3xl font-bold text-gray-900">{{ $totalInvitations }}</p>
-                                <p class="text-xs text-blue-600 mt-1">Event selesai</p>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-500 font-medium">Total Undangan</p>
+                                    <p class="text-3xl font-bold text-gray-900">{{ $totalInvitations }}</p>
+                                    <p class="text-xs text-blue-600 mt-1">Event selesai</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 mr-4">
-                                <div class="stats-icon stats-icon-green">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                    </svg>
+                        <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="stats-icon stats-icon-green">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-500 font-medium">Total Kehadiran</p>
-                                <p class="text-3xl font-bold text-gray-900">{{ $attendedCount }}</p>
-                                <p class="text-xs text-green-600 mt-1">{{ $attendanceRate }}% tingkat hadir</p>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-500 font-medium">Total Kehadiran</p>
+                                    <p class="text-3xl font-bold text-gray-900">{{ $attendedCount }}</p>
+                                    <p class="text-xs text-green-600 mt-1">{{ $attendanceRate }}% tingkat hadir</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 mr-4">
-                                <div class="stats-icon stats-icon-orange">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                    </svg>
+                        <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="stats-icon stats-icon-orange">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-500 font-medium">Event Terlewat</p>
-                                <p class="text-3xl font-bold text-gray-900">{{ $missedEventsCount }}</p>
-                                <p class="text-xs text-red-600 mt-1">
-                                    {{ $totalInvitations > 0 ? round(($missedEventsCount / $totalInvitations) * 100) : 0 }}%
-                                    dari total</p>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-500 font-medium">Event Terlewat</p>
+                                    <p class="text-3xl font-bold text-gray-900">{{ $missedEventsCount }}</p>
+                                    <p class="text-xs text-red-600 mt-1">
+                                        {{ $totalInvitations > 0 ? round(($missedEventsCount / $totalInvitations) * 100) : 0 }}%
+                                        dari total</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 mr-4">
-                                <div class="stats-icon stats-icon-yellow">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                                    </svg>
+                        <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200 card-hover">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 mr-4">
+                                    <div class="stats-icon stats-icon-yellow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                                        </svg>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-500 font-medium">Tingkat Kehadiran</p>
-                                <p class="text-3xl font-bold text-gray-900">{{ $attendanceRate }}%</p>
-                                <p class="text-xs text-yellow-600 mt-1">
-                                    @if ($attendanceRate >= 90)
-                                        Excellent!
-                                    @elseif($attendanceRate >= 80)
-                                        Good!
-                                    @elseif($attendanceRate >= 70)
-                                        Fair
-                                    @else
-                                        Needs Improvement
-                                    @endif
-                                </p>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-500 font-medium">Tingkat Kehadiran</p>
+                                    <p class="text-3xl font-bold text-gray-900">{{ $attendanceRate }}%</p>
+                                    <p class="text-xs text-yellow-600 mt-1">
+                                        @if ($attendanceRate >= 90)
+                                            Excellent!
+                                        @elseif($attendanceRate >= 80)
+                                            Good!
+                                        @elseif($attendanceRate >= 70)
+                                            Fair
+                                        @else
+                                            Needs Improvement
+                                        @endif
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Google Calendar Integration --}}
-                <div class="bg-white rounded-2xl p-6 shadow-xl border border-yellow-200">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-3 mb-2">
-                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-900">Google Calendar</h3>
-                                    <p class="text-sm text-gray-500">Otomatis sinkronkan event ke kalender Google Anda
-                                    </p>
+                <div class="px-4 sm:px-6 lg:px-8 space-y-6">
+                    {{-- Google Calendar Integration - Main Card --}}
+                    <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-yellow-200">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                            {{-- Left: Title & Description --}}
+                            <div class="flex-1">
+                                <div class="flex items-start space-x-4">
+                                    <div class="p-3 bg-blue-100 rounded-lg flex-shrink-0">
+                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="text-2xl font-bold text-gray-900">Google Calendar</h3>
+                                        <p class="text-gray-600 mt-1">Otomatis simpan event Anda ke Google Calendar dan
+                                            terima notifikasi reminder</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            {{-- =================== START PERBAIKAN ERROR =================== --}}
-                            <div id="google-calendar-status" class="flex items-center space-x-2">
+
+                            {{-- Right: Status Badge --}}
+                            <div id="google-calendar-status" class="flex flex-col items-center lg:items-end gap-3">
                                 {{-- Loading state initially --}}
-                                <div class="flex items-center space-x-2 text-gray-500">
+                                <div class="flex items-center space-x-2 text-gray-600">
                                     <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -247,345 +250,310 @@
                                     <span class="text-sm font-medium">Memeriksa status...</span>
                                 </div>
                             </div>
+                        </div>
 
-                            {{-- Tombol Bantuan (ditampilkan untuk kedua kondisi) --}}
-                            <div x-data="{ helpDropdown: false }" class="relative inline-block">
-                                <button @click="helpDropdown = !helpDropdown" @click.away="helpDropdown = false"
-                                    class="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+
+                        {{-- Panduan Pengguna - Collapsible --}}
+                        <div x-data="{ guideOpen: false }" class="mt-3 pt-3 ">
+                            <button @click="guideOpen = !guideOpen"
+                                class="w-full flex items-center justify-between px-4 py-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors text-left">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    Bantuan
-                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </button>
-                                <div x-show="helpDropdown" x-cloak @click.outside="helpDropdown = false"
-                                    @keydown.escape.window="helpDropdown = false"
-                                    x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 scale-95"
-                                    x-transition:enter-end="opacity-100 scale-100"
-                                    x-transition:leave="transition ease-in duration-150"
-                                    x-transition:leave-start="opacity-100 scale-100"
-                                    x-transition:leave-end="opacity-0 scale-95"
-                                    class="absolute right-0 z-50 mt-2 w-[28rem] origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                    <div class="p-4">
-                                        <div class="flex items-center mb-4">
-                                            <div class="flex-shrink-0">
-                                                <div
-                                                    class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                    <svg class="w-4 h-4 text-blue-600" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="ml-3">
-                                                <h4 class="text-sm font-medium text-gray-900">Panduan Google Calendar
-                                                </h4>
-                                                <p class="text-xs text-gray-500">Pelajari cara menghubungkan dan
-                                                    memutuskan akses</p>
-                                            </div>
-                                        </div>
-                                        <div class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                                            <form method="POST"
-                                                action="{{ route('google-calendar.validate-access') }}">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="w-full flex items-center justify-center px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                    </svg>
-                                                    <span>Periksa Status Koneksi</span>
-                                                </button>
-                                            </form>
-                                            <p class="text-xs text-gray-500 mt-2">Klik untuk memeriksa apakah koneksi
-                                                Google Calendar masih aktif</p>
-                                        </div>
-                                        <div class="mb-4">
-                                            <h5 class="text-sm font-medium text-green-700 mb-2 flex items-center">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                </svg>
-                                                Menghubungkan Google Calendar
-                                            </h5>
-                                            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
-                                                <p class="text-sm text-green-800 mb-2">Klik tombol "Hubungkan Google
-                                                    Calendar" di atas, lalu ikuti langkah-langkah:</p>
-                                                <div class="text-xs text-green-700 space-y-1">
-                                                    <p>1. Pilih akun Google Anda</p>
-                                                    <p>2. Berikan izin akses ke Calendar</p>
-                                                    <p>3. Event akan otomatis tersimpan di kalender Anda</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-4">
-                                            <h5 class="text-sm font-medium text-red-700 mb-2 flex items-center">
-                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                                Memutuskan Akses Google Calendar
-                                            </h5>
-                                            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                                                <p class="text-sm text-red-800 mb-2">Untuk memutuskan akses, ikuti
-                                                    langkah-langkah di Google Account:</p>
-                                                <div class="text-xs text-red-700 space-y-1">
-                                                    <p>1. Buka <strong>myaccount.google.com</strong></p>
-                                                    <p>2. Pilih menu <strong>"Keamanan"</strong></p>
-                                                    <p>3. Cari <strong>"Aplikasi pihak ketiga"</strong></p>
-                                                    <p>4. Cari dan klik <strong>"Event Management"</strong></p>
-                                                    <p>5. Klik <strong>"Hapus akses"</strong></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="pt-3 border-t border-gray-200">
-                                            <div class="flex space-x-2">
-                                                <a href="https://myaccount.google.com/permissions?continue=https://calendar.google.com"
-                                                    target="_blank"
-                                                    class="flex-1 bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center">
-                                                    Buka Google Account
-                                                </a>
-                                                <button @click="helpDropdown = false"
-                                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                                                    Tutup
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <span class="font-semibold text-gray-900">Panduan Pengguna Selengkapnya</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- Bagian ini hanya ditampilkan jika user belum terhubung --}}
-                    @if (!auth()->user()->hasGoogleCalendarAccess())
-                        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <h4 class="text-sm font-medium text-blue-800">Apa manfaatnya?</h4>
-                                    <div class="mt-2 text-sm text-blue-700 space-y-1">
-                                        <p class="flex items-center">
-                                            <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Event otomatis tersimpan di Google Calendar
-                                        </p>
-                                        <p class="flex items-center">
-                                            <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Notifikasi reminder tepat waktu
-                                        </p>
-                                        <p class="flex items-center">
-                                            <svg class="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Sinkron dengan semua perangkat
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    {{-- =================== END PERBAIKAN ERROR =================== --}}
-                </div>
-
-                {{-- Upcoming Events List --}}
-                <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
-                    <div class="p-6 border-b border-gray-100">
-                        <h3 class="text-2xl font-bold text-gray-900">Event Akan Datang</h3>
-                        <p class="text-gray-500 mt-1">Jadwal event yang akan segera dimulai. Pastikan untuk hadir dan
-                            tingkatkan tingkat kehadiran Anda!</p>
-                    </div>
-                    <div class="divide-y divide-gray-100">
-                        @forelse ($upcomingEvents as $event)
-                            <a href="{{ route('participant.events.show', $event) }}"
-                                class="block p-6 hover:bg-yellow-50 transition-colors duration-200">
-                                <div
-                                    class="flex flex-col lg:flex-row justify-between lg:items-center space-y-3 lg:space-y-0">
-                                    <div class="flex items-start space-x-4">
-                                        <div class="p-3 bg-yellow-100 rounded-xl">
-                                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-bold text-gray-900 text-lg">{{ $event->title }}</h4>
-                                            <p class="text-gray-500 mt-1">{{ $event->location }}</p>
-                                            <div class="flex items-center space-x-4 mt-2">
-                                                @if ($event->category)
-                                                    <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                        {{ $event->category->name }}
-                                                    </span>
-                                                @endif
-                                                <span
-                                                    class="text-sm text-gray-500">{{ $event->participants->count() }}
-                                                    peserta</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-left lg:text-right">
-                                        <p class="text-lg font-bold text-yellow-600">
-                                            {{ $event->start_time->format('d M Y, H:i') }} WIB
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-1">{{ $event->status }}</p>
-                                        <span
-                                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
-                                            {{ $event->status }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </a>
-                        @empty
-                            <div class="p-12 text-center">
-                                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none"
+                                <svg class="w-5 h-5 text-gray-600 transition-transform"
+                                    :class="{ 'transform rotate-180': guideOpen }" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                 </svg>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Event Mendatang</h3>
-                                <p class="text-gray-500">Tidak ada event yang dijadwalkan dalam waktu dekat.</p>
+                            </button>
+
+                            {{-- Expandable Content --}}
+                            <div x-show="guideOpen" x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                class="mt-4 space-y-4">
+
+                                {{-- Step 1: Connect --}}
+                                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div
+                                            class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                            1</div>
+                                        <h4 class="ml-3 font-semibold text-gray-900">Hubungkan Google Calendar</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-3 ml-11">Klik tombol di atas untuk menghubungkan
+                                        akun Google Anda</p>
+                                    <ol class="text-sm text-gray-700 space-y-2 list-decimal list-inside ml-11">
+                                        <li>Pilih akun Google Anda</li>
+                                        <li>Berikan izin akses ke Calendar</li>
+                                        <li>Selesai! Event akan tersimpan otomatis</li>
+                                    </ol>
+                                </div>
+
+                                {{-- Step 2: Sync --}}
+                                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div
+                                            class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                            2</div>
+                                        <h4 class="ml-3 font-semibold text-gray-900">Sinkronkan Event Anda</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-3 ml-11">Setelah terhubung, sinkronkan event
+                                        yang sudah berlangsung</p>
+                                    <div class="ml-11 bg-white border border-blue-100 rounded p-3">
+                                        <p class="text-sm text-gray-700 font-semibold mb-2">Klik "Sync Ulang" untuk:
+                                        </p>
+                                        <ul class="text-sm text-gray-700 space-y-1">
+                                            <li>✓ Update event terbaru</li>
+                                            <li>✓ Ambil event yang sudah lalu</li>
+                                            <li>✓ Refresh data kalender</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {{-- Step 3: Disconnect --}}
+                                <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <div class="flex items-center mb-3">
+                                        <div
+                                            class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                            3</div>
+                                        <h4 class="ml-3 font-semibold text-gray-900">Putuskan Koneksi (Opsional)</h4>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mb-3 ml-11">Jika ingin memutuskan akses Google
+                                        Calendar:</p>
+                                    <ol class="text-sm text-gray-700 space-y-2 list-decimal list-inside ml-11">
+                                        <li>Buka <a href="https://myaccount.google.com/permissions" target="_blank"
+                                                class="text-blue-600 hover:underline font-semibold">myaccount.google.com</a>
+                                        </li>
+                                        <li>Pilih menu "Keamanan"</li>
+                                        <li>Cari "Aplikasi pihak ketiga" atau "Third-party apps"</li>
+                                        <li>Cari dan pilih "Event Management"</li>
+                                        <li>Klik "Hapus akses" atau "Remove access"</li>
+                                    </ol>
+                                </div>
+
+                                {{-- Tips Section --}}
+                                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-yellow-600" fill="currentColor"
+                                            viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        Tips & Trik
+                                    </h4>
+                                    <ul class="text-sm text-gray-700 space-y-2">
+                                        <li><strong>💡 Sync Otomatis:</strong> Tidak perlu sync manual setiap kali,
+                                            event akan tersimpan otomatis saat Anda hadir</li>
+                                        <li><strong>🔔 Reminder:</strong> Aktifkan notifikasi di Google Calendar untuk
+                                            mendapat pengingat sebelum event dimulai</li>
+                                        <li><strong>📱 Multiple Device:</strong> Event akan tersinkronisasi di semua
+                                            perangkat Anda yang terhubung dengan Google Account</li>
+                                    </ul>
+                                </div>
                             </div>
-                        @endforelse
-                    </div>
-                    @if ($upcomingEvents->isNotEmpty())
-                        <div class="p-6 border-t border-gray-100 text-center">
-                            <a href="{{ route('participant.events.index') }}"
-                                class="text-yellow-600 hover:text-yellow-700 font-semibold transition-colors duration-200">
-                                Lihat Semua Event →
-                            </a>
                         </div>
-                    @endif
+                    </div>
+                </div> {{-- Upcoming Events List --}}
+                <div class="px-4 sm:px-6 lg:px-8">
+                    <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-2xl font-bold text-gray-900">Event Akan Datang</h3>
+                            <p class="text-gray-500 mt-1">Jadwal event yang akan segera dimulai. Pastikan untuk hadir
+                                dan
+                                tingkatkan tingkat kehadiran Anda!</p>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            @forelse ($upcomingEvents as $event)
+                                <a href="{{ route('participant.events.show', $event) }}"
+                                    class="block p-6 hover:bg-yellow-50 transition-colors duration-200">
+                                    <div
+                                        class="flex flex-col lg:flex-row justify-between lg:items-center space-y-3 lg:space-y-0">
+                                        <div class="flex items-start space-x-4">
+                                            <div class="p-3 bg-yellow-100 rounded-xl">
+                                                <svg class="w-6 h-6 text-yellow-600" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-gray-900 text-lg">{{ $event->title }}</h4>
+                                                <p class="text-gray-500 mt-1">{{ $event->location }}</p>
+                                                <div class="flex items-center space-x-4 mt-2">
+                                                    @if ($event->category)
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            {{ $event->category->name }}
+                                                        </span>
+                                                    @endif
+                                                    <span
+                                                        class="text-sm text-gray-500">{{ $event->participants->count() }}
+                                                        peserta</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-left lg:text-right">
+                                            <p class="text-lg font-bold text-yellow-600">
+                                                {{ $event->start_time->format('d M Y, H:i') }} WIB
+                                            </p>
+                                            <p class="text-sm text-gray-500 mt-1">{{ $event->status }}</p>
+                                            <span
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
+                                                {{ $event->status }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="p-12 text-center">
+                                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Event Mendatang</h3>
+                                    <p class="text-gray-500">Tidak ada event yang dijadwalkan dalam waktu dekat.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                        @if ($upcomingEvents->isNotEmpty())
+                            <div class="p-6 border-t border-gray-100 text-center">
+                                <a href="{{ route('participant.events.index') }}"
+                                    class="text-yellow-600 hover:text-yellow-700 font-semibold transition-colors duration-200">
+                                    Lihat Semua Event →
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 {{-- Riwayat Event Anda --}}
-                <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
-                    <div class="p-6 border-b border-gray-100">
-                        <div
-                            class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900">Riwayat Event Anda
-                                    ({{ $totalHistoryEvents }})</h3>
-                                <p class="text-gray-500 mt-1">Riwayat event yang telah berlangsung dengan status
-                                    kehadiran Anda. Gunakan pencarian untuk menemukan event spesifik berdasarkan judul,
-                                    lokasi, atau kategori.</p>
-                            </div>
-                            <form method="GET" action="{{ route('participant.dashboard') }}"
-                                class="flex space-x-3">
-                                <input type="text" name="search" value="{{ $search }}"
-                                    placeholder="Cari title, lokasi, kategori..."
-                                    class="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 w-64" />
-                                <select name="history_period"
-                                    class="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                                    <option value="all" {{ $historyPeriod == 'all' ? 'selected' : '' }}>Semua
-                                    </option>
-                                    <option value="last_year" {{ $historyPeriod == 'last_year' ? 'selected' : '' }}>1
-                                        Tahun Terakhir</option>
-                                    <option value="last_6_months"
-                                        {{ $historyPeriod == 'last_6_months' ? 'selected' : '' }}>6 Bulan Terakhir
-                                    </option>
-                                    <option value="this_year" {{ $historyPeriod == 'this_year' ? 'selected' : '' }}>
-                                        Tahun
-                                        Ini</option>
-                                </select>
-                                <button type="submit"
-                                    class="bg-yellow-500 text-white px-4 py-2 rounded-xl hover:bg-yellow-600 transition-colors">Cari</button>
-                                <a href="{{ route('participant.dashboard') }}"
-                                    class="bg-gray-500 text-white px-4 py-2 rounded-xl hover:bg-gray-600 transition-colors">Reset</a>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="divide-y divide-gray-100 max-h-96 overflow-y-auto">
-                        @forelse ($historyEvents as $index => $event)
-                            <a href="{{ route('participant.events.show', $event) }}"
-                                class="block p-6 hover:bg-yellow-50 transition-colors duration-200">
-                                <div
-                                    class="flex flex-col lg:flex-row justify-between lg:items-center space-y-3 lg:space-y-0">
-                                    <div class="flex items-start space-x-4">
-                                        <div
-                                            class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-full text-gray-700 font-semibold">
-                                            {{ $historyEvents->firstItem() + $index }}
-                                        </div>
-                                        <div
-                                            class="p-3 {{ $event->attendances->isNotEmpty() ? 'bg-green-100' : 'bg-red-100' }} rounded-xl">
-                                            <svg class="w-6 h-6 {{ $event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600' }}"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="px-4 sm:px-6 lg:px-8">
+                    <div class="bg-white rounded-2xl shadow-xl border border-yellow-200">
+                        <div class="p-6 border-b border-gray-100">
+                            <div
+                                class="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900">Riwayat Event Anda
+                                        ({{ $totalHistoryEvents }})</h3>
+                                    <p class="text-gray-500 mt-1">Riwayat event yang telah berlangsung dengan status
+                                        kehadiran Anda. Gunakan pencarian untuk menemukan event spesifik berdasarkan
+                                        judul,
+                                        lokasi, atau kategori.</p>
+                                </div>
+                                {{-- Mobile-friendly search form --}}
+                                <form method="GET" action="{{ route('participant.dashboard') }}"
+                                    class="w-full lg:w-auto space-y-2 lg:space-y-0 lg:flex lg:gap-2">
+                                    <input type="text" name="search" value="{{ $search }}"
+                                        placeholder="Cari title, lokasi, kategori..."
+                                        class="w-full lg:w-64 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 placeholder-gray-400" />
+                                    <select name="history_period"
+                                        class="w-full lg:w-auto bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                                        <option value="all" {{ $historyPeriod == 'all' ? 'selected' : '' }}>Semua
+                                        </option>
+                                        <option value="last_year"
+                                            {{ $historyPeriod == 'last_year' ? 'selected' : '' }}>1 Tahun
+                                        </option>
+                                        <option value="last_6_months"
+                                            {{ $historyPeriod == 'last_6_months' ? 'selected' : '' }}>6 Bulan
+                                        </option>
+                                        <option value="this_year"
+                                            {{ $historyPeriod == 'this_year' ? 'selected' : '' }}>Tahun Ini
+                                        </option>
+                                    </select>
+                                    <div class="flex gap-2">
+                                        <button type="submit"
+                                            class="flex-1 lg:flex-none bg-yellow-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-yellow-600 transition-colors min-h-10 flex items-center justify-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="{{ $event->attendances->isNotEmpty() ? 'M9 12l2 2 4-4' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2' }}m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                             </svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <h4 class="font-bold text-gray-900 text-lg truncate">{{ $event->title }}
-                                            </h4>
-                                            <p class="text-gray-500 mt-1 truncate">{{ $event->location }}</p>
-                                            <div class="flex items-center space-x-4 mt-2">
-                                                @if ($event->category)
+                                            Cari
+                                        </button>
+                                        <a href="{{ route('participant.dashboard') }}"
+                                            class="flex-1 lg:flex-none bg-gray-400 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-500 transition-colors min-h-10 flex items-center justify-center">
+                                            Reset
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                            @forelse ($historyEvents as $index => $event)
+                                <a href="{{ route('participant.events.show', $event) }}"
+                                    class="block p-6 hover:bg-yellow-50 transition-colors duration-200">
+                                    <div
+                                        class="flex flex-col lg:flex-row justify-between lg:items-center space-y-3 lg:space-y-0">
+                                        <div class="flex items-start space-x-4">
+                                            <div
+                                                class="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-full text-gray-700 font-semibold">
+                                                {{ $historyEvents->firstItem() + $index }}
+                                            </div>
+                                            <div
+                                                class="p-3 {{ $event->attendances->isNotEmpty() ? 'bg-green-100' : 'bg-red-100' }} rounded-xl">
+                                                <svg class="w-6 h-6 {{ $event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600' }}"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="{{ $event->attendances->isNotEmpty() ? 'M9 12l2 2 4-4' : 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2' }}m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="font-bold text-gray-900 text-lg truncate">
+                                                    {{ $event->title }}
+                                                </h4>
+                                                <p class="text-gray-500 mt-1 truncate">{{ $event->location }}</p>
+                                                <div class="flex items-center space-x-4 mt-2">
+                                                    @if ($event->category)
+                                                        <span
+                                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            {{ $event->category->name }}
+                                                        </span>
+                                                    @endif
                                                     <span
-                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                        {{ $event->category->name }}
+                                                        class="text-sm {{ $event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600' }} font-medium">
+                                                        {{ $event->attendances->isNotEmpty() ? 'Hadir' : 'Tidak Hadir' }}
                                                     </span>
-                                                @endif
-                                                <span
-                                                    class="text-sm {{ $event->attendances->isNotEmpty() ? 'text-green-600' : 'text-red-600' }} font-medium">
-                                                    {{ $event->attendances->isNotEmpty() ? 'Hadir' : 'Tidak Hadir' }}
-                                                </span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div class="text-left lg:text-right">
+                                            <p class="text-lg font-bold text-yellow-600">
+                                                {{ $event->start_time->format('d M Y, H:i') }} WIB
+                                            </p>
+                                            <p class="text-sm text-gray-500 mt-1">{{ $event->status }}</p>
+                                        </div>
                                     </div>
-                                    <div class="text-left lg:text-right">
-                                        <p class="text-lg font-bold text-yellow-600">
-                                            {{ $event->start_time->format('d M Y, H:i') }} WIB
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-1">{{ $event->status }}</p>
-                                    </div>
+                                </a>
+                            @empty
+                                <div class="p-12 text-center">
+                                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Riwayat Event</h3>
+                                    <p class="text-gray-500">Riwayat akan muncul setelah event yang Anda ikuti telah
+                                        berlangsung.</p>
                                 </div>
-                            </a>
-                        @empty
-                            <div class="p-12 text-center">
-                                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Riwayat Event</h3>
-                                <p class="text-gray-500">Riwayat akan muncul setelah event yang Anda ikuti telah
-                                    berlangsung.</p>
-                            </div>
-                        @endforelse
-                    </div>
-                    @if ($historyEvents->hasPages())
-                        <div class="p-6 border-t border-gray-100">
-                            <x-yellow-pagination :paginator="$historyEvents" />
+                            @endforelse
                         </div>
-                    @endif
+                        @if ($historyEvents->hasPages())
+                            <div class="p-6 border-t border-gray-100">
+                                <x-yellow-pagination :paginator="$historyEvents" />
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

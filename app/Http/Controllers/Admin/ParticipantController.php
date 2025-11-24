@@ -31,16 +31,20 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($newIds);
 
+        // Kirim email undangan ke peserta baru
         $newUsers = User::find($newIds);
         foreach ($newUsers as $user) {
             try {
-                // Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
+                Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
             } catch (\Exception $e) {
-                Log::error('Gagal kirim email undangan ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id]);
+                Log::error('Gagal kirim email undangan ke: ' . $user->email, [
+                    'error' => $e->getMessage(),
+                    'event_id' => $event->id,
+                ]);
             }
         }
 
-        return back()->with('success', count($newIds) . ' peserta berhasil diundang (Mode Testing: Email tidak dikirim).');
+        return back()->with('success', count($newIds) . ' peserta berhasil diundang. Notifikasi email telah dikirim.');
     }
 
     public function inviteAllAvailable(Request $request, Event $event)
@@ -55,15 +59,19 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($newUsers->pluck('id'));
 
+        // Kirim email undangan ke semua peserta baru
         foreach ($newUsers as $user) {
             try {
-                // Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
+                Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
             } catch (\Exception $e) {
-                Log::error('Gagal kirim email undangan massal (semua) ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id]);
+                Log::error('Gagal kirim email undangan massal (semua) ke: ' . $user->email, [
+                    'error' => $e->getMessage(),
+                    'event_id' => $event->id,
+                ]);
             }
         }
 
-        return back()->with('success', $newUsers->count() . ' peserta berhasil diundang (Mode Testing: Email tidak dikirim).');
+        return back()->with('success', $newUsers->count() . ' peserta berhasil diundang. Notifikasi email telah dikirim.');
     }
 
     public function inviteByDivision(Request $request, Event $event)
@@ -83,15 +91,20 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($newUsers->pluck('id'));
 
+        // Kirim email undangan ke peserta baru per divisi
         foreach ($newUsers as $user) {
             try {
-                // Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
+                Mail::to($user->email)->queue(new EventInvitationMail($event, $user));
             } catch (\Exception $e) {
-                Log::error('Gagal kirim email undangan massal (divisi) ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id, 'division' => $division]);
+                Log::error('Gagal kirim email undangan massal (divisi) ke: ' . $user->email, [
+                    'error' => $e->getMessage(),
+                    'event_id' => $event->id,
+                    'division' => $division,
+                ]);
             }
         }
 
-        return back()->with('success', count($newUsers) . " peserta dari divisi '$division' berhasil diundang (Mode Testing: Email tidak dikirim).");
+        return back()->with('success', count($newUsers) . " peserta dari divisi '$division' berhasil diundang. Notifikasi email telah dikirim.");
     }
 
     public function storeExternal(Request $request, Event $event)
@@ -123,13 +136,18 @@ class ParticipantController extends Controller
 
         $event->participants()->attach($user->id);
 
+        // Kirim email undangan (sertakan password jika user baru)
         try {
-            // Mail::to($user->email)->queue(new EventInvitationMail($event, $user, $isNew ? $password : null));
+            Mail::to($user->email)->queue(new EventInvitationMail($event, $user, $isNew ? $password : null));
         } catch (\Exception $e) {
-            Log::error('Gagal kirim email undangan eksternal ke: ' . $user->email, ['error' => $e->getMessage(), 'event_id' => $event->id, 'is_new_user' => $isNew]);
+            Log::error('Gagal kirim email undangan eksternal ke: ' . $user->email, [
+                'error' => $e->getMessage(),
+                'event_id' => $event->id,
+                'is_new_user' => $isNew,
+            ]);
         }
 
-        return back()->with('success', 'Peserta eksternal berhasil diundang (Mode Testing: Email tidak dikirim).');
+        return back()->with('success', 'Peserta eksternal berhasil diundang. Notifikasi email telah dikirim.');
     }
 
     public function bulkAttendance(Request $request, Event $event)

@@ -21,6 +21,10 @@ return [
         'calendar_redirect' => env('GOOGLE_CALENDAR_REDIRECT_URI') ?: env('APP_URL') . '/google-calendar/callback',
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

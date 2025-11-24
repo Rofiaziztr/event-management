@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('event_calendar_syncs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained();
+            // FIX: Add CASCADE DELETE on event_id to ensure sync records are cleaned up when event is deleted
+            $table->foreignId('event_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('google_event_id')->nullable();
             $table->timestamp('synced_at')->nullable();
