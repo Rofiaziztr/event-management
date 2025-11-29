@@ -23,11 +23,14 @@ class ScanController extends Controller
      */
     public function verify(Request $request)
     {
-        // Validasi input
+        // Validasi input: GPS is required for attendance
         $request->validate([
             'event_code' => 'required|string',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+        ], [
+            'latitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
+            'longitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
         ]);
         $eventCode = $request->input('event_code');
         $user = Auth::user();
