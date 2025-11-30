@@ -425,6 +425,8 @@
                 // Auto-refresh countdown functions - used when GPS is missing
                 let refreshTimer = null;
                 let refreshInterval = null;
+                let reRequestAccepted = false;
+                let graceRefreshTimeout = null;
                 function startRefreshCountdown(seconds) {
                     clearRefreshCountdown();
                     const countdownEl = document.getElementById('gps-count');
@@ -435,16 +437,27 @@
                     refreshInterval = setInterval(() => {
                         left -= 1;
                         if (countdownEl) countdownEl.textContent = left;
-                        if (left <= 0) {
-                            clearRefreshCountdown();
-                            // Try to request location again without reloading the page
-                            if (typeof tryRequestLocation === 'function') tryRequestLocation();
-                        }
+                          if (left <= 0) {
+                              clearRefreshCountdown();
+                              // Try to request location once more; then refresh the page so the browser can re-prompt.
+                              reRequestAccepted = false;
+                              if (typeof tryRequestLocation === 'function') tryRequestLocation();
+                              // Give the user some time to respond to the permission prompt before refreshing
+                              if (graceRefreshTimeout) clearTimeout(graceRefreshTimeout);
+                              graceRefreshTimeout = setTimeout(() => {
+                                  if (!reRequestAccepted) doBrowserRefresh();
+                              }, 3000);
+                          }
                     }, 1000);
-                    refreshTimer = setTimeout(() => {
-                        clearRefreshCountdown();
-                        if (typeof tryRequestLocation === 'function') tryRequestLocation();
-                    }, seconds * 1000 + 100);
+                      refreshTimer = setTimeout(() => {
+                          clearRefreshCountdown();
+                          reRequestAccepted = false;
+                          if (typeof tryRequestLocation === 'function') tryRequestLocation();
+                          if (graceRefreshTimeout) clearTimeout(graceRefreshTimeout);
+                          graceRefreshTimeout = setTimeout(() => {
+                              if (!reRequestAccepted) doBrowserRefresh();
+                          }, 3000);
+                      }, seconds * 1000 + 100);
                 }
 
                 function clearRefreshCountdown() {
@@ -477,6 +490,12 @@
                             document.getElementById('longitude').value = lng;
                             console.log('Location reacquired:', lat, lng);
                             if (typeof clearRefreshCountdown === 'function') clearRefreshCountdown();
+                            // Mark that the user accepted the permission during our re-request; cancel the pending refresh.
+                            reRequestAccepted = true;
+                            if (graceRefreshTimeout) {
+                                clearTimeout(graceRefreshTimeout);
+                                graceRefreshTimeout = null;
+                            }
                             const gpsMsg = document.getElementById('gps-required-message');
                             if (gpsMsg) gpsMsg.classList.add('hidden');
                         },
@@ -492,6 +511,25 @@
                             maximumAge: 0,
                         }
                     );
+                }
+
+                // Trigger a browser refresh in a way that works for desktop and mobile.
+                // We prefer `location.reload()` on desktop browsers and a forced navigation on mobile to ensure a full reload.
+                function doBrowserRefresh() {
+                    try {
+                        const ua = (navigator.userAgent || '').toLowerCase();
+                        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(ua);
+                        if (isMobile) {
+                            // mobile: force reload by appending a cache-busting query param
+                            window.location.href = window.location.href.split('#')[0] + ((window.location.href.indexOf('?') === -1) ? '?' : '&') + '_=' + Date.now();
+                        } else {
+                            // desktop: use the standard reload method
+                            window.location.reload();
+                        }
+                    } catch (err) {
+                        // fallback
+                        window.location.reload();
+                    }
                 }
 
                 // Retry & Cancel UI handlers
