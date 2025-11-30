@@ -95,6 +95,8 @@
                                     <strong>Lokasi (GPS) diperlukan untuk presensi</strong>
                                     <p>Untuk melakukan presensi menggunakan QR Code, Anda harus mengaktifkan izin lokasi di perangkat Anda.
                                     Silakan aktifkan layanan lokasi dan refresh halaman, lalu coba scan kembali.</p>
+                                    <p id="gps-refresh-countdown" class="mt-2">Halaman akan merefresh dalam <span id="gps-count">5</span> detik, pastikan izinkan GPS.</p>
+                                </div>
                             </div>
 
                             <!-- Scan Tips Card -->
@@ -149,14 +151,19 @@
                             document.getElementById('latitude').value = lat;
                             document.getElementById('longitude').value = lng;
                             console.log('Location acquired:', lat, lng);
-                            // Hide gps required message if shown
+                            // Hide gps required message if shown and stop countdown
                             const gpsMsg = document.getElementById('gps-required-message');
-                            if (gpsMsg) gpsMsg.classList.add('hidden');
+                            if (gpsMsg) {
+                                gpsMsg.classList.add('hidden');
+                            }
+                            if (typeof clearRefreshCountdown === 'function') clearRefreshCountdown();
                         },
                         function(error) {
                             console.warn('Location access denied or error:', error.message);
                             const gpsMsg = document.getElementById('gps-required-message');
                             if (gpsMsg) gpsMsg.classList.remove('hidden');
+                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(5);
+                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(5);
                         }, {
                             enableHighAccuracy: true,
                             timeout: 5000,
@@ -396,6 +403,45 @@
                             }
                         }, 1000);
                     }
+                }
+
+                // Auto-refresh countdown functions - used when GPS is missing
+                let refreshTimer = null;
+                let refreshInterval = null;
+                function startRefreshCountdown(seconds) {
+                    clearRefreshCountdown();
+                    const countdownEl = document.getElementById('gps-count');
+                    const gpsMsg = document.getElementById('gps-required-message');
+                    if (gpsMsg) gpsMsg.classList.remove('hidden');
+                    let left = seconds;
+                    if (countdownEl) countdownEl.textContent = left;
+                    refreshInterval = setInterval(() => {
+                        left -= 1;
+                        if (countdownEl) countdownEl.textContent = left;
+                        if (left <= 0) {
+                            clearRefreshCountdown();
+                            window.location.reload();
+                        }
+                    }, 1000);
+                    refreshTimer = setTimeout(() => {
+                        clearRefreshCountdown();
+                        window.location.reload();
+                    }, seconds * 1000 + 100);
+                }
+
+                function clearRefreshCountdown() {
+                    if (refreshInterval) {
+                        clearInterval(refreshInterval);
+                        refreshInterval = null;
+                    }
+                    if (refreshTimer) {
+                        clearTimeout(refreshTimer);
+                        refreshTimer = null;
+                    }
+                    const countdownEl = document.getElementById('gps-count');
+                    if (countdownEl) countdownEl.textContent = 5;
+                    const gpsMsg = document.getElementById('gps-required-message');
+                    if (gpsMsg) gpsMsg.classList.add('hidden');
                 }
 
                 setTimeout(() => {
