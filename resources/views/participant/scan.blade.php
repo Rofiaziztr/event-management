@@ -94,10 +94,9 @@
                                 class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
                                     <strong>Lokasi (GPS) diperlukan untuk presensi</strong>
                                     <p>Silakan aktifkan izin lokasi pada perangkat Anda, muat ulang halaman, lalu coba scan QR kembali untuk presensi.</p>
-                                    <div class="mt-3 flex justify-center space-x-2">
-                                        <button id="gps-retry-btn" type="button" class="px-3 py-2 text-sm rounded bg-yellow-500 text-white">Coba Sekarang</button>
-                                        <button id="gps-cancel-btn" type="button" class="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700">Batal</button>
-                                    </div>
+                                        <div class="mt-3 flex justify-center space-x-2">
+                                            <!-- Removed auto-retry and cancel buttons: users should manually reload the page to re-trigger permission prompt -->
+                                        </div>
                                 </div>
                             </div>
 
@@ -181,23 +180,38 @@
                     // Draw dynamic overlay around detected QR code
                     drawQROverlay(decodedResult);
 
-                    if (resultsElement) {
-                        resultsElement.innerHTML = `
+                    const latVal = document.getElementById('latitude')?.value;
+                    const lngVal = document.getElementById('longitude')?.value;
+
+                    // If no GPS coords are present, display a failed-presence notification instead of success.
+                    if (!latVal || !lngVal) {
+                        if (resultsElement) {
+                            resultsElement.innerHTML = `
                             <div class="text-center">
-                                <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 inline-block">
-                                    <div class="flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mx-auto mb-4">
+                                <div class="p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-red-200 inline-block">
+                                    <div class="flex items-center justify-center w-16 h-16 bg-red-500 rounded-full mx-auto mb-4">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </div>
-                                    <h4 class="text-lg font-bold text-green-800 mb-2">QR Code Berhasil Dipindai!</h4>
-                                    <p class="text-sm text-green-600">Sedang memproses presensi Anda...</p>
-                                    <div class="mt-4 flex items-center justify-center">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
-                                    </div>
+                                    <h4 class="text-lg font-bold text-red-800 mb-2">Gagal Presensi</h4>
+                                    <p class="text-sm text-red-600">Presensi untuk event '${decodedText}' gagal karena izin lokasi belum diberikan. Silakan aktifkan izin lokasi, muat ulang halaman, lalu scan QR kembali untuk presensi.</p>
                                 </div>
                             </div>
                         `;
+                        }
+
+                        // Show GPS required message (to guide user to enable location)
+                        showGpsRequiredMessage();
+
+                        // Stop the scanner and do not attempt to submit the form
+                        if (html5QrcodeScanner) {
+                            html5QrcodeScanner.stop().then(() => {
+                                html5QrcodeScanner.clear();
+                            }).catch(() => {});
+                        }
+
+                        return;
                     }
 
                     const eventCodeInput = document.getElementById('event_code');
@@ -467,16 +481,7 @@
 
                 // No auto-refresh: we instruct users to manually refresh the page if needed.
 
-                // Retry & Cancel UI handlers
-                document.getElementById('gps-retry-btn')?.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    tryRequestLocation();
-                });
-
-                    document.getElementById('gps-cancel-btn')?.addEventListener('click', function(e) {
-                    e.preventDefault();
-                        hideGpsRequiredMessage();
-                });
+                // Note: Retry and Cancel buttons removed, users must manually refresh the page to re-trigger permission prompt.
 
                 setTimeout(() => {
                     initializeScanner();
