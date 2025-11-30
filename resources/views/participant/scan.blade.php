@@ -95,7 +95,11 @@
                                     <strong>Lokasi (GPS) diperlukan untuk presensi</strong>
                                     <p>Untuk melakukan presensi menggunakan QR Code, Anda harus mengaktifkan izin lokasi di perangkat Anda.
                                     Silakan aktifkan layanan lokasi dan refresh halaman, lalu coba scan kembali.</p>
-                                    <p id="gps-refresh-countdown" class="mt-2">Halaman akan merefresh dalam <span id="gps-count">5</span> detik, pastikan izinkan GPS.</p>
+                                    <p id="gps-refresh-countdown" class="mt-2">Kami akan mencoba meminta izin lokasi lagi dalam <span id="gps-count">20</span> detik, atau tekan "Coba Sekarang" untuk mencoba lagi secara manual.</p>
+                                    <div class="mt-3 flex justify-center space-x-2">
+                                        <button id="gps-retry-btn" type="button" class="px-3 py-2 text-sm rounded bg-yellow-500 text-white">Coba Sekarang</button>
+                                        <button id="gps-cancel-btn" type="button" class="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700">Batal</button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -162,8 +166,7 @@
                             console.warn('Location access denied or error:', error.message);
                             const gpsMsg = document.getElementById('gps-required-message');
                             if (gpsMsg) gpsMsg.classList.remove('hidden');
-                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(5);
-                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(5);
+                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(20);
                         }, {
                             enableHighAccuracy: true,
                             timeout: 5000,
@@ -420,12 +423,13 @@
                         if (countdownEl) countdownEl.textContent = left;
                         if (left <= 0) {
                             clearRefreshCountdown();
-                            window.location.reload();
+                            // Try to request location again without reloading the page
+                            if (typeof tryRequestLocation === 'function') tryRequestLocation();
                         }
                     }, 1000);
                     refreshTimer = setTimeout(() => {
                         clearRefreshCountdown();
-                        window.location.reload();
+                        if (typeof tryRequestLocation === 'function') tryRequestLocation();
                     }, seconds * 1000 + 100);
                 }
 
@@ -439,10 +443,53 @@
                         refreshTimer = null;
                     }
                     const countdownEl = document.getElementById('gps-count');
-                    if (countdownEl) countdownEl.textContent = 5;
+                    if (countdownEl) countdownEl.textContent = 20;
                     const gpsMsg = document.getElementById('gps-required-message');
                     if (gpsMsg) gpsMsg.classList.add('hidden');
                 }
+
+                // Try request location (used by Retry button and when countdown ends)
+                function tryRequestLocation() {
+                    if (!navigator.geolocation) {
+                        console.warn('Geolocation is not supported by this browser.');
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            document.getElementById('latitude').value = lat;
+                            document.getElementById('longitude').value = lng;
+                            console.log('Location reacquired:', lat, lng);
+                            if (typeof clearRefreshCountdown === 'function') clearRefreshCountdown();
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.add('hidden');
+                        },
+                        function(error) {
+                            console.warn('Retry location error:', error.message);
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.remove('hidden');
+                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(20);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 7000,
+                            maximumAge: 0,
+                        }
+                    );
+                }
+
+                // Retry & Cancel UI handlers
+                document.getElementById('gps-retry-btn')?.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    tryRequestLocation();
+                });
+
+                document.getElementById('gps-cancel-btn')?.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clearRefreshCountdown();
+                });
 
                 setTimeout(() => {
                     initializeScanner();
