@@ -93,9 +93,7 @@
                             <div id="gps-required-message"
                                 class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
                                     <strong>Lokasi (GPS) diperlukan untuk presensi</strong>
-                                    <p>Untuk melakukan presensi menggunakan QR Code, Anda harus mengaktifkan izin lokasi di perangkat Anda.
-                                    Silakan aktifkan layanan lokasi dan refresh halaman, lalu coba scan kembali.</p>
-                                    <p id="gps-refresh-instructions" class="mt-2">Silakan aktifkan izin lokasi di pengaturan browser, lalu muat ulang halaman (Ctrl+R pada desktop) atau tekan "Coba Sekarang" setelah mengizinkan.</p>
+                                    <p>Silakan aktifkan izin lokasi pada perangkat Anda, muat ulang halaman, lalu coba scan QR kembali untuk presensi.</p>
                                     <div class="mt-3 flex justify-center space-x-2">
                                         <button id="gps-retry-btn" type="button" class="px-3 py-2 text-sm rounded bg-yellow-500 text-white">Coba Sekarang</button>
                                         <button id="gps-cancel-btn" type="button" class="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700">Batal</button>
