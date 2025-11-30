@@ -423,14 +423,13 @@
                         if (countdownEl) countdownEl.textContent = left;
                         if (left <= 0) {
                             clearRefreshCountdown();
-                            // Reload the page so the browser will re-prompt for location permission
-                            window.location.reload();
+                            // Try to request location again without reloading the page
+                            if (typeof tryRequestLocation === 'function') tryRequestLocation();
                         }
                     }, 1000);
                     refreshTimer = setTimeout(() => {
                         clearRefreshCountdown();
-                        // Reload the page as a fallback when timeout triggers
-                        window.location.reload();
+                        if (typeof tryRequestLocation === 'function') tryRequestLocation();
                     }, seconds * 1000 + 100);
                 }
 
