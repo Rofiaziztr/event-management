@@ -112,7 +112,6 @@ Route::middleware(['auth'])->group(function () {
     // Rute scan untuk peserta
     Route::controller(ScanController::class)->middleware('role:participant')->group(function () {
         Route::get('/scan', 'index')->name('scan.index');
-        Route::get('/scan/event-name', 'getEventName')->name('scan.event-name');
         Route::post('/scan', 'verify')->name('scan.verify');
     });
 
