@@ -346,6 +346,10 @@
                         // Use Html5Qrcode class directly for better compatibility
                         html5QrcodeScanner = new Html5Qrcode("qr-reader");
 
+                        // Build video constraints safely: only include facingMode if supported by browser
+                        const supportedConstraints = (navigator.mediaDevices && navigator.mediaDevices.getSupportedConstraints) ? navigator.mediaDevices.getSupportedConstraints() : {};
+                        const facingModeSupported = !!supportedConstraints.facingMode;
+
                         const config = {
                             fps: 20,
                             aspectRatio: 1.0,
@@ -355,32 +359,42 @@
                             experimentalFeatures: {
                                 useBarCodeDetectorIfSupported: false
                             },
-                            videoConstraints: {
-                                facingMode: "environment"
-                            }
+                            videoConstraints: facingModeSupported ? { facingMode: "environment" } : {}
                         };
+                        const startConstraints = facingModeSupported ? { facingMode: "environment" } : {};
 
-                        html5QrcodeScanner.start({
-                                facingMode: "environment"
-                            },
-                            config,
-                            onScanSuccess,
-                            onScanFailure
-                        ).then(() => {
-                            console.log('Scanner initialized successfully');
-                            isInitialized = true;
+                        // Try starting the scanner using facingMode if available.
+                        // If it fails due to an over-constraint (common in Firefox), retry without facingMode.
+                        function startScanner(constraints) {
+                            return html5QrcodeScanner.start(constraints, config, onScanSuccess, onScanFailure);
+                        }
 
-                            const loadingElement = document.getElementById('scanner-loading');
-                            if (loadingElement) {
-                                loadingElement.style.display = 'none';
-                            }
+                        startScanner(startConstraints)
+                            .catch((error) => {
+                                console.warn('Scanner init error with facingMode constraint:', error);
+                                // If facingMode constraint caused the issue (OverconstrainedError or NotFoundError), try again without it
+                                if (error && (error.name === 'OverconstrainedError' || error.name === 'NotFoundError' || /facingMode/i.test(error.message || ''))) {
+                                    console.log('Retrying scanner without facingMode constraint for broader compatibility');
+                                    return startScanner({});
+                                }
+                                throw error;
+                            })
+                            .then(() => {
+                                console.log('Scanner initialized successfully');
+                                isInitialized = true;
 
-                            const overlayElement = document.querySelector(
-                                '.absolute.inset-0.pointer-events-none');
-                            if (overlayElement) {
-                                overlayElement.style.opacity = '0.3';
-                            }
-                        }).catch((error) => {
+                                const loadingElement = document.getElementById('scanner-loading');
+                                if (loadingElement) {
+                                    loadingElement.style.display = 'none';
+                                }
+
+                                const overlayElement = document.querySelector(
+                                    '.absolute.inset-0.pointer-events-none');
+                                if (overlayElement) {
+                                    overlayElement.style.opacity = '0.3';
+                                }
+                            })
+                            .catch((error) => {
                             console.error('Scanner init error:', error);
 
                             if (error.name === 'NotAllowedError') {
