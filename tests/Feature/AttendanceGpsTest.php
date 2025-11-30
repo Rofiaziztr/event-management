@@ -79,7 +79,7 @@ it('rejects attendance if geolocation is not provided (user denied/block for req
     ]);
 });
 
-it('allows attendance without GPS if event does not require GPS', function () {
+it('rejects attendance without GPS even if event does not require GPS (global enforcement)', function () {
     $user = User::factory()->create(['role' => 'participant']);
     $category = Category::factory()->create(['name' => 'Umum']);
     $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
@@ -103,14 +103,11 @@ it('allows attendance without GPS if event does not require GPS', function () {
         // No latitude/longitude provided, allowed for non-require_gps events
     ]);
 
-    $response->assertRedirect(route('scan.index'));
-
-    $this->assertDatabaseHas('attendances', [
+    // With global enforcement, missing GPS should cause a flash error and prevent attendance
+    $response->assertSessionHas('error');
+    $this->assertDatabaseMissing('attendances', [
         'event_id' => $event->id,
         'user_id' => $user->id,
-        'latitude' => null,
-        'longitude' => null,
-        'location_allowed' => false,
     ]);
 });
 

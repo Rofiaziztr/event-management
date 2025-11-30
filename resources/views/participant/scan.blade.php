@@ -92,9 +92,9 @@
                             <!-- GPS required message - hidden by default -->
                             <div id="gps-required-message"
                                 class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
-                                <strong>Lokasi (GPS) diperlukan</strong>
-                                <p>Anda harus mengaktifkan layanan lokasi pada perangkat agar dapat melakukan presensi
-                                    menggunakan QR Code. Silakan aktifkan dan coba lagi.</p>
+                                    <strong>Lokasi (GPS) diperlukan untuk presensi</strong>
+                                    <p>Untuk melakukan presensi menggunakan QR Code, Anda harus mengaktifkan izin lokasi di perangkat Anda.
+                                    Silakan aktifkan layanan lokasi dan refresh halaman, lalu coba scan kembali.</p>
                             </div>
 
                             <!-- Scan Tips Card -->

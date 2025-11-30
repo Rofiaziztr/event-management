@@ -47,15 +47,11 @@ class ScanController extends Controller
                     ->with('error', 'Presensi Gagal: Event tidak ditemukan.');
             }
 
-            // Now validate coordinates depending on event's require_gps flag
-            $rules = [];
-            if ($event->require_gps) {
-                $rules['latitude'] = 'required|numeric|between:-90,90';
-                $rules['longitude'] = 'required|numeric|between:-180,180';
-            } else {
-                $rules['latitude'] = 'nullable|numeric|between:-90,90';
-                $rules['longitude'] = 'nullable|numeric|between:-180,180';
-            }
+            // Now validate coordinates -- GPS is required for every attendance now
+            $rules = [
+                'latitude' => 'required|numeric|between:-90,90',
+                'longitude' => 'required|numeric|between:-180,180',
+            ];
 
             $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules, [
                 'latitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
