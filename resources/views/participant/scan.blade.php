@@ -90,9 +90,11 @@
                             </div>
 
                             <!-- GPS required message - hidden by default -->
-                            <div id="gps-required-message" class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
+                            <div id="gps-required-message"
+                                class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
                                 <strong>Lokasi (GPS) diperlukan</strong>
-                                <p>Anda harus mengaktifkan layanan lokasi pada perangkat agar dapat melakukan presensi menggunakan QR Code. Silakan aktifkan dan coba lagi.</p>
+                                <p>Anda harus mengaktifkan layanan lokasi pada perangkat agar dapat melakukan presensi
+                                    menggunakan QR Code. Silakan aktifkan dan coba lagi.</p>
                             </div>
 
                             <!-- Scan Tips Card -->
@@ -121,7 +123,7 @@
             </div>
 
             {{-- Form tersembunyi untuk mengirim hasil scan --}}
-                    <form action="{{ route('scan.verify') }}" method="POST" id="scan-form" class="hidden">
+            <form action="{{ route('scan.verify') }}" method="POST" id="scan-form" class="hidden">
                 @csrf
                 <input type="hidden" name="event_code" id="event_code">
                 <input type="hidden" name="latitude" id="latitude">
@@ -139,7 +141,7 @@
                 let isInitialized = false;
 
                 // Get user location immediately
-                    if (navigator.geolocation) {
+                if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             const lat = position.coords.latitude;
@@ -147,14 +149,14 @@
                             document.getElementById('latitude').value = lat;
                             document.getElementById('longitude').value = lng;
                             console.log('Location acquired:', lat, lng);
-                                // Hide gps required message if shown
-                                const gpsMsg = document.getElementById('gps-required-message');
-                                if (gpsMsg) gpsMsg.classList.add('hidden');
+                            // Hide gps required message if shown
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.add('hidden');
                         },
                         function(error) {
                             console.warn('Location access denied or error:', error.message);
-                                const gpsMsg = document.getElementById('gps-required-message');
-                                if (gpsMsg) gpsMsg.classList.remove('hidden');
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.remove('hidden');
                         }, {
                             enableHighAccuracy: true,
                             timeout: 5000,
@@ -165,7 +167,7 @@
                     console.warn('Geolocation is not supported by this browser.');
                 }
 
-                    function onScanSuccess(decodedText, decodedResult) {
+                function onScanSuccess(decodedText, decodedResult) {
                     console.log('QR Code detected:', decodedText);
 
                     // Draw dynamic overlay around detected QR code
@@ -205,7 +207,8 @@
                         const scanForm = document.getElementById('scan-form');
                         const latitudeInput = document.getElementById('latitude');
                         const longitudeInput = document.getElementById('longitude');
-                        if (!latitudeInput || !longitudeInput || !latitudeInput.value || !longitudeInput.value) {
+                        if (!latitudeInput || !longitudeInput || !latitudeInput.value || !longitudeInput
+                            .value) {
                             // Show GPS message and do not submit
                             const gpsMsg = document.getElementById('gps-required-message');
                             if (gpsMsg) gpsMsg.classList.remove('hidden');

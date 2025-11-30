@@ -23,15 +23,63 @@ class ScanController extends Controller
      */
     public function verify(Request $request)
     {
-        // Validasi input: GPS is required for attendance
-        $request->validate([
-            'event_code' => 'required|string',
-            'latitude' => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-        ], [
-            'latitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
-            'longitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
-        ]);
+        // Validate input using Validator to provide a specific flash error for missing GPS
+            // First validate event_code only, so we can fetch the event and then validate coordinates conditionally.
+            $initialValidator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+                'event_code' => 'required|string',
+            ]);
+
+            if ($initialValidator->fails()) {
+                return redirect()->route('scan.index')
+                    ->withErrors($initialValidator)
+                    ->withInput();
+            }
+
+            $eventCode = $request->input('event_code');
+            $user = Auth::user();
+
+            // Cari event berdasarkan kode unik
+            $event = Event::where('code', $eventCode)->first();
+
+            if (!$event) {
+                Log::warning('Event tidak ditemukan dengan kode: ' . $eventCode . ' oleh user: ' . $user->id);
+                return redirect()->route('scan.index')
+                    ->with('error', 'Presensi Gagal: Event tidak ditemukan.');
+            }
+
+            // Now validate coordinates depending on event's require_gps flag
+            $rules = [];
+            if ($event->require_gps) {
+                $rules['latitude'] = 'required|numeric|between:-90,90';
+                $rules['longitude'] = 'required|numeric|between:-180,180';
+            } else {
+                $rules['latitude'] = 'nullable|numeric|between:-90,90';
+                $rules['longitude'] = 'nullable|numeric|between:-180,180';
+            }
+
+            $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules, [
+                'latitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
+                'longitude.required' => 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.',
+            ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            $failed = $validator->failed();
+
+            // If the failure is due to missing GPS (Required rule), show user-friendly message
+            $missingLatitude = isset($failed['latitude']) && isset($failed['latitude']['Required']);
+            $missingLongitude = isset($failed['longitude']) && isset($failed['longitude']['Required']);
+
+            if ($missingLatitude || $missingLongitude) {
+                return redirect()->route('scan.index')
+                    ->with('error', 'Lokasi (GPS) diperlukan untuk melakukan presensi. Silakan aktifkan layanan lokasi pada perangkat Anda dan coba lagi.');
+            }
+
+            // For other validation errors, return with standard validation errors
+            return redirect()->route('scan.index')
+                ->withErrors($errors)
+                ->withInput();
+        }
         $eventCode = $request->input('event_code');
         $user = Auth::user();
 
@@ -74,13 +122,17 @@ class ScanController extends Controller
         }
 
         // Catat kehadiran
-        Attendance::create([
-            'event_id'      => $event->id,
-            'user_id'       => $user->id,
-            'check_in_time' => now(),
-            'latitude'      => $request->input('latitude'),
-            'longitude'     => $request->input('longitude'),
-        ]);
+            // Catat kehadiran, mark location_allowed when coordinates present
+            $locationAllowed = !is_null($request->input('latitude')) && !is_null($request->input('longitude'));
+
+            Attendance::create([
+                'event_id'      => $event->id,
+                'user_id'       => $user->id,
+                'check_in_time' => now(),
+                'latitude'      => $request->input('latitude'),
+                'longitude'     => $request->input('longitude'),
+                'location_allowed' => $locationAllowed,
+            ]);
 
         Log::info('Presensi berhasil: User ' . $user->id . ' untuk event ' . $event->id);
 

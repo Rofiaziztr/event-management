@@ -21,6 +21,7 @@ class Attendance extends Model
         'check_in_time',
         'latitude',
         'longitude',
+        'location_allowed',
     ];
 
     /**
@@ -32,6 +33,7 @@ class Attendance extends Model
     {
         return [
             'check_in_time' => 'datetime',
+            'location_allowed' => 'boolean',
         ];
     }
 

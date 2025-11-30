@@ -33,7 +33,7 @@ test('reset password screen can be rendered', function () {
     $this->post('/forgot-password', ['_token' => $token, 'email' => $user->email]);
 
     Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
-        $response = $this->get('/reset-password/'.$notification->token);
+        $response = $this->get('/reset-password/' . $notification->token);
 
         $response->assertStatus(200);
 
@@ -50,9 +50,9 @@ test('password can be reset with valid token', function () {
     $token = session('_token');
     $this->post('/forgot-password', ['_token' => $token, 'email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+    Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
         // Visit the reset password page to set CSRF token
-        $this->get('/reset-password/'.$notification->token);
+        $this->get('/reset-password/' . $notification->token);
         $token = session('_token');
 
         $response = $this->post('/reset-password', [

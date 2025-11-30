@@ -79,27 +79,27 @@ class GoogleCalendarAuthController extends Controller
     public function handleGoogleCallback(Request $request)
     {
         try {
-                // Handle OAuth errors first: if an error is present, handle gracefully
-                if ($request->has('error')) {
-                    // If user is already logged in, return to dashboard with message
-                    if (Auth::check()) {
-                        $errorMessages = [
-                            'access_denied' => 'Anda menolak akses ke Google Calendar.',
-                            'server_error' => 'Server Google mengalami masalah. Silakan coba lagi.',
-                            'temporarily_unavailable' => 'Google OAuth sedang tidak tersedia. Silakan coba lagi nanti.',
-                        ];
+            // Handle OAuth errors first: if an error is present, handle gracefully
+            if ($request->has('error')) {
+                // If user is already logged in, return to dashboard with message
+                if (Auth::check()) {
+                    $errorMessages = [
+                        'access_denied' => 'Anda menolak akses ke Google Calendar.',
+                        'server_error' => 'Server Google mengalami masalah. Silakan coba lagi.',
+                        'temporarily_unavailable' => 'Google OAuth sedang tidak tersedia. Silakan coba lagi nanti.',
+                    ];
 
-                        $message = $errorMessages[$request->error] ?? 'Gagal menghubungkan Google Calendar.';
-                        return redirect()->route('participant.dashboard')->withErrors(['calendar' => $message]);
-                    }
-
-                    // If user is not logged in, and a state is present, we may try to reconstruct session
-                    if (!$request->has('state')) {
-                        Log::warning('Google OAuth callback missing state parameter');
-                        return redirect()->route('login')
-                            ->withErrors(['calendar' => 'Keamanan callback gagal: state tidak ditemukan.']);
-                    }
+                    $message = $errorMessages[$request->error] ?? 'Gagal menghubungkan Google Calendar.';
+                    return redirect()->route('participant.dashboard')->withErrors(['calendar' => $message]);
                 }
+
+                // If user is not logged in, and a state is present, we may try to reconstruct session
+                if (!$request->has('state')) {
+                    Log::warning('Google OAuth callback missing state parameter');
+                    return redirect()->route('login')
+                        ->withErrors(['calendar' => 'Keamanan callback gagal: state tidak ditemukan.']);
+                }
+            }
 
             try {
                 Log::debug('GoogleCalendarAuthController: raw state', ['state' => $request->state]);

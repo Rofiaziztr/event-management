@@ -48,7 +48,7 @@ it('stores latitude and longitude when user scans QR', function () {
     ]);
 });
 
-it('rejects attendance if geolocation is not provided (user denied/block)', function () {
+it('rejects attendance if geolocation is not provided (user denied/block for require_gps event)', function () {
     $user = User::factory()->create(['role' => 'participant']);
     $category = Category::factory()->create(['name' => 'Umum']);
     $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
@@ -58,6 +58,7 @@ it('rejects attendance if geolocation is not provided (user denied/block)', func
         'end_time' => now()->addMinutes(10),
         'creator_id' => $admin->id,
         'category_id' => $category->id,
+        'require_gps' => true,
     ]);
 
     $event->participants()->attach($user->id);
@@ -71,10 +72,45 @@ it('rejects attendance if geolocation is not provided (user denied/block)', func
         // No latitude/longitude provided, simulating blocked geolocation
     ]);
 
-    $response->assertSessionHasErrors(['latitude', 'longitude']);
+    $response->assertSessionHas('error');
     $this->assertDatabaseMissing('attendances', [
         'event_id' => $event->id,
         'user_id' => $user->id,
+    ]);
+});
+
+it('allows attendance without GPS if event does not require GPS', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+        'require_gps' => false,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        // No latitude/longitude provided, allowed for non-require_gps events
+    ]);
+
+    $response->assertRedirect(route('scan.index'));
+
+    $this->assertDatabaseHas('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+        'latitude' => null,
+        'longitude' => null,
+        'location_allowed' => false,
     ]);
 });
 
