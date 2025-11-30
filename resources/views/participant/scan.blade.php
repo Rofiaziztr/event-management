@@ -95,7 +95,7 @@
                                     <strong>Lokasi (GPS) diperlukan untuk presensi</strong>
                                     <p>Untuk melakukan presensi menggunakan QR Code, Anda harus mengaktifkan izin lokasi di perangkat Anda.
                                     Silakan aktifkan layanan lokasi dan refresh halaman, lalu coba scan kembali.</p>
-                                    <p id="gps-refresh-countdown" class="mt-2">Kami akan mencoba meminta izin lokasi lagi dalam <span id="gps-count">20</span> detik, atau tekan "Coba Sekarang" untuk mencoba lagi secara manual.</p>
+                                    <p id="gps-refresh-instructions" class="mt-2">Silakan aktifkan izin lokasi di pengaturan browser, lalu muat ulang halaman (Ctrl+R pada desktop) atau tekan "Coba Sekarang" setelah mengizinkan.</p>
                                     <div class="mt-3 flex justify-center space-x-2">
                                         <button id="gps-retry-btn" type="button" class="px-3 py-2 text-sm rounded bg-yellow-500 text-white">Coba Sekarang</button>
                                         <button id="gps-cancel-btn" type="button" class="px-3 py-2 text-sm rounded bg-gray-200 text-gray-700">Batal</button>
@@ -160,13 +160,13 @@
                             if (gpsMsg) {
                                 gpsMsg.classList.add('hidden');
                             }
-                            if (typeof clearRefreshCountdown === 'function') clearRefreshCountdown();
+                            hideGpsRequiredMessage();
                         },
                         function(error) {
                             console.warn('Location access denied or error:', error.message);
                             const gpsMsg = document.getElementById('gps-required-message');
-                            if (gpsMsg) gpsMsg.classList.remove('hidden');
-                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(20);
+                              if (gpsMsg) gpsMsg.classList.remove('hidden');
+                              showGpsRequiredMessage();
                         }, {
                             enableHighAccuracy: true,
                             timeout: 5000,
@@ -422,55 +422,13 @@
                     }
                 }
 
-                // Auto-refresh countdown functions - used when GPS is missing
-                let refreshTimer = null;
-                let refreshInterval = null;
-                let reRequestAccepted = false;
-                let graceRefreshTimeout = null;
-                function startRefreshCountdown(seconds) {
-                    clearRefreshCountdown();
-                    const countdownEl = document.getElementById('gps-count');
+                // Show/hide message to instruct manual refresh when GPS is denied
+                function showGpsRequiredMessage() {
                     const gpsMsg = document.getElementById('gps-required-message');
                     if (gpsMsg) gpsMsg.classList.remove('hidden');
-                    let left = seconds;
-                    if (countdownEl) countdownEl.textContent = left;
-                    refreshInterval = setInterval(() => {
-                        left -= 1;
-                        if (countdownEl) countdownEl.textContent = left;
-                          if (left <= 0) {
-                              clearRefreshCountdown();
-                              // Try to request location once more; then refresh the page so the browser can re-prompt.
-                              reRequestAccepted = false;
-                              if (typeof tryRequestLocation === 'function') tryRequestLocation();
-                              // Give the user some time to respond to the permission prompt before refreshing
-                              if (graceRefreshTimeout) clearTimeout(graceRefreshTimeout);
-                              graceRefreshTimeout = setTimeout(() => {
-                                  if (!reRequestAccepted) doBrowserRefresh();
-                              }, 3000);
-                          }
-                    }, 1000);
-                      refreshTimer = setTimeout(() => {
-                          clearRefreshCountdown();
-                          reRequestAccepted = false;
-                          if (typeof tryRequestLocation === 'function') tryRequestLocation();
-                          if (graceRefreshTimeout) clearTimeout(graceRefreshTimeout);
-                          graceRefreshTimeout = setTimeout(() => {
-                              if (!reRequestAccepted) doBrowserRefresh();
-                          }, 3000);
-                      }, seconds * 1000 + 100);
                 }
 
-                function clearRefreshCountdown() {
-                    if (refreshInterval) {
-                        clearInterval(refreshInterval);
-                        refreshInterval = null;
-                    }
-                    if (refreshTimer) {
-                        clearTimeout(refreshTimer);
-                        refreshTimer = null;
-                    }
-                    const countdownEl = document.getElementById('gps-count');
-                    if (countdownEl) countdownEl.textContent = 20;
+                function hideGpsRequiredMessage() {
                     const gpsMsg = document.getElementById('gps-required-message');
                     if (gpsMsg) gpsMsg.classList.add('hidden');
                 }
@@ -489,13 +447,9 @@
                             document.getElementById('latitude').value = lat;
                             document.getElementById('longitude').value = lng;
                             console.log('Location reacquired:', lat, lng);
-                            if (typeof clearRefreshCountdown === 'function') clearRefreshCountdown();
-                            // Mark that the user accepted the permission during our re-request; cancel the pending refresh.
-                            reRequestAccepted = true;
-                            if (graceRefreshTimeout) {
-                                clearTimeout(graceRefreshTimeout);
-                                graceRefreshTimeout = null;
-                            }
+                            hideGpsRequiredMessage();
+                            // permission accepted during our re-request; hide the message
+                            hideGpsRequiredMessage();
                             const gpsMsg = document.getElementById('gps-required-message');
                             if (gpsMsg) gpsMsg.classList.add('hidden');
                         },
@@ -503,7 +457,7 @@
                             console.warn('Retry location error:', error.message);
                             const gpsMsg = document.getElementById('gps-required-message');
                             if (gpsMsg) gpsMsg.classList.remove('hidden');
-                            if (typeof startRefreshCountdown === 'function') startRefreshCountdown(20);
+                              showGpsRequiredMessage();
                         },
                         {
                             enableHighAccuracy: true,
@@ -513,24 +467,7 @@
                     );
                 }
 
-                // Trigger a browser refresh in a way that works for desktop and mobile.
-                // We prefer `location.reload()` on desktop browsers and a forced navigation on mobile to ensure a full reload.
-                function doBrowserRefresh() {
-                    try {
-                        const ua = (navigator.userAgent || '').toLowerCase();
-                        const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(ua);
-                        if (isMobile) {
-                            // mobile: force reload by appending a cache-busting query param
-                            window.location.href = window.location.href.split('#')[0] + ((window.location.href.indexOf('?') === -1) ? '?' : '&') + '_=' + Date.now();
-                        } else {
-                            // desktop: use the standard reload method
-                            window.location.reload();
-                        }
-                    } catch (err) {
-                        // fallback
-                        window.location.reload();
-                    }
-                }
+                // No auto-refresh: we instruct users to manually refresh the page if needed.
 
                 // Retry & Cancel UI handlers
                 document.getElementById('gps-retry-btn')?.addEventListener('click', function(e) {
@@ -538,9 +475,9 @@
                     tryRequestLocation();
                 });
 
-                document.getElementById('gps-cancel-btn')?.addEventListener('click', function(e) {
+                    document.getElementById('gps-cancel-btn')?.addEventListener('click', function(e) {
                     e.preventDefault();
-                    clearRefreshCountdown();
+                        hideGpsRequiredMessage();
                 });
 
                 setTimeout(() => {
