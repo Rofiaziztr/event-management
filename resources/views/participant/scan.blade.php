@@ -89,39 +89,41 @@
                                 </div>
                             </div>
 
-                            <!-- Scan Tips Card -->
-                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div class="flex items-start space-x-3">
-                                    <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div>
-                                        <h4 class="text-sm font-semibold text-blue-800 mb-2">Tips Scan QR Code:</h4>
-                                        <ul class="text-xs text-blue-700 space-y-1">
-                                            <li>• Pastikan pencahayaan cukup terang</li>
-                                            <li>• Posisikan QR code di tengah area scanning</li>
-                                            <li>• Jaga jarak 20-40 cm dari kamera</li>
-                                            <li>• Tahan posisi stabil selama scanning</li>
-                                            <li>• Pastikan QR code terlihat jelas dan tidak buram</li>
-                                        </ul>
-                                    </div>
+                        </div>
+
+                        <!-- Scan Tips Card -->
+                        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-blue-800 mb-2">Tips Scan QR Code:</h4>
+                                    <ul class="text-xs text-blue-700 space-y-1">
+                                        <li>• Pastikan pencahayaan cukup terang</li>
+                                        <li>• Posisikan QR code di tengah area scanning</li>
+                                        <li>• Jaga jarak 20-40 cm dari kamera</li>
+                                        <li>• Tahan posisi stabil selama scanning</li>
+                                        <li>• Pastikan QR code terlihat jelas dan tidak buram</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {{-- Form tersembunyi untuk mengirim hasil scan --}}
-            <form action="{{ route('scan.verify') }}" method="POST" id="scan-form" class="hidden">
-                @csrf
-                <input type="hidden" name="event_code" id="event_code">
-                <input type="hidden" name="latitude" id="latitude">
-                <input type="hidden" name="longitude" id="longitude">
-            </form>
         </div>
+
+        {{-- Form tersembunyi untuk mengirim hasil scan --}}
+        <form action="{{ route('scan.verify') }}" method="POST" id="scan-form" class="hidden">
+            @csrf
+            <input type="hidden" name="event_code" id="event_code">
+            <input type="hidden" name="latitude" id="latitude">
+            <input type="hidden" name="longitude" id="longitude">
+        </form>
+    </div>
     </div>
 
     @push('scripts')
@@ -141,9 +143,18 @@
                             document.getElementById('latitude').value = lat;
                             document.getElementById('longitude').value = lng;
                             console.log('Location acquired:', lat, lng);
+                            // Hide gps required message if shown and stop countdown
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) {
+                                gpsMsg.classList.add('hidden');
+                            }
+                            hideGpsRequiredMessage();
                         },
                         function(error) {
                             console.warn('Location access denied or error:', error.message);
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.remove('hidden');
+                            showGpsRequiredMessage();
                         }, {
                             enableHighAccuracy: true,
                             timeout: 5000,
@@ -160,23 +171,56 @@
                     // Draw dynamic overlay around detected QR code
                     drawQROverlay(decodedResult);
 
-                    if (resultsElement) {
-                        resultsElement.innerHTML = `
+                    const latVal = document.getElementById('latitude')?.value;
+                    const lngVal = document.getElementById('longitude')?.value;
+
+                    // If no GPS coords are present, display a failed-presence notification instead of success.
+                    if (!latVal || !lngVal) {
+                        if (resultsElement) {
+                            resultsElement.innerHTML = `
                             <div class="text-center">
-                                <div class="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 inline-block">
-                                    <div class="flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mx-auto mb-4">
+                                <div class="p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-red-200 inline-block">
+                                    <div class="flex items-center justify-center w-16 h-16 bg-red-500 rounded-full mx-auto mb-4">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </div>
-                                    <h4 class="text-lg font-bold text-green-800 mb-2">QR Code Berhasil Dipindai!</h4>
-                                    <p class="text-sm text-green-600">Sedang memproses presensi Anda...</p>
-                                    <div class="mt-4 flex items-center justify-center">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-500"></div>
-                                    </div>
+                                    <h4 class="text-lg font-bold text-red-800 mb-2">Gagal Presensi</h4>
+                                    <p class="text-sm text-red-600">Presensi untuk event '<span id="failed-presence-event-title">${decodedText}</span>' gagal karena izin lokasi belum diberikan. Silakan aktifkan izin lokasi, muat ulang halaman, lalu scan QR kembali untuk presensi.</p>
                                 </div>
                             </div>
                         `;
+                        }
+
+                        // Attempt to update event name (if server endpoint exists), but do not block or change scanner behavior
+                        try {
+                            if (window.fetch) {
+                                fetch('/scan/event-name?code=' + encodeURIComponent(decodedText), {
+                                        credentials: 'same-origin'
+                                    })
+                                    .then(r => r.ok ? r.json() : null)
+                                    .then(data => {
+                                        if (data && data.event && data.event.title) {
+                                            const titleEl = document.getElementById('failed-presence-event-title');
+                                            if (titleEl) titleEl.textContent = data.event.title;
+                                        }
+                                    }).catch(() => {});
+                            }
+                        } catch (e) {
+                            // ignore errors - keep original decodedText text
+                        }
+
+                        // Show GPS required message (to guide user to enable location)
+                        showGpsRequiredMessage();
+
+                        // Stop the scanner and do not attempt to submit the form
+                        if (html5QrcodeScanner) {
+                            html5QrcodeScanner.stop().then(() => {
+                                html5QrcodeScanner.clear();
+                            }).catch(() => {});
+                        }
+
+                        return;
                     }
 
                     const eventCodeInput = document.getElementById('event_code');
@@ -192,6 +236,15 @@
 
                     setTimeout(() => {
                         const scanForm = document.getElementById('scan-form');
+                        const latitudeInput = document.getElementById('latitude');
+                        const longitudeInput = document.getElementById('longitude');
+                        if (!latitudeInput || !longitudeInput || !latitudeInput.value || !longitudeInput
+                            .value) {
+                            // Show GPS message and do not submit
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.remove('hidden');
+                            return;
+                        }
                         if (scanForm) {
                             scanForm.submit();
                         }
@@ -314,6 +367,11 @@
                         // Use Html5Qrcode class directly for better compatibility
                         html5QrcodeScanner = new Html5Qrcode("qr-reader");
 
+                        // Build video constraints safely: only include facingMode if supported by browser
+                        const supportedConstraints = (navigator.mediaDevices && navigator.mediaDevices
+                            .getSupportedConstraints) ? navigator.mediaDevices.getSupportedConstraints() : {};
+                        const facingModeSupported = !!supportedConstraints.facingMode;
+
                         const config = {
                             fps: 20,
                             aspectRatio: 1.0,
@@ -323,46 +381,63 @@
                             experimentalFeatures: {
                                 useBarCodeDetectorIfSupported: false
                             },
-                            videoConstraints: {
+                            videoConstraints: facingModeSupported ? {
                                 facingMode: "environment"
-                            }
+                            } : {}
                         };
+                        const startConstraints = facingModeSupported ? {
+                            facingMode: "environment"
+                        } : {};
 
-                        html5QrcodeScanner.start({
-                                facingMode: "environment"
-                            },
-                            config,
-                            onScanSuccess,
-                            onScanFailure
-                        ).then(() => {
-                            console.log('Scanner initialized successfully');
-                            isInitialized = true;
+                        // Try starting the scanner using facingMode if available.
+                        // If it fails due to an over-constraint (common in Firefox), retry without facingMode.
+                        function startScanner(constraints) {
+                            return html5QrcodeScanner.start(constraints, config, onScanSuccess, onScanFailure);
+                        }
 
-                            const loadingElement = document.getElementById('scanner-loading');
-                            if (loadingElement) {
-                                loadingElement.style.display = 'none';
-                            }
+                        startScanner(startConstraints)
+                            .catch((error) => {
+                                console.warn('Scanner init error with facingMode constraint:', error);
+                                // If facingMode constraint caused the issue (OverconstrainedError or NotFoundError), try again without it
+                                if (error && (error.name === 'OverconstrainedError' || error.name ===
+                                        'NotFoundError' || /facingMode/i.test(error.message || ''))) {
+                                    console.log(
+                                        'Retrying scanner without facingMode constraint for broader compatibility'
+                                    );
+                                    return startScanner({});
+                                }
+                                throw error;
+                            })
+                            .then(() => {
+                                console.log('Scanner initialized successfully');
+                                isInitialized = true;
 
-                            const overlayElement = document.querySelector(
-                                '.absolute.inset-0.pointer-events-none');
-                            if (overlayElement) {
-                                overlayElement.style.opacity = '0.3';
-                            }
-                        }).catch((error) => {
-                            console.error('Scanner init error:', error);
+                                const loadingElement = document.getElementById('scanner-loading');
+                                if (loadingElement) {
+                                    loadingElement.style.display = 'none';
+                                }
 
-                            if (error.name === 'NotAllowedError') {
-                                console.warn('Camera permission denied');
-                            } else {
-                                console.warn('Scanner initialized with warnings');
-                                setTimeout(() => {
-                                    const loadingElement = document.getElementById('scanner-loading');
-                                    if (loadingElement) {
-                                        loadingElement.style.display = 'none';
-                                    }
-                                }, 2000);
-                            }
-                        });
+                                const overlayElement = document.querySelector(
+                                    '.absolute.inset-0.pointer-events-none');
+                                if (overlayElement) {
+                                    overlayElement.style.opacity = '0.3';
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Scanner init error:', error);
+
+                                if (error.name === 'NotAllowedError') {
+                                    console.warn('Camera permission denied');
+                                } else {
+                                    console.warn('Scanner initialized with warnings');
+                                    setTimeout(() => {
+                                        const loadingElement = document.getElementById('scanner-loading');
+                                        if (loadingElement) {
+                                            loadingElement.style.display = 'none';
+                                        }
+                                    }, 2000);
+                                }
+                            });
 
                     } catch (error) {
                         console.error('Scanner setup error:', error);
@@ -375,6 +450,54 @@
                         }, 1000);
                     }
                 }
+
+                // Show/hide message to instruct manual refresh when GPS is denied
+                function showGpsRequiredMessage() {
+                    const gpsMsg = document.getElementById('gps-required-message');
+                    if (gpsMsg) gpsMsg.classList.remove('hidden');
+                }
+
+                function hideGpsRequiredMessage() {
+                    const gpsMsg = document.getElementById('gps-required-message');
+                    if (gpsMsg) gpsMsg.classList.add('hidden');
+                }
+
+                // Try request location (used by Retry button and when countdown ends)
+                function tryRequestLocation() {
+                    if (!navigator.geolocation) {
+                        console.warn('Geolocation is not supported by this browser.');
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            document.getElementById('latitude').value = lat;
+                            document.getElementById('longitude').value = lng;
+                            console.log('Location reacquired:', lat, lng);
+                            hideGpsRequiredMessage();
+                            // permission accepted during our re-request; hide the message
+                            hideGpsRequiredMessage();
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.add('hidden');
+                        },
+                        function(error) {
+                            console.warn('Retry location error:', error.message);
+                            const gpsMsg = document.getElementById('gps-required-message');
+                            if (gpsMsg) gpsMsg.classList.remove('hidden');
+                            showGpsRequiredMessage();
+                        }, {
+                            enableHighAccuracy: true,
+                            timeout: 7000,
+                            maximumAge: 0,
+                        }
+                    );
+                }
+
+                // No auto-refresh: we instruct users to manually refresh the page if needed.
+
+                // Note: Retry and Cancel buttons removed, users must manually refresh the page to re-trigger permission prompt.
 
                 setTimeout(() => {
                     initializeScanner();

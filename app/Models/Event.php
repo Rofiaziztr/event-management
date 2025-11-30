@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
+    protected $casts = [
+        'require_gps' => 'boolean',
+    ];
     use HasFactory;
 
     /**

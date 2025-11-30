@@ -47,3 +47,98 @@ it('stores latitude and longitude when user scans QR', function () {
         'longitude' => $longitude,
     ]);
 });
+
+it('rejects attendance if geolocation is not provided (user denied/block for require_gps event)', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+        'require_gps' => true,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        // No latitude/longitude provided, simulating blocked geolocation
+    ]);
+
+    $response->assertSessionHas('error');
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});
+
+it('rejects attendance without GPS even if event does not require GPS (global enforcement)', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+        'require_gps' => false,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        // No latitude/longitude provided, allowed for non-require_gps events
+    ]);
+
+    // With global enforcement, missing GPS should cause a flash error and prevent attendance
+    $response->assertSessionHas('error');
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});
+
+it('validates latitude and longitude are in range and rejects invalid coordinates', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    // Invalid latitude
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => 999,
+        'longitude' => 999,
+    ]);
+
+    $response->assertSessionHasErrors(['latitude', 'longitude']);
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});

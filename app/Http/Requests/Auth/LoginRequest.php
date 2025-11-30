@@ -64,7 +64,7 @@ class LoginRequest extends FormRequest
             ? ['email' => $login, 'password' => $this->string('password')]
             : ['nip' => $login, 'password' => $this->string('password')];
 
-        Log::info('Attempting authentication', ['credentials' => array_key_exists('email', $credentials) ? ['email'=>$credentials['email']] : ['nip'=>$credentials['nip']]]);
+        Log::info('Attempting authentication', ['credentials' => array_key_exists('email', $credentials) ? ['email' => $credentials['email']] : ['nip' => $credentials['nip']]]);
         // temporarily throw to inspect value
         // throw new \Exception('Attempting auth with: ' . json_encode($credentials));
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
