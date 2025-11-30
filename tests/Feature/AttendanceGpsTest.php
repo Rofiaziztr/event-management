@@ -72,6 +72,7 @@ it('rejects attendance if geolocation is not provided (user denied/block for req
         // No latitude/longitude provided, simulating blocked geolocation
     ]);
 
+    // If the user doesn't provide coordinates (no form fields set), we show a friendly error message
     $response->assertSessionHas('error');
     $this->assertDatabaseMissing('attendances', [
         'event_id' => $event->id,
@@ -136,6 +137,70 @@ it('validates latitude and longitude are in range and rejects invalid coordinate
         'longitude' => 999,
     ]);
 
+    $response->assertSessionHasErrors(['latitude', 'longitude']);
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});
+
+it('rejects attendance when latitude and longitude are empty strings', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => '',
+        'longitude' => '',
+    ]);
+
+    // For empty strings, treat as missing coordinates and show the friendly error message
+    $response->assertSessionHas('error');
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});
+
+it('rejects attendance when latitude and longitude are the string "null"', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => 'null',
+        'longitude' => 'null',
+    ]);
+
+    // If string "null" is passed for numeric latitude/longitude, validation will return numeric errors
     $response->assertSessionHasErrors(['latitude', 'longitude']);
     $this->assertDatabaseMissing('attendances', [
         'event_id' => $event->id,
