@@ -4,6 +4,7 @@ use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\User;
 use App\Models\Category;
+use Illuminate\Testing\Fluent\AssertableJson;
 
 it('stores latitude and longitude when user scans QR', function () {
     // create participant user
@@ -206,4 +207,110 @@ it('rejects attendance when latitude and longitude are the string "null"', funct
         'event_id' => $event->id,
         'user_id' => $user->id,
     ]);
+});
+
+it('rejects attendance for users not registered to event', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $otherUser = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+    ]);
+
+    // Only $otherUser is participant
+    $event->participants()->attach($otherUser->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => -6.2,
+        'longitude' => 106.8,
+    ]);
+
+    $response->assertSessionHas('error');
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});
+
+it('rejects attendance if event is not active', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    // Event outside of active window (already ended)
+    $event = Event::factory()->create([
+        'start_time' => now()->subHours(3),
+        'end_time' => now()->subHour(),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $response = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => -6.2,
+        'longitude' => 106.8,
+    ]);
+
+    $response->assertSessionHas('error');
+    $this->assertDatabaseMissing('attendances', [
+        'event_id' => $event->id,
+        'user_id' => $user->id,
+    ]);
+});
+
+it('prevents duplicate attendance for same user', function () {
+    $user = User::factory()->create(['role' => 'participant']);
+    $category = Category::factory()->create(['name' => 'Umum']);
+    $admin = User::factory()->create(['role' => 'admin', 'full_name' => $category->name . ' Admin']);
+
+    $event = Event::factory()->create([
+        'start_time' => now()->subMinutes(10),
+        'end_time' => now()->addMinutes(10),
+        'creator_id' => $admin->id,
+        'category_id' => $category->id,
+    ]);
+
+    $event->participants()->attach($user->id);
+
+    $this->actingAs($user)->get('/scan');
+    $token = session('_token');
+
+    $latitude = -6.2;
+    $longitude = 106.8;
+
+    // First scan - success
+    $response1 = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+    ]);
+    $response1->assertRedirect(route('scan.index'));
+
+    // Second scan - should be warned / prevented
+    $response2 = $this->actingAs($user)->post('/scan', [
+        '_token' => $token,
+        'event_code' => $event->code,
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+    ]);
+
+    $response2->assertSessionHas('warning');
+    $this->assertDatabaseCount('attendances', 1);
 });

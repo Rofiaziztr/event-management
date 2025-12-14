@@ -64,10 +64,10 @@ class ScanController extends Controller
             $missingLongitude = isset($failed['longitude']) && isset($failed['longitude']['Required']);
 
             // Also treat empty strings or absent fields as missing coordinates
-            if (!$request->has('latitude') || $request->input('latitude') === '' ) {
+            if (!$request->has('latitude') || $request->input('latitude') === '') {
                 $missingLatitude = true;
             }
-            if (!$request->has('longitude') || $request->input('longitude') === '' ) {
+            if (!$request->has('longitude') || $request->input('longitude') === '') {
                 $missingLongitude = true;
             }
 
