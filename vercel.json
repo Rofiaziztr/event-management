@@ -11,6 +11,14 @@
             "use": "@vercel/static"
         },
         {
+            "src": "public/images/**",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "public/js/**",
+            "use": "@vercel/static"
+        },
+        {
             "src": "public/favicon.*",
             "use": "@vercel/static"
         }
@@ -19,6 +27,14 @@
         {
             "src": "/build/(.*)",
             "dest": "/public/build/$1"
+        },
+        {
+            "src": "/images/(.*)",
+            "dest": "/public/images/$1"
+        },
+        {
+            "src": "/js/(.*)",
+            "dest": "/public/js/$1"
         },
         {
             "src": "/(.*)",
