@@ -23,8 +23,9 @@
     ],
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "false",
+        "APP_DEBUG": "true",
         "APP_URL": "https://event-management.vercel.app",
+        "LOG_CHANNEL": "stderr",
         "CACHE_STORE": "database",
         "SESSION_DRIVER": "database",
         "QUEUE_CONNECTION": "database",
