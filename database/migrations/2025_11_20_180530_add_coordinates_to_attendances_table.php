@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->decimal('latitude', 10, 8)->nullable()->after('check_in_time');
-            $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
         });
     }
 

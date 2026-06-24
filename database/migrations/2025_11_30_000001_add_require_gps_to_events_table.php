@@ -12,7 +12,7 @@ class AddRequireGpsToEventsTable extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('require_gps')->default(false)->after('end_time');
+            $table->boolean('require_gps')->default(false);
         });
     }
 

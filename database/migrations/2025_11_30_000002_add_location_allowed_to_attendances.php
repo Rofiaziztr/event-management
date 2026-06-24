@@ -12,7 +12,7 @@ class AddLocationAllowedToAttendances extends Migration
     public function up(): void
     {
         Schema::table('attendances', function (Blueprint $table) {
-            $table->boolean('location_allowed')->default(false)->after('longitude');
+            $table->boolean('location_allowed')->default(false);
         });
     }
 

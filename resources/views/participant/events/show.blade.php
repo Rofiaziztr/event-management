@@ -265,7 +265,7 @@
 
                                     <div class="flex items-center space-x-1 ml-2 flex-shrink-0">
                                         {{-- Tombol Lihat --}}
-                                        <a href="{{ Storage::url($document->file_path) }}" target="_blank"
+                                        <a href="{{ $document->file_url }}" target="_blank"
                                             class="p-2 text-gray-400 hover:bg-blue-100 hover:text-blue-600 rounded-full transition-colors duration-150"
                                             title="Lihat File">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -277,7 +277,7 @@
                                             </svg>
                                         </a>
                                         {{-- Tombol Download --}}
-                                        <a href="{{ Storage::url($document->file_path) }}" download
+                                        <a href="{{ $document->file_url }}" download
                                             class="p-2 text-gray-400 hover:bg-green-100 hover:text-green-600 rounded-full transition-colors duration-150"
                                             title="Unduh File">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"

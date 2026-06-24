@@ -13,19 +13,19 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'google_id')) {
-                $table->string('google_id')->nullable()->unique()->after('role');
+                $table->string('google_id')->nullable()->unique();
             }
             if (!Schema::hasColumn('users', 'google_access_token')) {
-                $table->text('google_access_token')->nullable()->after('google_id');
+                $table->text('google_access_token')->nullable();
             }
             if (!Schema::hasColumn('users', 'google_refresh_token')) {
-                $table->text('google_refresh_token')->nullable()->after('google_access_token');
+                $table->text('google_refresh_token')->nullable();
             }
             if (!Schema::hasColumn('users', 'google_token_expires_at')) {
-                $table->timestamp('google_token_expires_at')->nullable()->after('google_refresh_token');
+                $table->timestamp('google_token_expires_at')->nullable();
             }
             if (!Schema::hasColumn('users', 'google_calendar_id')) {
-                $table->string('google_calendar_id')->nullable()->after('google_token_expires_at');
+                $table->string('google_calendar_id')->nullable();
             }
         });
     }

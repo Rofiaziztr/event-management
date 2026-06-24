@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -21,9 +22,12 @@ return new class extends Migration
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('location', 255);
-            $table->enum('status', ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])->default('Terjadwal');
+            $table->string('status', 20)->default('Terjadwal');
             $table->timestamps();
         });
+
+        // Add CHECK constraint for status values (PostgreSQL compatible)
+        DB::statement("ALTER TABLE events ADD CONSTRAINT events_status_check CHECK (status IN ('Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'))");
     }
 
     /**

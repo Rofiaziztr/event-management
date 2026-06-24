@@ -6,11 +6,19 @@ use App\Models\Event;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\SupabaseStorageService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
 {
+    protected SupabaseStorageService $supabaseStorage;
+
+    public function __construct(SupabaseStorageService $supabaseStorage)
+    {
+        $this->supabaseStorage = $supabaseStorage;
+    }
+
     /**
      * Menyimpan dokumen berupa file (Lampiran umum).
      *
@@ -26,8 +34,20 @@ class DocumentController extends Controller
             'document_file' => 'required|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,mp4,avi,mov|max:10240',
         ]);
 
-        // 2. Simpan file ke storage
-        $filePath = $request->file('document_file')->store('documents', 'public');
+        // 2. Upload file ke Supabase Storage atau fallback ke local storage
+        if ($this->supabaseStorage->isConfigured()) {
+            $filePath = $this->supabaseStorage->upload(
+                $request->file('document_file'),
+                "events/{$event->id}"
+            );
+
+            if (!$filePath) {
+                return back()->with('error', 'Gagal mengunggah dokumen ke Supabase Storage.');
+            }
+        } else {
+            // Fallback ke local storage jika Supabase belum dikonfigurasi
+            $filePath = $request->file('document_file')->store('documents', 'public');
+        }
 
         // 3. Buat record di database
         $document = new Document();
@@ -129,9 +149,14 @@ class DocumentController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Hapus file fisik dari storage hanya jika file_path ada
+        // Hapus file dari storage hanya jika file_path ada
         if ($document->file_path) {
-            Storage::disk('public')->delete($document->file_path);
+            if ($this->supabaseStorage->isConfigured()) {
+                $this->supabaseStorage->delete($document->file_path);
+            } else {
+                // Fallback ke local storage
+                Storage::disk('public')->delete($document->file_path);
+            }
         }
 
         // Hapus record dari database

@@ -107,14 +107,10 @@
                                     </h4>
                                     <div class="flex flex-wrap items-center text-xs text-gray-500 mt-1 gap-x-2">
                                         <span>Diupload {{ $document->created_at->diffForHumans() }}</span>
-                                        @if (Storage::exists($document->file_path))
-                                            <span class="flex items-center">
-                                                <span class="inline-block w-1 h-1 bg-gray-400 rounded-full mx-1"></span>
-                                                <span>{{ strtoupper($extension) }} &middot;
-                                                    {{ number_format(Storage::size($document->file_path) / 1024, 1) }}
-                                                    KB</span>
-                                            </span>
-                                        @endif
+                                        <span class="flex items-center">
+                                            <span class="inline-block w-1 h-1 bg-gray-400 rounded-full mx-1"></span>
+                                            <span>{{ strtoupper($extension) }}</span>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -123,7 +119,7 @@
                             {{-- Tombol Aksi --}}
                             <div class="flex items-center space-x-1 ml-2">
                                 {{-- Tombol Lihat --}}
-                                <a href="{{ Storage::url($document->file_path) }}" target="_blank"
+                                <a href="{{ $document->file_url }}" target="_blank"
                                     class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-150 border border-transparent hover:border-blue-200 shadow-sm"
                                     title="Lihat File">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +131,7 @@
                                 </a>
 
                                 {{-- Tombol Download --}}
-                                <a href="{{ Storage::url($document->file_path) }}" download
+                                <a href="{{ $document->file_url }}" download
                                     class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-150 border border-transparent hover:border-green-200 shadow-sm"
                                     title="Unduh File">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
