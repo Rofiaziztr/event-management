@@ -1,0 +1,31 @@
+{
+  "_ui-Wwwlkv9E.js": {
+    "file": "assets/ui-Wwwlkv9E.js",
+    "name": "ui"
+  },
+  "_vendor-DVdUl0H0.js": {
+    "file": "assets/vendor-DVdUl0H0.js",
+    "name": "vendor"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-BUuc-SGm.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-DIbhC7y5.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_ui-Wwwlkv9E.js",
+      "_vendor-DVdUl0H0.js"
+    ],
+    "css": [
+      "assets/app-CksuuEqD.css"
+    ]
+  }
+}
