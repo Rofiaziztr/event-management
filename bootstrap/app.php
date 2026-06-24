@@ -15,7 +15,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => CheckRole::class
         ]);
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: ['*']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
@@ -24,6 +24,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
 // Vercel serverless environment has a read-only filesystem except for /tmp.
 if (isset($_ENV['VERCEL']) || getenv('VERCEL')) {
     $app->useStoragePath('/tmp/storage');
+    $directories = ['framework/cache/data', 'framework/sessions', 'framework/testing', 'framework/views', 'logs'];
+    foreach ($directories as $dir) {
+        if (!is_dir("/tmp/storage/$dir")) {
+            mkdir("/tmp/storage/$dir", 0777, true);
+        }
+    }
 }
 
 return $app;
